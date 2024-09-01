@@ -1,24 +1,30 @@
 
 tap "homebrew/bundle"
 
+###############################
+#     cli tools               #
+###############################
+
 # standard tools for cli
 brew "fzf"
-brew "git"
 brew "gh"
+brew "git"
 brew "htop"
 brew "jq"
+brew "make"
 brew "tmux"
 brew "tree"
 brew "wget"
-brew "make"
+
 # languages
 brew "go"
+
 # python tooling
-brew "pyenv"
 brew "pipx"
+brew "pyenv"
 
 ###############################
-#  macOS Apps via Cask        #
+#     macOS Apps via Cask     #
 ###############################
 
 cask_args appdir: "/Applications"
