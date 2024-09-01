@@ -23,15 +23,15 @@ brew "pipx"
 
 cask_args appdir: "/Applications"
 
-cask "iterm2"
 cask "docker"
-cask "microsoft-office"
+cask "iterm2"
 cask "google-chrome"
+cask "microsoft-office"
 cask "slack"
-cask "zoom"
 cask "steam"
 cask "the-unarchiver"
 cask "visual-studio-code"
+cask "zoom"
 
 # vscode settings
 vscode "github.copilot"
