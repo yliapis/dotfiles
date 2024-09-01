@@ -23,8 +23,10 @@ brew "pipx"
 
 cask_args appdir: "/Applications"
 
+cask 'discord'
 cask "docker"
 cask "iterm2"
+cask 'github'
 cask "google-chrome"
 cask "microsoft-office"
 cask "slack"
