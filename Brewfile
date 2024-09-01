@@ -11,6 +11,8 @@ brew "tmux"
 brew "tree"
 brew "wget"
 # python tooling
+brew "pyenv"
+brew "pipx"
 
 
 # vscode settings
