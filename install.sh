@@ -15,15 +15,27 @@ fi
 # shell customization
 if [[ $SHELL == "/bin/zsh" ]]; then
   echo "zsh detected"
-  DEFAULT_PROFILE_FILE="$HOME/.zshenv"
-  # install oh-my-zsh
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  SHELL_DETECTED="zsh"
 elif [[ $SHELL == "/bin/bash" ]]; then
   echo "bash detected"
-  DEFAULT_PROFILE_FILE="$HOME/.bashrc"
+  SHELL_DETECTED="bash"
 else
   echo "unsupported shell detected: $SHELL"
   exit 1
+fi
+
+# shell specific setup
+if [[ $SHELL_DETECTED == "zsh" ]]; then
+  DEFAULT_PROFILE_FILE="$HOME/.zshrc"
+  # install oh-my-zsh
+  if [[ -d "$HOME/.oh-my-zsh" ]]; then
+    echo "oh-my-zsh already installed"
+  else
+    echo "installing oh-my-zsh"
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  fi
+elif [[ $SHELL_DETECTED == "bash" ]]; then
+  DEFAULT_PROFILE_FILE="$HOME/.bashrc"
 fi
 
 
