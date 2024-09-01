@@ -18,7 +18,8 @@ if [[ $SHELL == "/bin/zsh" ]]; then
   SHELL_DETECTED="zsh"
 elif [[ $SHELL == "/bin/bash" ]]; then
   echo "bash detected"
-  SHELL_DETECTED="bash"
+  echo "bash currently unsupported"
+  exit 1
 else
   echo "unsupported shell detected: $SHELL"
   exit 1
@@ -34,8 +35,6 @@ if [[ $SHELL_DETECTED == "zsh" ]]; then
     echo "installing oh-my-zsh"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   fi
-elif [[ $SHELL_DETECTED == "bash" ]]; then
-  DEFAULT_PROFILE_FILE="$HOME/.bashrc"
 fi
 
 
@@ -62,3 +61,11 @@ brew analytics off
 
 # install defaults from Brewfile
 brew bundle --file=Brewfile
+
+# fzf setup
+if [[ $SHELL_DETECTED == "zsh" ]]; then
+  echo "# Set up fzf key bindings and fuzzy completion" >> $DEFAULT_PROFILE_FILE
+  echo "source <(fzf --zsh)" >> $DEFAULT_PROFILE_FILE
+  # Set up fzf key bindings and fuzzy completion
+  source <(fzf --zsh)
+fi
