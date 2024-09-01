@@ -6,18 +6,23 @@ tap "homebrew/bundle"
 ###############################
 
 # standard tools for cli
+brew "duckdb"
 brew "fzf"
 brew "gh"
 brew "git"
 brew "htop"
 brew "jq"
 brew "make"
+brew "rclone"
+brew "ripgrep"
 brew "tmux"
 brew "tree"
+brew "watch"
 brew "wget"
 
 # languages
 brew "go"
+brew "terraform"
 
 # python tooling
 brew "pipx"
