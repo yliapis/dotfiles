@@ -47,3 +47,6 @@ fi
 # turn off homebrew analytics
 # https://docs.brew.sh/Analytics
 brew analytics off
+
+# install defaults from Brewfile
+brew bundle --file=Brewfile

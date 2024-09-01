@@ -1,0 +1,2 @@
+# ignore by default since we don't necessarily want to pin versions
+Brewfile.lock.json
