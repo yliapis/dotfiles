@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
-
+# source me to install dotfiles
+# $ source install.sh
 
 echo "begining dotfiles install"
 
