@@ -6,11 +6,26 @@ echo "begining dotfiles install"
 # platform guard
 if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "macos detected"
-  DEFAULT_PROFILE_FILE="$HOME/.zprofile"
 else
   echo "unsupported platform detected: $OSTYPE"
   exit 1
 fi
+
+
+# shell customization
+if [[ $SHELL == "/bin/zsh" ]]; then
+  echo "zsh detected"
+  DEFAULT_PROFILE_FILE="$HOME/.zshenv"
+  # install oh-my-zsh
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+elif [[ $SHELL == "/bin/bash" ]]; then
+  echo "bash detected"
+  DEFAULT_PROFILE_FILE="$HOME/.bashrc"
+else
+  echo "unsupported shell detected: $SHELL"
+  exit 1
+fi
+
 
 if [[ -f $DEFAULT_PROFILE_FILE ]]; then
   echo "profile file exists"
