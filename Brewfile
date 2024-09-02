@@ -6,46 +6,57 @@ tap "homebrew/bundle"
 ###############################
 
 # standard tools for cli
+# note existing tools are included in this list to ensure they are up to date
+
+# shells
 brew "bash"
-brew "bat"
-brew "broot"
+brew "zsh"
+
+# general tools
 brew "coreutils"
-brew "curl"
 brew "dasel"
 brew "direnv"
 brew "duckdb"
-brew "dust"
-brew "eza"
-brew "findutils"
-brew "fzf"
 brew "gcc"
-brew "hexyl"
-brew "httpie"
-brew "jq"
-brew "mtr"
-brew "ncdu"
 brew "neovim"
-brew "nmap"
-brew "openssh"
-brew "openssl@3"
-brew "ranger"
-brew "rclone"
 brew "rename"
-brew "ripgrep"
 brew "rsync"
 brew "shellcheck"
-brew "telnet"
 brew "tldr"
 brew "tmux"
-brew "tree"
 brew "watch"
-brew "wget"
 brew "unzip"
 brew "vim"
 brew "xz"
 brew "z"
 brew "zip"
-brew "zsh"
+
+# file viewing tools
+brew "bat"
+brew "eza"
+brew "hexyl"
+brew "jq"
+
+# filesystem search tools
+brew "broot"
+brew "dust"
+brew "findutils"
+brew "fzf"
+brew "ncdu"
+brew "ranger"
+brew "ripgrep"
+brew "tree"
+
+# network tools
+brew "curl"
+brew "httpie"
+brew "mtr"
+brew "nmap"
+brew "openssh"
+brew "openssl@3"
+brew "rclone"
+brew "telnet"
+brew "wget"
 
 # system monitoring / top alternatives
 brew "btop"
