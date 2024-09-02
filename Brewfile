@@ -10,6 +10,7 @@ tap "homebrew/bundle"
 
 # shells
 brew "bash"
+brew "fish"
 brew "zsh"
 
 # general tools
@@ -41,6 +42,7 @@ brew "jq"
 brew "broot"
 brew "dust"
 brew "findutils"
+brew "fd"
 brew "fzf"
 brew "ncdu"
 brew "ranger"
