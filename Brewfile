@@ -126,14 +126,22 @@ cask "postman"
 cask "sublime-text"
 cask "sublime-merge"
 cask "visual-studio-code"
+# cloud
+cask "google-cloud-sdk"
+# raspberry pi
+cask "raspberry-pi-imager"
 
 # utilities
 cask "apparency"
+cask "cyberduck"
 cask "daisydisk"
 cask "keepingyouawake"
 cask "ledger-live"
 cask "rectangle"
 cask "pearcleaner"
+cask "protonvpn"
+cask "raycast"
+cask "stats"
 cask "the-unarchiver"
 
 ###############################
