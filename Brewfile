@@ -57,6 +57,7 @@ cask "docker"
 cask "iterm2"
 cask 'github'
 cask "google-chrome"
+cask "keepingyouawake"
 cask "ledger-live"
 cask "linear-linear"
 cask "messenger"
