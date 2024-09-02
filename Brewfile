@@ -84,6 +84,7 @@ cask "apparency"
 cask "arc"
 cask "brave-browser"
 cask "chatgpt"
+cask "cursor"
 cask "daisydisk"
 cask 'discord'
 cask "dropbox"
