@@ -6,23 +6,31 @@ tap "homebrew/bundle"
 ###############################
 
 # standard tools for cli
+brew "bash"
 brew "bat"
 brew "broot"
+brew "coreutils"
+brew "curl"
 brew "dasel"
 brew "duckdb"
 brew "dust"
 brew "eza"
+brew "findutils"
 brew "fzf"
 brew "hexyl"
 brew "jq"
 brew "ncdu"
+brew "nmap"
 brew "rclone"
+brew "rename"
 brew "ripgrep"
+brew "telnet"
 brew "tldr"
 brew "tmux"
 brew "tree"
 brew "watch"
 brew "wget"
+brew "vim"
 
 # system monitoring / top alternatives
 brew "btop"
@@ -33,10 +41,12 @@ brew "gtop"
 # development tooling
 brew "make"
 brew "git"
+brew "git-lfs"
 brew "gh"
 
 # languages
 brew "go"
+brew "lua"
 brew "terraform"
 
 # python tooling
@@ -79,6 +89,8 @@ cask "the-unarchiver"
 cask "visual-studio-code"
 cask "vlc"
 cask "zoom"
+
+###############################
 
 # vscode settings
 vscode "github.copilot"
