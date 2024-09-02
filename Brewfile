@@ -80,39 +80,48 @@ brew "mas"
 
 cask_args appdir: "/Applications"
 
-cask "apparency"
+# web browers
 cask "arc"
 cask "brave-browser"
-cask "chatgpt"
-cask "cursor"
-cask "daisydisk"
-cask 'discord'
-cask "dropbox"
-cask "docker"
-cask "iterm2"
-cask 'github'
 cask "google-chrome"
-cask "keepingyouawake"
-cask "ledger-live"
-cask "linear-linear"
+
+# communication
+cask 'discord'
 cask "messenger"
+cask "slack"
+cask "signal"
+cask "telegram"
+cask "zoom"
+
+# productivity & media
+cask "chatgpt"
+cask "dropbox"
+cask "linear-linear"
 cask "microsoft-office"
 cask "notion"
 cask "notion-calendar"
-cask "postman"
-cask "rectangle"
-cask "pearcleaner"
-cask "slack"
-cask "signal"
-cask "sublime-text"
-cask "sublime-merge"
 cask "steam"
 cask "tad"
-cask "telegram"
-cask "the-unarchiver"
-cask "visual-studio-code"
 cask "vlc"
-cask "zoom"
+
+# development tools
+cask "cursor"
+cask "docker"
+cask "iterm2"
+cask "github"
+cask "postman"
+cask "sublime-text"
+cask "sublime-merge"
+cask "visual-studio-code"
+
+# utilities
+cask "apparency"
+cask "daisydisk"
+cask "keepingyouawake"
+cask "ledger-live"
+cask "rectangle"
+cask "pearcleaner"
+cask "the-unarchiver"
 
 ###############################
 
