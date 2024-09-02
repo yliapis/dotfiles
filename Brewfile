@@ -54,8 +54,13 @@ brew "pipx"
 brew "pyenv"
 
 ###############################
-#     macOS Apps via Cask     #
+#     macOS Apps              #
 ###############################
+
+# mac app store cli
+brew "mas"
+
+# via Cask
 
 cask_args appdir: "/Applications"
 
