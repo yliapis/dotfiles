@@ -13,11 +13,8 @@ brew "duckdb"
 brew "dust"
 brew "eza"
 brew "fzf"
-brew "gh"
-brew "git"
 brew "hexyl"
 brew "jq"
-brew "make"
 brew "ncdu"
 brew "rclone"
 brew "ripgrep"
@@ -32,6 +29,11 @@ brew "btop"
 brew "bottom"
 brew "htop"
 brew "gtop"
+
+# development tooling
+brew "make"
+brew "git"
+brew "gh"
 
 # languages
 brew "go"
