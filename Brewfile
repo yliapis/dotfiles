@@ -31,6 +31,7 @@ brew "tree"
 brew "watch"
 brew "wget"
 brew "vim"
+brew "zsh"
 
 # system monitoring / top alternatives
 brew "btop"
