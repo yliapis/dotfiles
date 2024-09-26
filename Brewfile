@@ -78,6 +78,8 @@ brew "go"
 brew "lua"
 brew "terraform"
 
+# set system python3 as 3.12
+brew "python@3.12"
 # python tooling
 brew "pipx"
 brew "pyenv"
