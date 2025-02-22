@@ -1,6 +1,8 @@
-#!/user/bin/env sh
+#!/usr/bin/env sh
 
-if ! command -v snap &> /dev/null; then
+SNAP_PATH="$(command -v snap)"
+
+if [ -z $SNAP_PATH ]; then
   echo "Error: snap command is absent; exiting"
   exit 1
 fi
