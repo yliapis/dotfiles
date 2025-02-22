@@ -6,6 +6,8 @@ echo "begining dotfiles install"
 # platform guard
 if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "macos detected"
+elif [[ "$OSTYPE" == "linux-gnu" ]]; then
+  echo "linux-gnu detected (likely ubuntu)"
 else
   echo "unsupported platform detected: $OSTYPE"
   exit 1
@@ -18,8 +20,7 @@ if [[ $SHELL == "/bin/zsh" ]]; then
   SHELL_DETECTED="zsh"
 elif [[ $SHELL == "/bin/bash" ]]; then
   echo "bash detected"
-  echo "bash currently unsupported"
-  exit 1
+  SHELL_DETECTED="bash"
 else
   echo "unsupported shell detected: $SHELL"
   exit 1
@@ -35,6 +36,10 @@ if [[ $SHELL_DETECTED == "zsh" ]]; then
     echo "installing oh-my-zsh"
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
   fi
+elif [[ $SHELL_DETECTED == "bash" ]]; then
+  DEFAULT_PROFILE_FILE="$HOME/.bashrc"
+  # we need curl to get other things, let's install it
+  sudo apt install --update curl
 fi
 
 
@@ -50,9 +55,16 @@ if ! command -v brew &> /dev/null; then
   echo "installing homebrew"
   # install
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # get brew root path
+  if [[ $OSTYPE == "darwin"* ]]; then
+    BREW_ROOT="/opt/homebrew/"
+  elif [[ $OSTYPE == "linux-gnu" ]]; then
+    BREW_ROOT="/home/linuxbrew/.linuxbrew/"
+  fi
   # add to profile and activate
-  (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> $DEFAULT_PROFILE_FILE
-  eval "$(/opt/homebrew/bin/brew shellenv)"
+  BREW_ACTIVATION_COMMAND='eval $('$BREW_ROOT'/bin/brew shellenv)'
+  (echo; echo $BREW_ACTIVATION_COMMAND) >> $DEFAULT_PROFILE_FILE
+  eval $BREW_ACTIVATION_COMMAND
 fi
 
 # turn off homebrew analytics
@@ -60,7 +72,12 @@ fi
 brew analytics off
 
 # install defaults from Brewfile
-brew bundle --file=Brewfile
+if [[ $BREW_INSTALL == "1" ]]; then
+  echo "Running full brew install from Brewfile"
+  brew bundle --file=Brewfile
+else
+  echo "Skipping brew install from Brewfile"
+fi
 
 # fzf setup
 if [[ $SHELL_DETECTED == "zsh" ]]; then
