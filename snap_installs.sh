@@ -8,4 +8,4 @@ if [ -z $SNAP_PATH ]; then
 fi
 
 sudo snap install --classic code
-
+sudo snap install docker
