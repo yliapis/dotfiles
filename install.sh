@@ -71,11 +71,13 @@ fi
 # https://docs.brew.sh/Analytics
 brew analytics off
 
-# install defaults from Brewfile
-if [[ $BREW_INSTALL == "1" ]]; then
+# install defaults from Brewfile based on OS
+if [[ $OSTYPE == "darwin"* ]]; then
+  echo "macos detected"
   echo "Running full brew install from Brewfile"
   brew bundle --file=Brewfile
 else
+  echo "non macos detected"
   echo "Skipping brew install from Brewfile"
 fi
 
