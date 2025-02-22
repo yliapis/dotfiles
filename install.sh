@@ -38,10 +38,16 @@ if [[ $SHELL_DETECTED == "zsh" ]]; then
   fi
 elif [[ $SHELL_DETECTED == "bash" ]]; then
   DEFAULT_PROFILE_FILE="$HOME/.bashrc"
-  # we need curl to get other things, let's install it
-  sudo apt install --update curl
 fi
 
+if ! command -v curl &> /dev/null; then
+  if [[ $OSTYPE == "linux-gnu" ]]; then
+    sudo apt install --update curl
+  else
+    echo "curl expected to be installed; exiting"
+    exit 1
+  fi
+fi
 
 if [[ -f $DEFAULT_PROFILE_FILE ]]; then
   echo "profile file exists"
