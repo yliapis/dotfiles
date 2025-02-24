@@ -49,6 +49,7 @@ brew "ripgrep"
 brew "tree"
 
 # network tools
+brew "net-tools"
 brew "arp-scan"
 brew "curl"
 brew "httpie"
