@@ -51,6 +51,12 @@ if ! command -v curl &> /dev/null; then
   fi
 fi
 
+# install tilix on linux
+if [ $OSTYPE = "linux-gnu" ]; then
+  echo "installing tilix terminal emulator"
+  sudo apt-get install tilix
+fi
+
 if [[ -f $DEFAULT_PROFILE_FILE ]]; then
   echo "profile file exists"
 else
