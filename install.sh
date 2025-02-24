@@ -2,6 +2,9 @@
 
 echo "begining dotfiles install"
 
+# INPUT_VARIABLES
+GUI_INSTALL=${1:-$GUI_INSTALL}
+
 # platform guard
 if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "macos detected"
@@ -86,11 +89,11 @@ fi
 brew analytics off
 
 # install defaults from Brewfile based on OS
-if [ $OSTYPE = "darwin"* ] || [ "$BREW_FULL_INSTALL" = "1" ]; then
+if [ $OSTYPE = "darwin"* ] || [ "$GUI_INSTALL" = "1" ]; then
   echo "Running full brew install from Brewfile"
   brew bundle --file=Brewfile
 else
-  echo "non macos detected OR BREW_FULL_INSTALL not set to 1"
+  echo "non macos detected OR GUI_INSTALL not set to 1"
   echo "Skipping brew install from Brewfile"
 fi
 
