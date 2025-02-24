@@ -67,6 +67,7 @@ brew "bottom"
 brew "htop"
 brew "glances"
 brew "gtop"
+brew "nvtop"
 
 # development tooling
 brew "make"
