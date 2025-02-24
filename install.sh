@@ -7,6 +7,9 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
   echo "macos detected"
 elif [[ "$OSTYPE" == "linux-gnu" ]]; then
   echo "linux-gnu detected (likely ubuntu)"
+elif [ -z $OSTYPE ]; then
+  echo "Error: OSTYPE undefined, try sourcing this script or setting the variable properly"
+  exit 1
 else
   echo "unsupported platform detected: $OSTYPE"
   exit 1
@@ -77,12 +80,11 @@ fi
 brew analytics off
 
 # install defaults from Brewfile based on OS
-if [[ $OSTYPE == "darwin"* ]]; then
-  echo "macos detected"
+if [ $OSTYPE = "darwin"* ] || [ "$BREW_FULL_INSTALL" = "1" ]; then
   echo "Running full brew install from Brewfile"
   brew bundle --file=Brewfile
 else
-  echo "non macos detected"
+  echo "non macos detected OR BREW_FULL_INSTALL not set to 1"
   echo "Skipping brew install from Brewfile"
 fi
 
