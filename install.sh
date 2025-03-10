@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 echo "begining dotfiles install"
 
@@ -103,4 +103,9 @@ if [[ $SHELL_DETECTED == "zsh" ]]; then
   echo "source <(fzf --zsh)" >> $DEFAULT_PROFILE_FILE
   # Set up fzf key bindings and fuzzy completion
   source <(fzf --zsh)
+elif [[ $SHELL_DETECTED == "bash" ]]; then
+  echo "# Set up fzf key bindings and fuzzy completion" >> $DEFAULT_PROFILE_FILE
+  echo "source <(fzf --bash)" >> $DEFAULT_PROFILE_FILE
+  # Set up fzf key bindings and fuzzy completion
+  source <(fzf --bash)
 fi
