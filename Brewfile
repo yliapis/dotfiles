@@ -36,6 +36,8 @@ brew "bat"
 brew "eza"
 brew "hexyl"
 brew "jq"
+brew "yq"
+brew "visidata"
 
 # filesystem search tools
 brew "broot"
