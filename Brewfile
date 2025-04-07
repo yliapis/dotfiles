@@ -87,6 +87,9 @@ brew "python@3.12"
 # python tooling
 brew "pipx"
 brew "pyenv"
+brew "uv"
+brew "ruff"
+brew "mypy"
 
 ###############################
 #     macOS Apps              #
