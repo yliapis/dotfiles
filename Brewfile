@@ -13,6 +13,8 @@ brew "bash"
 brew "fish"
 brew "zsh"
 
+brew "starship"
+
 # general tools
 brew "coreutils"
 brew "dasel"

@@ -34,13 +34,6 @@ fi
 # shell specific setup
 if [[ $SHELL_DETECTED == "zsh" ]]; then
   DEFAULT_PROFILE_FILE="$HOME/.zshrc"
-  # install oh-my-zsh
-  if [[ -d "$HOME/.oh-my-zsh" ]]; then
-    echo "oh-my-zsh already installed"
-  else
-    echo "installing oh-my-zsh"
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-  fi
 elif [[ $SHELL_DETECTED == "bash" ]]; then
   DEFAULT_PROFILE_FILE="$HOME/.bashrc"
 fi
@@ -108,4 +101,17 @@ elif [[ $SHELL_DETECTED == "bash" ]]; then
   echo "source <(fzf --bash)" >> $DEFAULT_PROFILE_FILE
   # Set up fzf key bindings and fuzzy completion
   source <(fzf --bash)
+fi
+
+# starship setup
+if [[ $SHELL_DETECTED == "zsh" ]]; then
+  echo "# Set up starship prompt" >> $DEFAULT_PROFILE_FILE
+  echo "eval \"\$(starship init zsh)\"" >> $DEFAULT_PROFILE_FILE
+  # Set up starship prompt
+  eval "$(starship init zsh)"
+elif [[ $SHELL_DETECTED == "bash" ]]; then
+  echo "# Set up starship prompt" >> $DEFAULT_PROFILE_FILE
+  echo "eval \"\$(starship init bash)\"" >> $DEFAULT_PROFILE_FILE
+  # Set up starship prompt
+  eval "$(starship init bash)"
 fi
