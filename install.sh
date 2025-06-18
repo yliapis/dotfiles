@@ -82,7 +82,7 @@ fi
 brew analytics off
 
 # install defaults from Brewfile based on OS
-if [ $OSTYPE = "darwin"* ] || [ "$GUI_INSTALL" = "1" ]; then
+if [[ $OSTYPE = "darwin"* ]] || [[ "$GUI_INSTALL" = "1" ]]; then
   echo "Running full brew install from Brewfile"
   brew bundle --file=Brewfile
 else
