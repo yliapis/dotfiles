@@ -130,7 +130,7 @@ cask "vlc"
 
 # development tools
 cask "cursor"
-cask "docker"
+cask "docker-desktop"
 cask "iterm2"
 cask "github"
 cask "postman"
@@ -138,7 +138,7 @@ cask "sublime-text"
 cask "sublime-merge"
 cask "visual-studio-code"
 # cloud
-cask "google-cloud-sdk"
+cask "gcloud-cli"
 # raspberry pi
 cask "raspberry-pi-imager"
 
@@ -147,7 +147,7 @@ cask "apparency"
 cask "cyberduck"
 cask "daisydisk"
 cask "keepingyouawake"
-cask "ledger-live"
+cask "ledger-wallet"
 cask "rectangle"
 cask "pearcleaner"
 cask "protonvpn"
