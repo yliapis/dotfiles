@@ -137,6 +137,7 @@ cask "postman"
 cask "sublime-text"
 cask "sublime-merge"
 cask "visual-studio-code"
+cask "cursor"
 # cloud
 cask "gcloud-cli"
 # raspberry pi
