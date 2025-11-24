@@ -78,6 +78,7 @@ brew "make"
 brew "git"
 brew "git-lfs"
 brew "gh"
+brew "git-delta"
 brew "hyperfine"
 
 # languages
