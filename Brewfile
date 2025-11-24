@@ -53,7 +53,7 @@ brew "ripgrep"
 brew "tree"
 
 # network tools
-brew "net-tools"
+brew "net-tools" if OS.linux?
 brew "arp-scan"
 brew "curl"
 brew "httpie"
