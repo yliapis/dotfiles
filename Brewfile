@@ -138,7 +138,7 @@ cask "postman"
 cask "sublime-text"
 cask "sublime-merge"
 cask "visual-studio-code"
-cask "ollama"
+cask "ollama-app"
 # cloud
 cask "gcloud-cli"
 # raspberry pi
