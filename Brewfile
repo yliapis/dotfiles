@@ -143,6 +143,7 @@ cask "sublime-merge"
 cask "visual-studio-code"
 cask "ollama-app"
 # cloud
+brew "awscli"
 cask "gcloud-cli"
 # raspberry pi
 cask "raspberry-pi-imager"
