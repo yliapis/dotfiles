@@ -122,6 +122,7 @@ cask "zoom"
 
 # productivity & media
 cask "chatgpt"
+cask "claude"
 cask "dropbox"
 cask "linear-linear"
 cask "microsoft-office"
