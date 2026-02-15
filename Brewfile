@@ -149,6 +149,8 @@ brew "awscli"
 cask "gcloud-cli"
 # raspberry pi
 cask "raspberry-pi-imager"
+# fonts
+cask "font-jetbrains-mono-nerd-font"
 
 # utilities
 cask "apparency"
