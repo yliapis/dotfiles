@@ -133,6 +133,7 @@ cask "tad"
 cask "vlc"
 
 # development tools
+cask "claude-code"
 cask "cursor"
 cask "docker-desktop"
 cask "iterm2"
