@@ -4,6 +4,9 @@ echo "begining dotfiles install"
 
 # INPUT_VARIABLES
 GUI_INSTALL=${1:-$GUI_INSTALL}
+# OPTIONAL_VARIABLES
+INSTALL_OLLAMA=${INSTALL_OLLAMA:-1}
+
 
 # platform guard
 case "$OSTYPE" in
@@ -135,6 +138,15 @@ elif [ "$SHELL_DETECTED" = "bash" ]; then
   echo "eval \"\$(starship init bash)\"" >> "$DEFAULT_PROFILE_FILE"
   # Set up starship prompt
   eval "$(starship init bash)"
+fi
+
+# ollama setup
+if [ "$INSTALL_OLLAMA" = "1" ]; then
+  # check if ollama is already installed
+  if ! command -v ollama &> /dev/null; then
+    echo "ollama not installed, installing"
+    curl -fsSL https://ollama.com/install.sh | $SHELL
+  fi
 fi
 
 echo "dotfiles install complete"

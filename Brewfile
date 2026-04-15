@@ -143,7 +143,6 @@ cask "postico"
 cask "sublime-text"
 cask "sublime-merge"
 cask "visual-studio-code"
-cask "ollama-app"
 # cloud
 brew "awscli"
 cask "gcloud-cli"
