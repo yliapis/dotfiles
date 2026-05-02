@@ -1,5 +1,6 @@
 
 tap "homebrew/bundle"
+tap "anomalyco/tap"
 
 ###############################
 #     cli tools               #
@@ -133,6 +134,7 @@ cask "tad"
 cask "vlc"
 
 # development tools
+brew "anomalyco/tap/opencode"
 cask "claude-code"
 cask "cursor"
 cask "docker-desktop"
