@@ -115,7 +115,6 @@ cask "google-chrome"
 
 # communication
 cask 'discord'
-cask "messenger"
 cask "slack"
 cask "signal"
 cask "telegram"
