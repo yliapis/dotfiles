@@ -1,6 +1,7 @@
 
 tap "homebrew/bundle"
 tap "anomalyco/tap"
+tap "getagentseal/codeburn"
 
 ###############################
 #     cli tools               #
@@ -134,6 +135,7 @@ cask "vlc"
 
 # development tools
 brew "anomalyco/tap/opencode"
+brew "getagentseal/codeburn/codeburn"
 cask "claude-code"
 cask "cursor"
 cask "docker-desktop"
