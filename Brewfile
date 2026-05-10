@@ -81,6 +81,7 @@ brew "git"
 brew "git-lfs"
 brew "gh"
 brew "git-delta"
+brew "lazygit"
 brew "pre-commit"
 brew "hyperfine"
 
