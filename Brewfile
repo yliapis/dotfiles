@@ -88,6 +88,7 @@ brew "hyperfine"
 # languages
 brew "go"
 brew "lua"
+brew "node"
 brew "terraform"
 
 # set system python3 as 3.12
