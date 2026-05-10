@@ -38,6 +38,7 @@ brew "zip"
 # file viewing tools
 brew "bat"
 brew "eza"
+brew "glow"
 brew "hexyl"
 brew "jq"
 brew "yq"
