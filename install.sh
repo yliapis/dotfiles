@@ -75,15 +75,6 @@ else
   touch "$DEFAULT_PROFILE_FILE"
 fi
 
-ensure_brew_shellenv_in_profile() {
-  command -v brew >/dev/null 2>&1 || return 0
-  if grep -q 'brew shellenv' "$DEFAULT_PROFILE_FILE" 2>/dev/null; then
-    return 0
-  fi
-  print '' >> "$DEFAULT_PROFILE_FILE"
-  print 'eval "$(brew shellenv)"' >> "$DEFAULT_PROFILE_FILE"
-}
-
 # install homebrew
 if ! command -v brew &> /dev/null; then
   echo "installing homebrew"
@@ -92,15 +83,13 @@ if ! command -v brew &> /dev/null; then
     darwin*)    BREW_ROOT="/opt/homebrew" ;;
     linux-gnu*) BREW_ROOT="/home/linuxbrew/.linuxbrew" ;;
   esac
-  # activate for this script session; profile updated via ensure_brew_shellenv_in_profile
+  # activate for this script session; persistent PATH setup lives in ~/.shell_extras.sh
   eval "$("$BREW_ROOT/bin/brew" shellenv)"
 fi
 
 # turn off homebrew analytics
 # https://docs.brew.sh/Analytics
 brew analytics off
-
-ensure_brew_shellenv_in_profile
 
 # install defaults from Brewfile (skipped on non-macOS unless GUI_INSTALL=1)
 if [[ "$OSTYPE" == darwin* ]] || [ "$GUI_INSTALL" = "1" ]; then
@@ -123,12 +112,10 @@ copy_home_config() {
 
 copy_home_config
 
-# Managed shell extras: single source line in ~/.zshrc / ~/.bashrc.
+# Managed shell extras: single source line in ~/.zshrc / ~/.bashrc that points at
+# the shared entrypoint. The entrypoint dispatches to the per-shell extras file.
 ensure_dotfiles_shell_extras_source() {
-  local snippet="$HOME/.shell_extras.zsh"
-  if [ "$SHELL_DETECTED" = "bash" ]; then
-    snippet="$HOME/.shell_extras.bash"
-  fi
+  local snippet="$HOME/.shell_extras.sh"
   if [ ! -f "$snippet" ]; then
     echo "Error: missing shell extras: $snippet"
     exit 1
