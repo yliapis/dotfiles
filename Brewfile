@@ -150,6 +150,9 @@ cask "sublime-merge"
 cask "visual-studio-code"
 # cloud
 brew "awscli"
+brew "helm"
+brew "k9s"
+brew "kubernetes-cli"
 cask "gcloud-cli"
 # raspberry pi
 cask "raspberry-pi-imager"
