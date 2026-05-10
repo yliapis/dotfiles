@@ -87,20 +87,13 @@ ensure_brew_shellenv_in_profile() {
 # install homebrew
 if ! command -v brew &> /dev/null; then
   echo "installing homebrew"
-  # install
   bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  # get brew root path
   case "$OSTYPE" in
-    darwin*)
-      BREW_ROOT="/opt/homebrew/"
-      ;;
-    linux-gnu*)
-      BREW_ROOT="/home/linuxbrew/.linuxbrew/"
-      ;;
+    darwin*)    BREW_ROOT="/opt/homebrew" ;;
+    linux-gnu*) BREW_ROOT="/home/linuxbrew/.linuxbrew" ;;
   esac
-  # activate for this script session (profile updated via ensure_brew_shellenv_in_profile)
-  BREW_ACTIVATION_COMMAND='eval $('$BREW_ROOT'/bin/brew shellenv)'
-  eval "$BREW_ACTIVATION_COMMAND"
+  # activate for this script session; profile updated via ensure_brew_shellenv_in_profile
+  eval "$("$BREW_ROOT/bin/brew" shellenv)"
 fi
 
 # turn off homebrew analytics
@@ -109,31 +102,35 @@ brew analytics off
 
 ensure_brew_shellenv_in_profile
 
-# install defaults from Brewfile based on OS
-case "$OSTYPE" in
-  darwin*)
-    echo "Running full brew install from Brewfile"
-    brew bundle --file="$DOTFILES_ROOT/Brewfile"
-    ;;
-  *)
-    if [ "$GUI_INSTALL" = "1" ]; then
-      echo "Running full brew install from Brewfile"
-      brew bundle --file="$DOTFILES_ROOT/Brewfile"
-    else
-      echo "non macos detected OR GUI_INSTALL not set to 1"
-      echo "Skipping brew install from Brewfile"
-    fi
-    ;;
-esac
+# install defaults from Brewfile (skipped on non-macOS unless GUI_INSTALL=1)
+if [[ "$OSTYPE" == darwin* ]] || [ "$GUI_INSTALL" = "1" ]; then
+  echo "Running full brew install from Brewfile"
+  brew bundle --file="$DOTFILES_ROOT/Brewfile"
+else
+  echo "non macos detected and GUI_INSTALL not set to 1; skipping Brewfile"
+fi
 
-# Managed shell extras: single source line in ~/.zshrc / ~/.bashrc; content lives in repo.
+# Mirror managed dotfiles from this repo into $HOME (overwrites).
+copy_home_config() {
+  local src_dir="$DOTFILES_ROOT/home_config"
+  if [ ! -d "$src_dir" ]; then
+    echo "Error: missing home_config dir: $src_dir"
+    exit 1
+  fi
+  echo "copying $src_dir/ into $HOME (overwriting)"
+  cp -af "$src_dir/." "$HOME/"
+}
+
+copy_home_config
+
+# Managed shell extras: single source line in ~/.zshrc / ~/.bashrc.
 ensure_dotfiles_shell_extras_source() {
-  local snippet="$DOTFILES_ROOT/home_config/shell_extras.zsh"
+  local snippet="$HOME/.shell_extras.zsh"
   if [ "$SHELL_DETECTED" = "bash" ]; then
-    snippet="$DOTFILES_ROOT/home_config/shell_extras.bash"
+    snippet="$HOME/.shell_extras.bash"
   fi
   if [ ! -f "$snippet" ]; then
-    echo "Error: missing managed shell extras: $snippet"
+    echo "Error: missing shell extras: $snippet"
     exit 1
   fi
   if grep -qF '# dotfiles: shell extras (managed by dotfiles/install.sh)' "$DEFAULT_PROFILE_FILE" 2>/dev/null; then
