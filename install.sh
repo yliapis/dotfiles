@@ -2,6 +2,8 @@
 
 echo "begining dotfiles install"
 
+DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
+
 # INPUT_VARIABLES
 GUI_INSTALL=${1:-$GUI_INSTALL}
 # OPTIONAL_VARIABLES
@@ -73,6 +75,15 @@ else
   touch "$DEFAULT_PROFILE_FILE"
 fi
 
+ensure_brew_shellenv_in_profile() {
+  command -v brew >/dev/null 2>&1 || return 0
+  if grep -q 'brew shellenv' "$DEFAULT_PROFILE_FILE" 2>/dev/null; then
+    return 0
+  fi
+  print '' >> "$DEFAULT_PROFILE_FILE"
+  print 'eval "$(brew shellenv)"' >> "$DEFAULT_PROFILE_FILE"
+}
+
 # install homebrew
 if ! command -v brew &> /dev/null; then
   echo "installing homebrew"
@@ -87,9 +98,8 @@ if ! command -v brew &> /dev/null; then
       BREW_ROOT="/home/linuxbrew/.linuxbrew/"
       ;;
   esac
-  # add to profile and activate
+  # activate for this script session (profile updated via ensure_brew_shellenv_in_profile)
   BREW_ACTIVATION_COMMAND='eval $('$BREW_ROOT'/bin/brew shellenv)'
-  (echo; echo "$BREW_ACTIVATION_COMMAND") >> "$DEFAULT_PROFILE_FILE"
   eval "$BREW_ACTIVATION_COMMAND"
 fi
 
@@ -97,16 +107,18 @@ fi
 # https://docs.brew.sh/Analytics
 brew analytics off
 
+ensure_brew_shellenv_in_profile
+
 # install defaults from Brewfile based on OS
 case "$OSTYPE" in
   darwin*)
     echo "Running full brew install from Brewfile"
-    brew bundle --file=Brewfile
+    brew bundle --file="$DOTFILES_ROOT/Brewfile"
     ;;
   *)
     if [ "$GUI_INSTALL" = "1" ]; then
       echo "Running full brew install from Brewfile"
-      brew bundle --file=Brewfile
+      brew bundle --file="$DOTFILES_ROOT/Brewfile"
     else
       echo "non macos detected OR GUI_INSTALL not set to 1"
       echo "Skipping brew install from Brewfile"
@@ -114,31 +126,26 @@ case "$OSTYPE" in
     ;;
 esac
 
-# fzf setup
-if [ "$SHELL_DETECTED" = "zsh" ]; then
-  echo "# Set up fzf key bindings and fuzzy completion" >> "$DEFAULT_PROFILE_FILE"
-  echo "source <(fzf --zsh)" >> "$DEFAULT_PROFILE_FILE"
-  # Set up fzf key bindings and fuzzy completion
-  eval "$(fzf --zsh)"
-elif [ "$SHELL_DETECTED" = "bash" ]; then
-  echo "# Set up fzf key bindings and fuzzy completion" >> "$DEFAULT_PROFILE_FILE"
-  echo "source <(fzf --bash)" >> "$DEFAULT_PROFILE_FILE"
-  # Set up fzf key bindings and fuzzy completion
-  source <(fzf --bash)
-fi
+# Managed shell extras: single source line in ~/.zshrc / ~/.bashrc; content lives in repo.
+ensure_dotfiles_shell_extras_source() {
+  local snippet="$DOTFILES_ROOT/home_config/shell_extras.zsh"
+  if [ "$SHELL_DETECTED" = "bash" ]; then
+    snippet="$DOTFILES_ROOT/home_config/shell_extras.bash"
+  fi
+  if [ ! -f "$snippet" ]; then
+    echo "Error: missing managed shell extras: $snippet"
+    exit 1
+  fi
+  if grep -qF '# dotfiles: shell extras (managed by dotfiles/install.sh)' "$DEFAULT_PROFILE_FILE" 2>/dev/null; then
+    return 0
+  fi
+  print '' >> "$DEFAULT_PROFILE_FILE"
+  print '# dotfiles: shell extras (managed by dotfiles/install.sh)' >> "$DEFAULT_PROFILE_FILE"
+  printf '[ -f %q ] && . %q\n' "$snippet" "$snippet" >> "$DEFAULT_PROFILE_FILE"
+}
 
-# starship setup
-if [ "$SHELL_DETECTED" = "zsh" ]; then
-  echo "# Set up starship prompt" >> "$DEFAULT_PROFILE_FILE"
-  echo "eval \"\$(starship init zsh)\"" >> "$DEFAULT_PROFILE_FILE"
-  # Set up starship prompt
-  eval "$(starship init zsh)"
-elif [ "$SHELL_DETECTED" = "bash" ]; then
-  echo "# Set up starship prompt" >> "$DEFAULT_PROFILE_FILE"
-  echo "eval \"\$(starship init bash)\"" >> "$DEFAULT_PROFILE_FILE"
-  # Set up starship prompt
-  eval "$(starship init bash)"
-fi
+ensure_dotfiles_shell_extras_source
+
 
 # ollama setup
 if [ "$INSTALL_OLLAMA" = "1" ]; then
