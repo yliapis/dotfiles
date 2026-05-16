@@ -5,6 +5,7 @@ cd "$DOTFILES_ROOT" || exit 1
 
 # refresh Brewfile installs
 brew bundle --file="$DOTFILES_ROOT/Brewfile"
+brew bundle cleanup --force --file="$DOTFILES_ROOT/Brewfile"
 brew upgrade
 # refresh brew casks
 brew upgrade --cask --greedy
