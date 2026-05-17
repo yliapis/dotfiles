@@ -5,7 +5,17 @@ cd "$DOTFILES_ROOT" || exit 1
 
 # refresh Brewfile installs
 CLEAR_CACHE=${CLEAR_CACHE:-0}
-brew bundle --file="$DOTFILES_ROOT/Brewfile"
+# rerun install.sh
+RERUN_INSTALL=${RERUN_INSTALL:-0}
+# refresh Brewfile
+REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
+
+if [[ "$RERUN_INSTALL" == "1" ]]; then
+  source "$DOTFILES_ROOT/install.sh"
+elif [[ "$REFRESH_BREWFILE" == "1" ]]; then
+  brew bundle --file="$DOTFILES_ROOT/Brewfile"
+fi
+
 if [[ "$CLEAR_CACHE" == "1" ]]; then
   brew bundle cleanup --force --file="$DOTFILES_ROOT/Brewfile"
 fi
