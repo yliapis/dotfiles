@@ -1,2 +1,5 @@
 # ignore by default since we don't necessarily want to pin versions
 Brewfile.lock.json
+
+# local-only working notes and per-repo agent artifacts
+.ai-coding-artifacts/
