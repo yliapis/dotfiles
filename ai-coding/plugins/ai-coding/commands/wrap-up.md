@@ -9,7 +9,7 @@ This command generalizes the ad-hoc worktree cleanup pattern (commit outstanding
 
 - `{base_branch}` — branch to merge the archive into; optional, default: `main`.
 - `{remote}` — remote to push `{base_branch}` to after merge; optional, default: `origin`.
-- `{archive_root}` — root directory for category archives; optional, default: `samples/`.
+- `{archive_root}` — root directory for category archives; optional, default: `ai-coding/samples/`.
 - `{rollup}` — rollup mode for substantive variant content; optional, default: `interactive` when `-i` is set, else `off`. Allowed values: `interactive`, `auto`, `off`.
 - `{rollup_threshold}` — minimum distinct new lines per variant vs. its canonical to qualify as substantive; optional, default: `30`.
 - `{include_categories}` — only wrap up worktrees whose name begins with one of these category prefixes; optional, default: every non-base, non-calling worktree.
