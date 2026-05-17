@@ -10,7 +10,7 @@ Launch an agent in an isolated git worktree to complete `{task}` end-to-end, the
 - `{delete_worktree}` — whether to delete the worktree after a successful merge; optional, default: `true`.
 - `{merge_mode}` — merge behavior after showing the diff; optional, default: `interactive`. Allowed values: `interactive`, `auto`.
 - `{test_command}` — command the agent should run before presenting the diff; optional.
-- `{agent_model}` — model to use for the worktree agent, if supported; optional.
+- `{agent_model}` — model to use for the worktree agent, if supported; optional, default: the parent agent's model.
 - `{stop_condition}` — explicit completion condition beyond "task implemented and verified"; optional.
 
 ## Success Criteria
