@@ -1,6 +1,6 @@
 # Makefile — thin convenience wrapper around sync-coding-tools.sh so
 # `make sync`, `make sync-cursor`, `make symlink`, `make dry-run`,
-# `make status`, `make unlink`, `make clean`, and `make help` all work
+# `make status`, `make unlink`, `make clean`, `make sync-help`, and `make help` all work
 # without the user having to remember the flag set.
 #
 # The script (sync-coding-tools.sh) is the single source of truth for both
@@ -14,14 +14,19 @@ SHELL := /bin/zsh
 
 SCRIPT := ./sync-coding-tools.sh
 
-.PHONY: help sync sync-cursor sync-claude symlink symlink-cursor symlink-claude dry-run status unlink clean
+.PHONY: help sync-help sync sync-cursor sync-claude symlink symlink-cursor symlink-claude dry-run status unlink clean
 
-help:  ## Print available targets with one-line descriptions
-	@printf 'Usage: make [TARGET]\n\nTargets:\n'
+help:  ## Print targets and sync script CLI (GNU Make owns make -h / make --help)
+	@printf 'Usage: make [TARGET]\n'
+	@printf '(make -h and make --help are handled by GNU Make itself; use make sync-help for the sync script only.)\n\nTargets:\n'
 	@awk 'BEGIN {FS = ":.*## "} \
 	      /^[a-zA-Z][a-zA-Z0-9_-]*:.*## / {printf "  %-16s %s\n", $$1, $$2}' \
 	      $(MAKEFILE_LIST)
-	@printf '\nFor the full CLI surface, run: %s --help\n' "$(SCRIPT)"
+	@printf '\n--- sync-coding-tools.sh ---\n'
+	@$(SCRIPT) --help
+
+sync-help:      ## Print sync-coding-tools.sh usage (same as ./sync-coding-tools.sh -h / --help)
+	@$(SCRIPT) --help
 
 sync:           ## Copy-sync everything to all configured tools (default)
 	@$(SCRIPT)
