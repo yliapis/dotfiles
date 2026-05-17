@@ -10,6 +10,8 @@ Return the generated prompt as the entire reply, inside a single fenced ` ```mar
 
 - `{input}` — everything the user typed after `/meta-prompt`. May be: empty, a help request, a short task description, or a full prompt that already follows the Output Format below.
 - `{save_path}` — optional path at which to persist the generated prompt as a slash command. Inferred from `{input}` context when the user expresses save intent (e.g., "save this", "make it a slash command", "create a `/<name>` command", or a literal path). When intent is detected but no path is given, default to `.cursor/commands/<kebab-name>.md` where `<kebab-name>` is derived from the H1 title. When no save intent is detected, leave unset and write nothing.
+- `{worktree}` — optional name of a git worktree to write the persisted prompt file into; only relevant when `{save_path}` is set. Default: empty. When empty, the workflow derives 2–4 kebab-case worktree-name suggestions from the H1 title; in `interactive` mode the user picks one (or declines, in which case the file is written into the current working tree), and in `non-interactive` mode the first suggestion is used.
+- `{mode}` — interaction mode for the workflow; optional, default: `interactive`. Allowed values: `interactive`, `non-interactive`. In `interactive` mode, follow-up questions are asked about the state of the meta-prompt request (missing critical slots, ambiguous wording, the `{worktree}` choice when empty, etc.) prior to execution. In `non-interactive` mode, no questions are asked; the workflow proceeds with whatever can be inferred, uses parameter defaults silently, and aborts with an explanatory error if a critical slot is missing.
 
 ## Success Criteria
 
@@ -21,6 +23,8 @@ Return the generated prompt as the entire reply, inside a single fenced ` ```mar
 - [ ] Any wording the user supplied verbatim is preserved verbatim.
 - [ ] In REFINE mode, every section that existed in the input still exists in the output (or the user was asked before removal), and the H1 title and section ordering are preserved.
 - [ ] If save intent was detected, the file at `{save_path}` exists and contains the rendered prompt body verbatim.
+- [ ] When `{worktree}` resolves to a non-empty name, the persisted file is written inside that git worktree (created via `git worktree add` if absent) and no files are written into the original working tree.
+- [ ] When `{mode}` is `non-interactive`, the workflow makes no `AskQuestion` calls and either renders with inferable inputs or aborts with an explanatory error naming the missing critical slot.
 
 ## Guardrails
 
@@ -38,8 +42,9 @@ Return the generated prompt as the entire reply, inside a single fenced ` ```mar
    - **CREATE** otherwise.
 
 2. **Gather missing slots.** Decide what the input pins down vs. what you need:
-   - Critical (ask via `AskQuestion` if missing): the task statement, and at least one success criterion.
+   - Critical (in `interactive` mode, ask via `AskQuestion` if missing; in `non-interactive` mode, abort with an explanatory error naming the missing slot): the task statement, and at least one success criterion.
    - Inferrable (draft from context, then proceed): parameters, guardrails, workflow, output format.
+   - In `interactive` mode, also surface clarifying follow-ups about the state of the request (ambiguous wording, the `{worktree}` choice when empty, etc.) prior to rendering. In `non-interactive` mode, ask nothing and use the parameter defaults described above.
    - Do not guess at intent for the critical slots.
 
 3. **Apply mode-specific rules:**
@@ -49,7 +54,7 @@ Return the generated prompt as the entire reply, inside a single fenced ` ```mar
 
 4. **Render** the prompt using the Output Format below. Omit any section that has no real content.
 
-5. **Persist if requested.** If `{save_path}` is set (explicit or inferred), write the rendered prompt body — the contents of the fenced block, without the outer fence — to that path, creating parent directories if needed. Otherwise write nothing.
+5. **Persist if requested.** If `{save_path}` is set (explicit or inferred), write the rendered prompt body — the contents of the fenced block, without the outer fence — to that path, creating parent directories if needed. When `{worktree}` resolves to a non-empty name (explicit value or a suggestion selected per step 2), perform the write inside that git worktree, creating it via `git worktree add` off the current branch if it does not already exist; otherwise write into the current working tree. When no save intent is detected, write nothing.
 
 ## Help Message
 
@@ -71,7 +76,11 @@ Create or refine a structured task prompt for an AI coding agent.
 - **HELP** - show structured help message to user
 
 **Save as a slash command**
-Mention save intent in your input (e.g. "save this", "make it `/foo`") and the result is persisted to `.cursor/commands/<kebab-name>.md` by default.
+Mention save intent in your input (e.g. "save this", "make it `/foo`") and the result is persisted to `.cursor/commands/<kebab-name>.md` by default. Pass `worktree=<name>` to persist the file inside a named git worktree; leave it empty to pick from 2–4 suggested kebab-case names derived from the title (auto-picked in non-interactive mode).
+
+**Interaction mode**
+- `mode=interactive` (default) — clarifying follow-ups are asked about ambiguous inputs and the `worktree` choice before the prompt is rendered.
+- `mode=non-interactive` — no questions are asked; missing critical inputs cause an early abort.
 
 **Examples**
 - `/meta-prompt write a prompt that reviews a PR for security issues`
