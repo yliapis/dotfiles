@@ -11,8 +11,9 @@ fi
 
 echo "[install-doc-tools] installing doc->markdown CLI tools via uv"
 
-# Docling (IBM, MIT) — primary PDF->MD engine; best 2026 benchmark
-uv tool install --upgrade docling
+# Docling (IBM, MIT) — primary PDF->MD engine; best 2026 benchmark.
+# CLI entrypoint lives in `docling-slim` (depends on `docling` library).
+uv tool install --upgrade docling-slim
 
 # MarkItDown (Microsoft, MIT) — broadest format coverage (Office/audio/YT/etc.)
 uv tool install --upgrade 'markitdown[all]'
