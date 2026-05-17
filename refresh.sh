@@ -25,6 +25,11 @@ brew upgrade
 # refresh brew casks
 brew upgrade --cask --greedy
 
+# sync AI coding tools (commands + skills) into the user's home directory
+if [[ -x "$DOTFILES_ROOT/sync-coding-tools.sh" ]]; then
+  "$DOTFILES_ROOT/sync-coding-tools.sh"
+fi
+
 if [[ "$REFRESH_SCRIPTS" == "1" ]] && [ -d "$DOTFILES_ROOT/scripts" ]; then
   for script in "$DOTFILES_ROOT/scripts"/install-*.sh; do
     [ -f "$script" ] || continue
