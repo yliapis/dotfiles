@@ -8,7 +8,7 @@ Working notes for evolving `meta-prompt.md` and `worktree-task-agent.md` toward 
 ## Observations from recent runs
 - `{agent_model}` and `{parallelism}` were originally added with Python-typed signatures; normalized to prose with explicit constraints (integer `>= 1`, list length matches parallelism, scalar broadcasts).
 - `{parallelism} > 1` contradicts the original scope guardrail ("one worktree, one resulting branch"); the synthesized version restricts merges to "at most one per invocation" but keeps multiple worktrees as candidates.
-- `{num_partitions}` was added to express grouping of agents/models, with the open semantics that an iterable `{agent_model}` must be either a full iteration across all agents or a correctly-sized slice across partitions. The exact partition-to-agent fan-out (e.g., agents per partition) is still under design.
+- `{num_partitions}` was added to express grouping of agents/models: a partition is a contiguous slice of `{parallelism} / {num_partitions}` agents that share one `{agent_model}` (default `1` puts every agent in a single partition; `{num_partitions}` must divide `{parallelism}` evenly). The three supported `{agent_model}` shapes, illustrated for `{parallelism}=4, {num_partitions}=2` (2 agents per partition): scalar — `"sonnet"` broadcasts to all 4 agents; list-by-agent of length `{parallelism}` — `["sonnet", "sonnet", "opus", "opus"]` assigns one model per agent positionally; list-by-partition of length `{num_partitions}` — `["sonnet", "opus"]` assigns one model per partition, broadcast to its 2 agents (so agents 1-2 get sonnet, agents 3-4 get opus).
 - Hung subagents (2 of 8 in one batch) returned no diff and required interrupt + relaunch; there is no built-in "minimum success count" or replacement policy.
 - `{worktree_name}` collisions are avoided with a 1-based `-{i}` suffix, but cross-invocation collisions (same task name re-run) are not yet addressed.
 
@@ -21,7 +21,6 @@ Working notes for evolving `meta-prompt.md` and `worktree-task-agent.md` toward 
 - `{candidate_aggregator}` — optional command or prompt that produces a final synthesized artifact from the per-worktree results.
 - `{merge_count}` — currently implicitly capped at one; consider explicit values (`one` | `all-passing` | `user-pick-multi`).
 - `{worktree_root}` — directory under which to create worktrees, for layout control.
-- Pin down `{num_partitions}` semantics: agents-per-partition, model-per-partition, and the exact iterable-shape contract for `{agent_model}`.
 
 ### For `meta-prompt.md`
 - `{n_candidates}` — produce N candidate prompts in one invocation (CREATE + REFINE) and present them side by side.
