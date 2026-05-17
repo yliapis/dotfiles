@@ -1,0 +1,178 @@
+#!/bin/sh
+# sync — propagate AI-coding commands/skills/rules from this dotfiles repo
+# into per-tool destination directories via symlinks.
+#
+# Partition 1 implementation: POSIX shell, atomic `ln -sfn` symlinks. Source
+# edits in the dotfiles repo are reflected immediately at the destination.
+
+set -eu
+
+prog="$(basename "$0")"
+
+usage() {
+    cat <<EOF
+Usage: $prog --tool <TOOL> --type <TYPE> [--type <TYPE> ...] [--dry-run]
+
+  --tool      one of: cursor, claude, opencode, codex
+  --type      one of: command, skill, rule (repeatable)
+  --dry-run   print actions without writing
+
+Environment:
+  DOTFILES_REPO_ROOT  override the auto-detected repo root.
+EOF
+}
+
+die() {
+    printf 'error: %s\n' "$1" >&2
+    exit 2
+}
+
+TOOL=""
+TYPES=""
+DRY_RUN=0
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --tool)
+            [ $# -ge 2 ] || die "--tool requires a value"
+            TOOL="$2"
+            shift 2
+            ;;
+        --tool=*)
+            TOOL="${1#--tool=}"
+            shift
+            ;;
+        --type)
+            [ $# -ge 2 ] || die "--type requires a value"
+            TYPES="$TYPES $2"
+            shift 2
+            ;;
+        --type=*)
+            TYPES="$TYPES ${1#--type=}"
+            shift
+            ;;
+        --dry-run)
+            DRY_RUN=1
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            usage >&2
+            die "unknown argument: $1"
+            ;;
+    esac
+done
+
+[ -n "$TOOL" ] || { usage >&2; die "--tool is required"; }
+[ -n "$TYPES" ] || { usage >&2; die "--type is required (at least once)"; }
+
+case "$TOOL" in
+    cursor|claude|opencode|codex) ;;
+    *) die "invalid --tool: $TOOL (expected cursor|claude|opencode|codex)" ;;
+esac
+
+for t in $TYPES; do
+    case "$t" in
+        command|skill|rule) ;;
+        *) die "invalid --type: $t (expected command|skill|rule)" ;;
+    esac
+done
+
+SCRIPT_DIR="$(cd -P "$(dirname "$0")" && pwd)"
+DEFAULT_REPO_ROOT="$(cd -P "$SCRIPT_DIR/../.." && pwd)"
+REPO_ROOT="${DOTFILES_REPO_ROOT:-$DEFAULT_REPO_ROOT}"
+
+SRC_COMMANDS="$REPO_ROOT/ai-coding/plugins/ai-coding/commands"
+SRC_SKILLS="$REPO_ROOT/ai-coding/plugins/ai-coding/skills"
+SRC_RULES="$REPO_ROOT/ai-coding/plugins/ai-coding/rules"
+
+dest_for() {
+    case "$1:$2" in
+        cursor:command)   printf '%s\n' "$HOME/.cursor/commands" ;;
+        cursor:skill)     printf '%s\n' "$HOME/.cursor/skills" ;;
+        cursor:rule)      printf '%s\n' "$HOME/.cursor/rules" ;;
+        claude:command)   printf '%s\n' "$HOME/.claude/commands" ;;
+        claude:skill)     printf '%s\n' "$HOME/.claude/skills" ;;
+        claude:rule)      printf '%s\n' "$HOME/.claude/rules" ;;
+        opencode:command) printf '%s\n' "$HOME/.config/opencode/commands" ;;
+        opencode:skill)   printf '%s\n' "$HOME/.config/opencode/skills" ;;
+        opencode:rule)    printf '%s\n' "$HOME/.config/opencode/rules" ;;
+        codex:command)    printf '%s\n' "$HOME/.codex/prompts" ;;
+        codex:skill)      printf '%s\n' "$HOME/.codex/skills" ;;
+        codex:rule)       printf '%s\n' "$HOME/.codex/rules" ;;
+        *) die "no destination mapping for $1:$2" ;;
+    esac
+}
+
+ensure_dir() {
+    printf 'mkdir -p %s\n' "$1"
+    [ "$DRY_RUN" -eq 1 ] || mkdir -p "$1"
+}
+
+link_one() {
+    printf 'ln -sfn %s %s\n' "$1" "$2"
+    [ "$DRY_RUN" -eq 1 ] || ln -sfn "$1" "$2"
+}
+
+sync_commands() {
+    dest_dir="$1"
+    if [ ! -d "$SRC_COMMANDS" ]; then
+        printf 'notice: commands source missing at %s; skipping\n' "$SRC_COMMANDS"
+        return 0
+    fi
+    ensure_dir "$dest_dir"
+    found=0
+    for src in "$SRC_COMMANDS"/*.md; do
+        [ -e "$src" ] || continue
+        found=1
+        name="$(basename "$src")"
+        link_one "$src" "$dest_dir/$name"
+    done
+    [ "$found" -eq 1 ] || printf 'notice: no command .md files found in %s\n' "$SRC_COMMANDS"
+}
+
+sync_skills() {
+    dest_dir="$1"
+    if [ ! -d "$SRC_SKILLS" ]; then
+        printf 'notice: skills source missing at %s; skipping\n' "$SRC_SKILLS"
+        return 0
+    fi
+    ensure_dir "$dest_dir"
+    found=0
+    for src in "$SRC_SKILLS"/*; do
+        [ -d "$src" ] || continue
+        found=1
+        name="$(basename "$src")"
+        link_one "$src" "$dest_dir/$name"
+    done
+    [ "$found" -eq 1 ] || printf 'notice: no skill directories found in %s\n' "$SRC_SKILLS"
+}
+
+sync_rules() {
+    dest_dir="$1"
+    if [ ! -d "$SRC_RULES" ]; then
+        printf 'notice: rules source not present at %s (no rules to sync yet)\n' "$SRC_RULES"
+        return 0
+    fi
+    ensure_dir "$dest_dir"
+    found=0
+    for src in "$SRC_RULES"/*; do
+        [ -e "$src" ] || continue
+        found=1
+        name="$(basename "$src")"
+        link_one "$src" "$dest_dir/$name"
+    done
+    [ "$found" -eq 1 ] || printf 'notice: rules source present but empty: %s\n' "$SRC_RULES"
+}
+
+for t in $TYPES; do
+    dest="$(dest_for "$TOOL" "$t")"
+    case "$t" in
+        command) sync_commands "$dest" ;;
+        skill)   sync_skills   "$dest" ;;
+        rule)    sync_rules    "$dest" ;;
+    esac
+done
