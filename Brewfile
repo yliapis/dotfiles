@@ -99,6 +99,7 @@ brew "python@3.12"
 # python tooling
 brew "pipx"
 brew "pyenv"
+# uv also drives scripts/install-doc-tools.sh (docling, markitdown, ...)
 brew "uv"
 brew "ruff"
 brew "mypy"
