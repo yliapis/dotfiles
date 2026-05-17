@@ -130,6 +130,14 @@ ensure_dotfiles_shell_extras_source() {
 
 ensure_dotfiles_shell_extras_source
 
+# Modular installers (any scripts/install-*.sh is auto-run)
+if [ -d "$DOTFILES_ROOT/scripts" ]; then
+  for script in "$DOTFILES_ROOT/scripts"/install-*.sh; do
+    [ -f "$script" ] || continue
+    echo "running $(basename "$script")"
+    bash "$script"
+  done
+fi
 
 # ollama setup
 if [ "$INSTALL_OLLAMA" = "1" ]; then

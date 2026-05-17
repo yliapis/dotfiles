@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "docling": {
+      "command": "uvx",
+      "args": ["--from", "docling-mcp", "docling-mcp-server", "--transport", "stdio"]
+    },
+    "markitdown": {
+      "command": "uvx",
+      "args": ["markitdown-mcp"]
+    }
+  }
+}
