@@ -23,6 +23,11 @@ brew upgrade
 # refresh brew casks
 brew upgrade --cask --greedy
 
+# sync AI coding tools (commands + skills) into the user's home directory
+if [[ -x "$DOTFILES_ROOT/sync-coding-tools.sh" ]]; then
+  "$DOTFILES_ROOT/sync-coding-tools.sh"
+fi
+
 # refresh snap installations
 # TODO: add snap refresh script
 
