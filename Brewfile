@@ -85,6 +85,7 @@ brew "gh"
 brew "git-delta"
 brew "lazygit"
 brew "pre-commit"
+brew "yamllint"
 brew "hyperfine"
 
 # languages
