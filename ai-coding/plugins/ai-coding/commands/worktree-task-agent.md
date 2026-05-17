@@ -12,7 +12,7 @@ Launch an agent in an isolated git worktree to complete `{task}` end-to-end, the
 - `{test_command}` — shell command each agent runs inside its worktree before the diff is presented; optional. Exit code `0` counts as pass; any other exit code counts as fail.
 - `{agent_model}` — model(s) to use for the worktree agent(s); optional, default: the parent agent's model. Accepts a single model identifier (broadcast to every agent) or a list of identifiers whose length MUST equal `{parallelism}` (mapped positionally by index).
 - `{parallelism}` — number of agents to run concurrently, each in its own worktree; optional, default: `1`. MUST be an integer `>= 1`; otherwise the workflow fails before any worktree is created.
-- `{num_partitions}` — number of partitions; optional, default: `1`. MUST be an integer `>= 1`. When set together with an iterable `{agent_model}`, the workflow raises an error unless `{agent_model}` provides a full iteration or a correctly-sized iterable slice for the partitions.
+- `{num_partitions}` — number of partitions; optional, default: same as parallelism. MUST be an integer `>= 1`. When set together with an iterable `{agent_model}`, the workflow raises an error unless `{agent_model}` provides a full iteration or a correctly-sized iterable slice for the partitions.
 - `{stop_condition}` — explicit completion condition beyond "task implemented and verified"; optional.
 
 ## Success Criteria
