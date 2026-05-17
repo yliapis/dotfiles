@@ -101,9 +101,9 @@ fi
 
 # Mirror managed dotfiles from this repo into $HOME (overwrites).
 copy_home_config() {
-  local src_dir="$DOTFILES_ROOT/home_config"
+  local src_dir="$DOTFILES_ROOT/home-config"
   if [ ! -d "$src_dir" ]; then
-    echo "Error: missing home_config dir: $src_dir"
+    echo "Error: missing home-config dir: $src_dir"
     exit 1
   fi
   echo "copying $src_dir/ into $HOME (overwriting)"
