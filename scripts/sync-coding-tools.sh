@@ -29,7 +29,7 @@
 set -euo pipefail
 
 SCRIPT_PATH="${0:A}"
-REPO_ROOT="${SCRIPT_PATH:h}"
+REPO_ROOT="${SCRIPT_PATH:h:h}"
 
 SRC_COMMANDS="$REPO_ROOT/ai-coding/plugins/ai-coding/commands"
 SRC_SKILLS="$REPO_ROOT/ai-coding/plugins/ai-coding/skills"
