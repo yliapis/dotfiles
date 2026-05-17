@@ -1,7 +1,7 @@
-# Makefile — thin convenience wrapper around scripts/sync-coding-tools.sh so
+# Makefile — thin convenience wrapper so `make install`, `make refresh`,
 # `make sync`, `make sync-cursor`, `make symlink`, `make dry-run`,
-# `make status`, `make unlink`, `make clean`, `make sync-help`, and `make help` all work
-# without the user having to remember the flag set.
+# `make status`, `make unlink`, `make clean`, `make sync-help`, and `make help`
+# (default) all work without the user having to remember the flag set.
 #
 # The script (scripts/sync-coding-tools.sh) is the single source of truth for both
 # copy-mode (rsync) and symlink-mode logic, the audit log, and the
@@ -10,11 +10,17 @@
 
 SHELL := /bin/zsh
 .SHELLFLAGS := -eu -o pipefail -c
-.DEFAULT_GOAL := sync
+.DEFAULT_GOAL := help
 
 SCRIPT := ./scripts/sync-coding-tools.sh
 
-.PHONY: help sync-help sync sync-cursor sync-claude symlink symlink-cursor symlink-claude dry-run status unlink clean
+.PHONY: help install refresh sync-help sync sync-cursor sync-claude symlink symlink-cursor symlink-claude dry-run status unlink clean
+
+install:        ## Run initial dotfiles install (./install.sh)
+	@./install.sh
+
+refresh:        ## Brew bundle, upgrades, sync, and install-*.sh scripts (./refresh.sh)
+	@./refresh.sh
 
 help:  ## Print targets and sync script CLI (GNU Make owns make -h / make --help)
 	@printf 'Usage: make [TARGET]\n'
@@ -28,7 +34,7 @@ help:  ## Print targets and sync script CLI (GNU Make owns make -h / make --help
 sync-help:      ## Print sync script usage (same as ./scripts/sync-coding-tools.sh -h / --help)
 	@$(SCRIPT) --help
 
-sync:           ## Copy-sync everything to all configured tools (default)
+sync:           ## Copy-sync everything to all configured tools
 	@$(SCRIPT)
 
 sync-cursor:    ## Copy-sync only Cursor targets
