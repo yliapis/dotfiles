@@ -26,8 +26,16 @@ brew upgrade
 brew upgrade --cask --greedy
 
 # sync AI coding tools (commands + skills) into the user's home directory
-if [[ -f "$DOTFILES_ROOT/Makefile" ]]; then
-  make -C "$DOTFILES_ROOT" sync
+if [[ -x "$DOTFILES_ROOT/sync-coding-tools.sh" ]]; then
+  "$DOTFILES_ROOT/sync-coding-tools.sh"
+fi
+
+if [[ "$REFRESH_SCRIPTS" == "1" ]] && [ -d "$DOTFILES_ROOT/scripts" ]; then
+  for script in "$DOTFILES_ROOT/scripts"/install-*.sh; do
+    [ -f "$script" ] || continue
+    echo "running $(basename "$script")"
+    bash "$script"
+  done
 fi
 
 # refresh snap installations
