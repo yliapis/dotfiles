@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
-# sync-coding-tools.sh — mirror ai-coding/plugins/ai-coding commands and
-# skills (plus marketplace metadata) from this dotfiles repo into the
+# sync-coding-tools.sh — mirror ai-coding/commands and ai-coding/skills (plus
+# marketplace metadata) from this dotfiles repo into the
 # home-dir locations used by Cursor and Claude Code.
 #
 # Two modes:
@@ -11,8 +11,9 @@
 #                      ~/.dotfiles-backup/<UTC-timestamp>/ before replacement.
 #
 # Sources (in this repo, do not modify by hand here):
-#   ai-coding/plugins/ai-coding/commands/*.md          slash commands
-#   ai-coding/plugins/ai-coding/skills/<name>/SKILL.md skills
+#   ai-coding/commands/*.md                            slash commands (canonical)
+#   ai-coding/skills/<name>/SKILL.md                   skills (canonical)
+#   ai-coding/plugins/ai-coding/{commands,skills}      symlinks to the above
 #   ai-coding/{marketplace.json,.cursor-plugin,.claude-plugin}
 #                                                      plugin / marketplace metadata
 #
@@ -31,8 +32,8 @@ set -euo pipefail
 SCRIPT_PATH="${0:A}"
 REPO_ROOT="${SCRIPT_PATH:h:h}"
 
-SRC_COMMANDS="$REPO_ROOT/ai-coding/plugins/ai-coding/commands"
-SRC_SKILLS="$REPO_ROOT/ai-coding/plugins/ai-coding/skills"
+SRC_COMMANDS="$REPO_ROOT/ai-coding/commands"
+SRC_SKILLS="$REPO_ROOT/ai-coding/skills"
 SRC_MARKETPLACE="$REPO_ROOT/ai-coding"
 BACKUP_ROOT="$HOME/.dotfiles-backup"
 LOG_FILE="$HOME/.cache/dotfiles/sync.log"
