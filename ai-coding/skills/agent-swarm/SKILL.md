@@ -1,6 +1,6 @@
 ---
 name: agent-swarm
-description: Orchestrate parallel agent fan-out (best-of-N) for AI coding tasks — gate the swarm-vs-single decision, size the swarm, pick a model-mix shape (broadcast / per-agent / per-partition), dispatch siblings through /worktree-task-agent, watchdog hangs with a 5-minute default and explicit replacement policy, and aggregate by running every requested selection mode in parallel (manual, auto-best, synthesize, vote, hybrid, tournament, consensus) over the surviving members. Use when the user asks for an agent swarm, agent fan-out, best-of-N, parallel agent runs, swarm orchestration, worktree fan-out, multiple plausible approaches, or independent exploration that adds signal.
+description: Orchestrate parallel agent fan-out (best-of-N) for AI coding tasks — gate the swarm-vs-single decision, size the swarm, pick a model-mix shape (broadcast / per-agent / per-partition), dispatch siblings through worktree-task, watchdog hangs with a 5-minute default and explicit replacement policy, and aggregate by running every requested selection mode in parallel (manual, auto-best, synthesize, vote, hybrid, tournament, consensus) over the surviving members. Use when the user asks for an agent swarm, agent fan-out, best-of-N, parallel agent runs, swarm orchestration, worktree fan-out, multiple plausible approaches, or independent exploration that adds signal.
 license: MIT
 ---
 
@@ -8,13 +8,13 @@ license: MIT
 
 ## Task
 
-Decide whether a coding task warrants parallel agent fan-out, design the swarm (size, concurrency, model mix, replacement policy, selection modes), dispatch through `/worktree-task-agent`, watchdog for hangs, and aggregate the per-member outcomes by running every requested selection mode in parallel over the surviving members.
+Decide whether a coding task warrants parallel agent fan-out, design the swarm (size, concurrency, model mix, replacement policy, selection modes), dispatch through `worktree-task`, watchdog for hangs, and aggregate the per-member outcomes by running every requested selection mode in parallel over the surviving members.
 
-This skill is the policy layer above `.cursor/commands/worktree-task-agent.md`. It owns the swarm-vs-single decision, sizing, model mix, replacement policy, watchdog, aggregation strategy, and structured event emission. It never re-implements worktree mechanics — those belong to `/worktree-task-agent`.
+This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It owns the swarm-vs-single decision, sizing, model mix, replacement policy, watchdog, aggregation strategy, and structured event emission. It never re-implements worktree mechanics — those belong to `worktree-task`.
 
 ## Parameters
 
-- `{num_agents}` (aliases: `{n}`, `{num}`) — total agents to spawn; required; integer `>= 2`. A "swarm" of `1` is a single agent; refuse and recommend a direct `/worktree-task-agent` invocation instead.
+- `{num_agents}` (aliases: `{n}`, `{num}`) — total agents to spawn; required; integer `>= 2`. A "swarm" of `1` is a single agent; refuse and recommend a direct `worktree-task` invocation instead.
 - `{parallel_agents}` (aliases: `{p}`, `{parallel}`) — concurrency cap on members running simultaneously; optional, default: `{num_agents}` (full parallelism). MUST be an integer in `1..{num_agents}`.
 - `{model_mix}` — model-assignment shape: `broadcast` (one model to all), `per-agent` (list of length `{num_agents}`), or `per-partition` (list of length `{num_partitions}` broadcast across contiguous slices); optional, default: `broadcast` with the parent agent's model.
 - `{num_partitions}` — partition count when `{model_mix} = per-partition`; optional, default: `{num_agents}`. MUST divide `{num_agents}` evenly.
@@ -31,7 +31,7 @@ This skill is the policy layer above `.cursor/commands/worktree-task-agent.md`. 
 
 - [ ] Before any worktree is created, the response records the swarm-gate verdict, the trigger ID(s) that fired, and (when `{pattern}` is used) the preset chosen.
 - [ ] Parameters are validated before dispatch: `{num_agents} >= 2`, `{parallel_agents} <= {num_agents}`, `{model_mix}` shape matches `{num_agents}` / `{num_partitions}`, `{num_partitions}` divides `{num_agents}` evenly, and required parameters for each entry in `{selection_modes}` are present.
-- [ ] Worktree creation, branch naming, agent dispatch, and per-worktree diff capture are delegated to `/worktree-task-agent`; this skill emits no `git worktree` calls.
+- [ ] Worktree creation, branch naming, agent dispatch, and per-worktree diff capture are delegated to `worktree-task`; this skill emits no `git worktree` calls.
 - [ ] When `{cost_cap}` is set, a cost projection is run before dispatch; if `projected > {cost_cap}`, the skill proposes a smaller `{num_agents}` and waits for user approval.
 - [ ] When `{relaunch_on_hang_after}` expires for a member, that member is force-aborted; replacement happens iff `{replacement_policy}` allows; replacements never recurse.
 - [ ] When `successes < {min_successes}` after the run terminates (including replacements), every selection mode reports `under-floor`; no winner is auto-selected.
@@ -42,7 +42,7 @@ This skill is the policy layer above `.cursor/commands/worktree-task-agent.md`. 
 ## Guardrails
 
 - MUST run the Swarm Gate before any side effect. At least one trigger MUST fire AND its identifier MUST appear in the response; otherwise abort and recommend a single agent.
-- MUST compose with `/worktree-task-agent` for every worktree side effect (create, run, diff, merge prompt). MUST NOT re-specify or re-implement worktree mechanics.
+- MUST compose with `worktree-task` for every worktree side effect (create, run, diff, merge prompt). MUST NOT re-specify or re-implement worktree mechanics.
 - MUST validate parameters before dispatch; fail fast with no filesystem side effects on validation failure.
 - MUST keep each member isolated to its assigned worktree; members MUST NOT read, write, or run commands against the calling worktree or any sibling worktree.
 - MUST treat `{relaunch_on_hang_after}` as a hard kill, not a polite request.
@@ -51,7 +51,7 @@ This skill is the policy layer above `.cursor/commands/worktree-task-agent.md`. 
 - MUST NOT recursively spawn swarms; every member runs as a single agent.
 - MUST NOT merge more than one worktree branch per invocation, even when several selection modes converge on it.
 - MUST emit events in chronological order in the dedicated `### Events` section; MUST NOT inline events outside that section.
-- Scope: orchestration policy (gate, sizing, mix, dispatch shape, watchdog, aggregation, events). Out of scope: low-level worktree mechanics (delegated to `/worktree-task-agent`), pushing branches, opening PRs, cross-repo coordination, persistent scheduling.
+- Scope: orchestration policy (gate, sizing, mix, dispatch shape, watchdog, aggregation, events). Out of scope: low-level worktree mechanics (delegated to `worktree-task`), pushing branches, opening PRs, cross-repo coordination, persistent scheduling.
 
 ## Swarm Gate
 
@@ -98,7 +98,7 @@ Doubling the swarm rarely doubles the signal. Prefer raising selection rigor ove
 
 ## Model-Mix Strategies
 
-Three shapes, dispatched through `/worktree-task-agent`'s `{agent_model}` parameter:
+Three shapes, dispatched through `worktree-task`'s `{agent_model}` parameter:
 
 - **`broadcast`** — one model identifier broadcast to every member. Variance from sampling alone. Default.
 - **`per-agent`** — list of length `{num_agents}`, one model per slot positionally. Use for explicit head-to-head model comparison.
@@ -153,9 +153,9 @@ The skill emits structured events in a dedicated `### Events` section of the rep
 | Type | Payload fields | Emitted when |
 |---|---|---|
 | `swarm.gate_decided` | `verdict`, `triggers_fired`, `pattern` | After the Swarm Gate runs |
-| `swarm.dispatched` | `num_agents`, `parallel_agents`, `model_mix`, `selection_modes` | After `/worktree-task-agent` is launched |
+| `swarm.dispatched` | `num_agents`, `parallel_agents`, `model_mix`, `selection_modes` | After `worktree-task` is launched |
 | `member.started` | `slot`, `model`, `worktree_path` | When a member begins |
-| `member.progress` | `slot`, `last_activity_ms` | Heartbeat (per `/worktree-task-agent`'s reporting cadence) |
+| `member.progress` | `slot`, `last_activity_ms` | Heartbeat (per `worktree-task`'s reporting cadence) |
 | `member.completed` | `slot`, `status`, `test_exit`, `diff_lines` | When a member terminates (success / failed / incomplete) |
 | `member.replaced` | `slot`, `reason`, `replacement_model` | When a hung member is killed and respawned |
 | `selection.completed` | `mode`, `result`, `rationale` | Once per resolved entry in `{selection_modes}` |
@@ -170,11 +170,11 @@ Events MUST appear in chronological order. Do NOT inline events outside the dedi
 3. **Resolve `{selection_modes}`.** When the value is `auto`, include every mode whose prerequisites are met given the other parameters. Record which modes were resolved and which were skipped (with the missing prerequisite) for the report.
 4. **Validate parameters.** Confirm sizing, mix shape, partition divisibility, and selection-mode prerequisites. Fail fast on any mismatch (no filesystem side effects).
 5. **Cost projection (when `{cost_cap}` is set).** Compute projected cost. If `projected > {cost_cap}`, propose the largest `{num_agents}` that fits and wait for user approval.
-6. **Dispatch via `/worktree-task-agent`.** Invoke that command with `{parallelism} = {parallel_agents}`, the resolved `{agent_model}` shape, the verbatim `{task}` for every member, `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched`. Do not re-implement worktree mechanics.
+6. **Dispatch via `worktree-task`.** Invoke it with `{parallelism} = {parallel_agents}`, the resolved `{agent_model}` shape, the verbatim `{task}` for every member, `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched`. Do not re-implement worktree mechanics.
 7. **Watchdog.** Track each member's last activity. Emit `member.started`, `member.progress`, `member.completed` events as they fire. When `{relaunch_on_hang_after}` expires for a member, force-abort it; respawn per `{replacement_policy}` and emit `member.replaced`.
 8. **Floor check.** When all live members terminate, count `success`. If below `{min_successes}`, every selection mode reports `under-floor`; skip aggregation and emit `swarm.done` with `floor_met=false`.
 9. **Run all resolved selection modes in parallel.** For each entry in the resolved `{selection_modes}`, apply its rule over the surviving members and emit `selection.completed`. Each mode produces its own outcome block.
-10. **Report and merge handoff.** Render the Output Format. Hand the chosen branch (if any) back through `/worktree-task-agent`'s merge prompt. Emit `swarm.done`. At most one branch is merged per invocation, even if several modes converge on it.
+10. **Report and merge handoff.** Render the Output Format. Hand the chosen branch (if any) back through `worktree-task`'s merge prompt. Emit `swarm.done`. At most one branch is merged per invocation, even if several modes converge on it.
 
 ## Output Format
 
@@ -201,7 +201,7 @@ If `Verdict = single-agent`, stop here.
 
 ### Per-Member Report
 
-Defer to `/worktree-task-agent`'s Worktree Results section verbatim; do not duplicate the schema.
+Defer to `worktree-task`'s Worktree Results section verbatim; do not duplicate the schema.
 
 ### Aggregation
 
@@ -231,5 +231,5 @@ Fenced JSON Lines block in chronological order:
 
 ### Handoff
 
-- `Merge`: hand the chosen branch (if any) back to `/worktree-task-agent`'s merge prompt; do not merge inline.
+- `Merge`: hand the chosen branch (if any) back to `worktree-task`'s merge prompt; do not merge inline.
 - `Cleanup`: ask the user which non-winning worktrees to delete; leave them in place by default.
