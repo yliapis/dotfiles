@@ -1,7 +1,14 @@
-# Worktree Task Agent
+---
+name: worktree-task
+description: "Launch agents in isolated git worktrees to execute a task end-to-end, then present per-worktree diffs for review and selective merge. Use when worktrees are referenced to execute a task resulting in file changes, when sandboxing risky edits, or when running parallel attempts on one task. Composed by the `agent-swarm` skill as the worktree primitive."
+---
+
+# Worktree Task
 
 ## Task
 Launch an agent in an isolated git worktree to complete `{task}` end-to-end, then present the resulting diff and ask whether to merge the worktree branch back into the original branch and whether to delete the worktree. When `{parallelism}` is greater than 1, launch that many sibling agents in independent worktrees (optionally one model per agent from `{agent_model}`) and present a per-worktree report so the user can pick at most one branch to merge.
+
+The `agent-swarm` skill composes this skill as the worktree primitive; `agent-swarm` owns the swarm-vs-single decision, sizing, model mix, and selection.
 
 ## Parameters
 - `{task}` — the task each agent must complete; required.
