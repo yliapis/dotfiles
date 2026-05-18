@@ -1,6 +1,7 @@
 #!/bin/sh
 # sync — propagate AI-coding commands/skills/rules from this dotfiles repo
-# into per-tool home-directory locations via atomic symlinks.
+# into per-tool home-directory locations via atomic symlinks. Commands and
+# skills live under ai-coding/commands and ai-coding/skills; plugin paths symlink there.
 #
 # Synthesised from a four-way swarm: kept POSIX /bin/sh + `ln -sfn` symlinks
 # (so source edits in this repo reflect immediately at the destination); added
@@ -118,9 +119,9 @@ fi
 
 [ -d "$REPO_ROOT" ] || die "repo root not found: $REPO_ROOT"
 
+SRC_COMMANDS="$REPO_ROOT/ai-coding/commands"
+SRC_SKILLS="$REPO_ROOT/ai-coding/skills"
 SRC_BASE="$REPO_ROOT/ai-coding/plugins/ai-coding"
-SRC_COMMANDS="$SRC_BASE/commands"
-SRC_SKILLS="$SRC_BASE/skills"
 SRC_RULES="$SRC_BASE/rules"
 
 # ---- destination registry --------------------------------------------------
