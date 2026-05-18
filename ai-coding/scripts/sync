@@ -1,7 +1,7 @@
 #!/bin/sh
 # sync — propagate AI-coding commands/skills/rules from this dotfiles repo
-# into per-tool home-directory locations via atomic symlinks. Canonical sources
-# live at ai-coding/commands and ai-coding/skills; plugin paths symlink there.
+# into per-tool home-directory locations via atomic symlinks. Commands and
+# skills live under ai-coding/commands and ai-coding/skills; plugin paths symlink there.
 #
 # Synthesised from a four-way swarm: kept POSIX /bin/sh + `ln -sfn` symlinks
 # (so source edits in this repo reflect immediately at the destination); added

@@ -11,8 +11,8 @@
 #                      ~/.dotfiles-backup/<UTC-timestamp>/ before replacement.
 #
 # Sources (in this repo, do not modify by hand here):
-#   ai-coding/commands/*.md                            slash commands (canonical)
-#   ai-coding/skills/<name>/SKILL.md                   skills (canonical)
+#   ai-coding/commands/*.md                            slash commands
+#   ai-coding/skills/<name>/SKILL.md                   skills
 #   ai-coding/plugins/ai-coding/{commands,skills}      symlinks to the above
 #   ai-coding/{marketplace.json,.cursor-plugin,.claude-plugin}
 #                                                      plugin / marketplace metadata
