@@ -111,6 +111,9 @@ brew "mypy"
 # mac app store cli
 brew "mas"
 
+# mac app store apps
+mas "Bandcamp", id: 706408639
+
 # via Cask
 
 cask_args appdir: "/Applications"
