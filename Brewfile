@@ -112,7 +112,9 @@ brew "mypy"
 brew "mas"
 
 # mac app store apps
-mas "Bandcamp", id: 706408639
+# Bandcamp is an iOS-only app; `mas` cannot install iOS apps (mas-cli#321).
+# Install manually from the Mac App Store: https://apps.apple.com/us/app/bandcamp/id706408639
+# mas "Bandcamp", id: 706408639
 
 # via Cask
 
