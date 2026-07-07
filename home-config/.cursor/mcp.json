@@ -4,6 +4,9 @@
       "command": "uvx",
       "args": ["--from", "docling-mcp", "docling-mcp-server", "--transport", "stdio"]
     },
+    "linear": {
+      "url": "https://mcp.linear.app/mcp"
+    },
     "markitdown": {
       "command": "uvx",
       "args": ["markitdown-mcp"]
