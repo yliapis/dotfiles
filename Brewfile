@@ -26,7 +26,9 @@ brew "gum"
 brew "neovim"
 brew "rsync"
 brew "shellcheck"
-brew "tldr"
+# tldr was disabled in homebrew-core 2025-10-24 as unmaintained upstream.
+# Use tlrc or tealdeer for tldr pages instead.
+# brew "tldr"
 brew "tmux"
 brew "watch"
 brew "unzip"
