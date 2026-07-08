@@ -1,6 +1,7 @@
 
 tap "anomalyco/tap"
 tap "getagentseal/codeburn"
+tap "hashicorp/tap"
 
 ###############################
 #     cli tools               #
@@ -93,7 +94,7 @@ brew "hyperfine"
 brew "go"
 brew "lua"
 brew "node"
-brew "terraform"
+brew "hashicorp/tap/terraform"
 
 # set system python3 as 3.12
 brew "python@3.12"
