@@ -148,6 +148,8 @@ cask "vlc"
 # development tools
 brew "anomalyco/tap/opencode"
 brew "getagentseal/codeburn/codeburn"
+# agent multiplexer for running multiple coding agents in one terminal
+brew "herdr"
 cask "claude-code"
 cask "cursor"
 cask "docker-desktop"
