@@ -190,5 +190,4 @@ cask "the-unarchiver"
 ###############################
 
 # vscode settings
-vscode "github.copilot"
 vscode "github.copilot-chat"
