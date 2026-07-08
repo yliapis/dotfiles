@@ -1,5 +1,4 @@
 
-tap "homebrew/bundle"
 tap "anomalyco/tap"
 tap "getagentseal/codeburn"
 
