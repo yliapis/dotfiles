@@ -153,6 +153,7 @@ brew "getagentseal/codeburn/codeburn"
 # agent multiplexer for running multiple coding agents in one terminal
 brew "herdr"
 cask "claude-code"
+cask "codex"
 cask "cursor"
 cask "docker-desktop"
 cask "iterm2"
