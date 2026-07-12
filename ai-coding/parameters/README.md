@@ -1,7 +1,7 @@
 # Parameter Wiki
 
-Canonical, concern-first reference for every parameter declared by the AI-coding
-commands ([`ai-coding/commands/`](../commands/)) and skills
+Canonical, concern-first reference, intended to cover every parameter declared
+by the AI-coding commands ([`ai-coding/commands/`](../commands/)) and skills
 ([`ai-coding/skills/`](../skills/)). One page per concern; one card per
 cross-artifact parameter concept. This wiki documents **today's live surface
 only** — aspirational parameters and tooling ideas live in [future.md](future.md).
@@ -100,5 +100,5 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 
 - [propagation.md](propagation.md) — scope and propagation rules between an
   invocation and its spawned agents.
-- [coverage.md](coverage.md) — per-artifact index of every declared parameter.
+- [coverage.md](coverage.md) — per-artifact index of declared parameters.
 - [future.md](future.md) — aspirational parameters and tooling follow-ups.

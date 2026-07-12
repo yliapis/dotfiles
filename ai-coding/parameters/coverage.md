@@ -1,8 +1,8 @@
 # Coverage
 
-Per-artifact index: every declared parameter, mapped to its canonical card (or
-its artifact-specific entry) and concern file. Spellings are exactly as they
-appear in each artifact.
+Per-artifact index, intended to cover every declared parameter: each is mapped
+to its canonical card (or its artifact-specific entry) and concern file.
+Spellings are exactly as they appear in each artifact.
 
 The same artifacts are mirrored in `ai-coding/plugins/ai-coding/` and in the
 repo-root `.cursor/commands/` and `.cursor/skills/`; this wiki tracks the
@@ -207,6 +207,14 @@ Knobs are unbraced `key=value` tokens.
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `--interactive-template` | [`interactive`](concerns/interaction.md#interactive) | interaction |
+
+### [trajectory-snapshot](../skills/trajectory-snapshot/SKILL.md)
+
+| Parameter | Canonical card | Concern |
+|---|---|---|
+| `{filename_format}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{coding_tool}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 
 ### No parameter surface
 
