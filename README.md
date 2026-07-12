@@ -8,8 +8,7 @@ source install.sh
 
 ## Makefile
 
-Common tasks (install, refresh, syncing AI-coding commands/skills to Cursor and
-Claude, status, unlink, ...) are wrapped in a `Makefile`. List all targets with:
+Common tasks are wrapped in a `Makefile`. List all targets with:
 
 ```sh
 make help
