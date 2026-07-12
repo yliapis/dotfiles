@@ -147,6 +147,7 @@ sources.
 | `{test_command}` | [`test_command`](concerns/constraints.md#test_command) | constraints |
 | `{agent_model}` | [`agent_model`](concerns/models.md#agent_model) | models |
 | `{parallelism}` | [`candidate_count`](concerns/replication.md#candidate_count) | replication |
+| `{concurrency}` | [`concurrency`](concerns/replication.md#concurrency) | replication |
 | `{num_partitions}` | [`partition_count`](concerns/replication.md#partition_count) | replication |
 | `{stop_condition}` | [`stop_condition`](concerns/constraints.md#stop_condition) | constraints |
 

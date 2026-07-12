@@ -15,7 +15,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 ## Parameters
 
 - `{num_agents}` (aliases: `{n}`, `{num}`) — total agents to spawn; required; integer `>= 2`. A "swarm" of `1` is a single agent; refuse and recommend a direct `worktree-task` invocation instead.
-- `{parallel_agents}` (aliases: `{p}`, `{parallel}`) — concurrency cap on members running simultaneously; optional, default: `{num_agents}` (full parallelism). MUST be an integer in `1..{num_agents}`.
+- `{parallel_agents}` (aliases: `{p}`, `{parallel}`) — concurrency cap on members running simultaneously; optional, default: `{num_agents}` (full parallelism). MUST be an integer in `1..{num_agents}`. Maps to worktree-task's `{concurrency}` at dispatch; the total member count `{num_agents}` maps to its `{parallelism}`.
 - `{model_mix}` — model-assignment shape: `broadcast` (one model to all), `per-agent` (list of length `{num_agents}`), or `per-partition` (list of length `{num_partitions}` broadcast across contiguous slices); optional, default: `broadcast` with the parent agent's model.
 - `{num_partitions}` — partition count when `{model_mix} = per-partition`; optional, default: `{num_agents}`. MUST divide `{num_agents}` evenly.
 - `{selection_modes}` — list (any subset) of: `manual`, `auto-best`, `synthesize`, `vote`, `hybrid`, `tournament`, `consensus`. Every listed mode runs in parallel over the surviving members and produces its own outcome block; optional, default: `auto` (every mode whose prerequisites are met given the other parameters; skipped modes are listed in the report with the missing prerequisite).
@@ -104,7 +104,7 @@ Three shapes, dispatched through `worktree-task`'s `{agent_model}` parameter:
 - **`per-agent`** — list of length `{num_agents}`, one model per slot positionally. Use for explicit head-to-head model comparison.
 - **`per-partition`** — list of length `{num_partitions}`, broadcast across `{num_agents} / {num_partitions}` contiguous slots. Use for "k samples per model" comparisons.
 
-Validation: list-by-agent length MUST equal `{num_agents}`; list-by-partition length MUST equal `{num_partitions}`, and `{num_partitions}` MUST divide `{num_agents}` evenly.
+Validation: list-by-agent length MUST equal `{num_agents}`; list-by-partition length MUST equal `{num_partitions}`, and `{num_partitions}` MUST divide `{num_agents}` evenly. These lengths line up with the child skill's checks because dispatch sets worktree-task's `{parallelism}` to `{num_agents}` (see Workflow step 6): the child requires a list-valued `{agent_model}` of length `{parallelism}`.
 
 ## Selection Modes (run in parallel)
 
@@ -170,7 +170,7 @@ Events MUST appear in chronological order. Do NOT inline events outside the dedi
 3. **Resolve `{selection_modes}`.** When the value is `auto`, include every mode whose prerequisites are met given the other parameters. Record which modes were resolved and which were skipped (with the missing prerequisite) for the report.
 4. **Validate parameters.** Confirm sizing, mix shape, partition divisibility, and selection-mode prerequisites. Fail fast on any mismatch (no filesystem side effects).
 5. **Cost projection (when `{cost_cap}` is set).** Compute projected cost. If `projected > {cost_cap}`, propose the largest `{num_agents}` that fits and wait for user approval.
-6. **Dispatch via `worktree-task`.** Invoke it with `{parallelism} = {parallel_agents}`, the resolved `{agent_model}` shape, the verbatim `{task}` for every member, `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched`. Do not re-implement worktree mechanics.
+6. **Dispatch via `worktree-task`.** Invoke it with `{parallelism} = {num_agents}` (total members), `{concurrency} = {parallel_agents}` (simultaneous cap), the resolved `{agent_model}` shape, the verbatim `{task}` for every member, `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched`. Do not re-implement worktree mechanics.
 7. **Watchdog.** Track each member's last activity. Emit `member.started`, `member.progress`, `member.completed` events as they fire. When `{relaunch_on_hang_after}` expires for a member, force-abort it; respawn per `{replacement_policy}` and emit `member.replaced`.
 8. **Floor check.** When all live members terminate, count `success`. If below `{min_successes}`, every selection mode reports `under-floor`; skip aggregation and emit `swarm.done` with `floor_met=false`.
 9. **Run all resolved selection modes in parallel.** For each entry in the resolved `{selection_modes}`, apply its rule over the surviving members and emit `selection.completed`. Each mode produces its own outcome block.
