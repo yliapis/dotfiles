@@ -5,14 +5,5 @@
 Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
 `ai-coding/` commands + skills into the Cursor and Claude home locations.
 
-### Setup / update
-- Setup runs the repo's own `install.sh`; it needs `$SHELL` set to a supported shell.
-- Do not set `GUI_INSTALL=1` on Linux; the Brewfile is macOS-only and will fail.
-- `INSTALL_OLLAMA=0` skips the ollama download. Homebrew install is idempotent.
-- The `tilix` apt prompt and the `fzf`/`starship` not-found warnings are non-fatal.
-
-### Run
-- Core action is the sync: `make sync` copies commands + skills into `~/.cursor` and
-  `~/.claude`. Use `make dry-run` to preview and `make unlink` to reverse.
-- Sync is idempotent and not run by `install.sh`; invoke `make sync` explicitly.
-- Avoid `refresh.sh` / `make refresh` on Linux; it force-runs the Brewfile and errors.
+Setup runs the repo's own `install.sh`. Run `make help` for details on sync and
+other targets.
