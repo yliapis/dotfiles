@@ -5,7 +5,9 @@ determinism — reproducibility, idempotency, stability (the repo's default
 `/critique` criteria)
 **Runs:** 1 (parallel up to 1, model: `claude-fable-5-thinking-max`)
 **Run id:** `bc-019f57dc-6b17-759d-97e6-c4c5143fb8e4`
-**Corpus:** repository root at commit `8361983` (captured 2026-07-12)
+**Corpus:** repository root at commit `d38e381` (captured 2026-07-12; initial
+pass at `8361983`, regenerated after `d38e381` added the `file-dump` skill and
+revised `trajectory-snapshot`)
 
 ## Summary
 
@@ -14,10 +16,13 @@ strict mode, argument validation, backups, an audit log — while the bootstrap
 path (`install.sh`, `refresh.sh`, `Makefile`) is the weakest: it behaves
 differently depending on which of three documented entry points is used,
 swallows errors, and on the README's own invocation path corrupts `.bashrc`
-idempotency. Counts: 1 critical, 9 major, 9 minor, 6 nit. The biggest concern
-is that the documented `source install.sh` flow, run from bash (a shell the
-script explicitly supports), silently re-appends the shell-extras block on
-every run — reproduced live during this critique.
+idempotency. Counts: 1 critical, 9 major, 10 minor, 7 nit. The biggest
+concern is that the documented `source install.sh` flow, run from bash (a
+shell the script explicitly supports), silently re-appends the shell-extras
+block on every run — reproduced live during this critique. The regeneration
+after `d38e381` confirms the wiki-drift failure mode the repo itself
+documents: the new `file-dump` skill is already absent from the parameter
+wiki's coverage index.
 
 ## Scope and Method
 
@@ -25,10 +30,12 @@ every run — reproduced live during this critique.
   `AGENTS.md`, `.gitignore`, `Brewfile`, `snap_installs.sh`, `scripts/*`,
   `ai-coding/scripts/sync`, all of `home-config/`, the plugin/marketplace
   manifests, `ai-coding/templates/INDEX.md`, and the frontmatter of all 9
-  commands and 10 skills.
+  commands and 11 skills. The regeneration pass additionally read the two
+  skills touched by `d38e381` in full (`file-dump/SKILL.md`, the revised
+  `trajectory-snapshot/SKILL.md`) plus `ai-coding/parameters/coverage.md`.
 - Skimmed only: `ai-coding/parameters/` (~95 archival/generated docs),
   `ai-coding/samples/` (~45 swarm-output archives), and the full bodies of
-  commands and skills (see Open Questions).
+  the remaining commands and skills (see Open Questions).
 - Two findings were reproduced live in a fresh Linux environment: the
   `make help` bootstrap failure and the `.bashrc` duplicate-append under
   bash-sourcing. Brewfile entries were checked against the Homebrew formulae
@@ -193,6 +200,17 @@ every run — reproduced live during this critique.
   - Rationale: the one documented way to get GUI tooling on Linux feeds
     macOS-only entries to brew, so the path exists but cannot deliver most of
     what the section promises.
+- **Completeness (wiki drift, recurred)** @ `ai-coding/parameters/coverage.md:1-10`
+  vs `ai-coding/skills/file-dump/SKILL.md:14-20` (1/1 runs)
+  - Evidence: `coverage.md` calls itself a "Per-artifact index, intended to
+    cover every declared parameter", and `TASKS.md:31` cites "trajectory-
+    snapshot omission proves the failure mode"; a repo-wide search for
+    `file-dump` in `ai-coding/parameters/` returns nothing, though the skill
+    (added in `d38e381`) declares six parameters (`{description}`,
+    `{save_dir}`, `{filename_format}`, `{model}`, `{date}`, `{session}`).
+  - Rationale: the hand-maintained coverage index drifted again within one
+    commit of the failure mode being documented, so the wiki's completeness
+    claim is broken for the newest artifact.
 
 ### Nit
 
@@ -207,13 +225,25 @@ every run — reproduced live during this critique.
 - **Completeness (stale metadata)** @ `ai-coding/marketplace.json:12` and
   `plugins/ai-coding/.plugin/plugin.json` — Evidence: "Skills and commands
   for AI-assisted coding (conventional-commits, meta-prompt)." Rationale: the
-  catalog now holds 9 commands and 10 skills, so the two named examples
+  catalog now holds 9 commands and 11 skills, so the two named examples
   misrepresent scope. (1/1 runs)
 - **Correctness (inconsistent frontmatter)** @
   `ai-coding/skills/trajectory-snapshot/SKILL.md:1-4` and
   `worktree-task/SKILL.md:1-4` — Evidence: both lack the `license: MIT` field
-  present in the other eight skills' frontmatter. Rationale: metadata
-  conventions are applied inconsistently across the skill set. (1/1 runs)
+  present in the other nine skills' frontmatter (including the new
+  `file-dump`), and `d38e381` revised trajectory-snapshot without adding it.
+  Rationale: metadata conventions are applied inconsistently across the skill
+  set. (1/1 runs)
+- **Clarity (divergent token names in a shared convention)** @
+  `ai-coding/skills/file-dump/SKILL.md:17-19` vs
+  `ai-coding/skills/trajectory-snapshot/SKILL.md:14` — Evidence: file-dump,
+  which "owns the naming convention", calls the timestamp token `{date}`
+  (`{description}-{model}-{date}-{session}.md`), while trajectory-snapshot,
+  which "follows the same convention", calls the identically-defined value
+  (`date -u +%Y-%m-%dT%H-%M-%SZ`) `{datetime_timestamp}`. Rationale: the two
+  skills sharing one convention use different names for the same token,
+  inviting drift exactly where the convention was just centralized.
+  (1/1 runs)
 - **Robustness (terminfo)** @ `home-config/.tmux.conf:2` — Evidence:
   `set -g default-terminal "xterm-256color"`. Rationale: tmux documentation
   expects `tmux-256color`/`screen-256color` inside tmux; `xterm-*` can
@@ -228,9 +258,10 @@ every run — reproduced live during this critique.
 
 - **Coverage gap:** `ai-coding/parameters/` (~95 archival/generated docs),
   `ai-coding/samples/` (~45 swarm-output archives), and the full bodies of
-  the 9 commands and 10 skills were skimmed for metadata consistency only,
-  not exhaustively analyzed; a dedicated run on those trees may surface
-  additional findings.
+  the 9 commands and 9 of the 11 skills were skimmed for metadata consistency
+  only, not exhaustively analyzed (only `file-dump` and the revised
+  `trajectory-snapshot` were read in full during the regeneration pass); a
+  dedicated run on those trees may surface additional findings.
 - **brew-bundle cask behavior on Linux** could not be verified in the
   analysis environment (no Homebrew installed), so whether `GUI_INSTALL=1` on
   Linux fails hard or merely skips the ~40 cask entries is unconfirmed; this
