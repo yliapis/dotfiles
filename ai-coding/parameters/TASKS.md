@@ -17,42 +17,7 @@ confidence signal. Evidence pointers cite files/lines as of `9560abb`.
 
 ## P0 — Correctness of the live contract (unanimous findings)
 
-### 2. Add `trajectory-snapshot` to the wiki
-
-Flagged by: C1, C2, C3, C4.
-
-`skills/trajectory-snapshot/SKILL.md:13-20` declares `{filename_format}`,
-`{granularity}`, and `{coding_tool}`, yet the skill appears nowhere in the
-wiki — not in `coverage.md` (which accounts for only 9 of 10 skills, see
-`coverage.md:211-220`), not in any concern file, not in the Quick Map. This
-falsifies the "reference for every parameter declared" claim in
-`README.md:3-6` and `coverage.md:3-5`. The wiki landed 2026-07-03
-(`e258beb`); the skill landed 2026-07-07 (`f8d0a74`, `149f7ee`) without a
-wiki touch.
-
-Work items:
-
-- Add a `trajectory-snapshot` row-set to `coverage.md`.
-- Place `{filename_format}` in `concerns/io.md` beside the `artifact_path`
-  family; note it introduces a new addressing form the io card does not
-  cover — a path *template* with `{coding_tool}` / `{datetime_timestamp}`
-  token substitution.
-- Note its `-2`/`-3` collision auto-suffix as a third distinct suffix
-  semantics (vs `worktree_name`'s `-<i>` and meta-prompt's `-<i>`), and a
-  third overwrite posture alongside save-session-state's abort/confirm and
-  design-skill's `force` (`concerns/lifecycle.md`).
-- Place `{granularity}` (closed enum `verbatim | condensed | summary |
-  native`) and `{coding_tool}` in appropriate concerns.
-- Document the security-relevant distinction: rendered snapshots redact
-  secrets while `native` mode intentionally preserves sensitive transcript
-  bytes (`trajectory-snapshot/SKILL.md:19,30-31,38-39`). See also task 9.
-- Fix the now-false claim in `future.md:35-39` that "today every artifact
-  fixes its Output Format section instead of parameterizing it" —
-  `{granularity}` is a live, shipping output-shape parameter. Decide whether
-  a reporting/output-shape concern is warranted now that a live example
-  exists.
-- Until a coverage check exists (task 3), soften "every" to "intended to
-  cover every."
+_No open tasks._
 
 ## P1 — Drift prevention and factual card fixes
 
@@ -236,10 +201,10 @@ Flagged by: C1.
 The concern taxonomy has no security or data-handling route; security-relevant
 behavior appears only where an artifact happens to mention it (clearest
 example: trajectory-snapshot's rendered-redaction vs `native` no-redaction
-split, task 2). Add a thin cross-cutting index — not a full ontology — for
-parameters that execute commands, fetch URLs, accept paths, overwrite files,
-expose transcripts, or alter redaction, each row linking to the owning atomic
-card and live source.
+split, documented in `concerns/io.md`). Add a thin cross-cutting index — not
+a full ontology — for parameters that execute commands, fetch URLs, accept
+paths, overwrite files, expose transcripts, or alter redaction, each row
+linking to the owning atomic card and live source.
 
 ### 10. Close io vocabulary gaps
 
