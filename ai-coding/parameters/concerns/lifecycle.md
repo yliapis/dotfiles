@@ -8,7 +8,7 @@ lifecycle governs what escapes it.
 ## Cards
 
 ### `write_gate` (family)
-- **Aliases:** `update_mode` (meta-prompt), `persistence` (ralph-design, design-skill, designer-controller), `dry_run` (address-worklist-commit-loop), `mode` (save-session-state)
+- **Aliases:** `update_mode` (meta-prompt), `persistence` (ralph-design, design-skill, designer-controller, ticket-breakdown), `dry_run` (address-worklist-commit-loop, ticket-breakdown), `mode` (save-session-state)
 - **Applies to:** command, skill
 - **Meaning:** Whether the run mutates the filesystem or only shows what it
   would do. Four spellings with distinct enums, one concept — each artifact
@@ -26,11 +26,13 @@ lifecycle governs what escapes it.
   | designer-controller | `persistence` | `chat` (default), `codebase` | same semantics; note the default flips to `chat` |
   | address-worklist-commit-loop | `{dry_run}` | `true`, `false` (default) | `true` emits the dispatch plan and exits — no worktrees, edits, verify runs, commits, or source mutation, even in `force-approve-all` |
   | save-session-state | `{mode}` | `write` (default), `preview` | `preview` emits the snapshot in chat and creates or replaces no file |
+  | ticket-breakdown | `{persistence}` + `{dry_run}` | `files` (default), `chat`; `dry_run` `true`, `false` (default) | `chat` renders every ticket inline and writes nothing; `{dry_run}=true` emits only the ticket plan table — no render, no writes — and takes precedence over `{persistence}` |
 
 - **Validation:** the design skills reject `artifact_path` / `use_worktree`
   when `persistence=chat`; meta-prompt's `agent` mode requires a resolvable
-  save target.
-- **Used by:** meta-prompt, ralph-design, design-skill, designer-controller, address-worklist-commit-loop, save-session-state
+  save target; ticket-breakdown rejects an explicit `{output_dir}` or
+  `{emit_worklist}` when `{persistence}` is `chat`.
+- **Used by:** meta-prompt, ralph-design, design-skill, designer-controller, address-worklist-commit-loop, save-session-state, ticket-breakdown
 
 ### `merge_mode`
 - **Aliases:** —
@@ -76,6 +78,9 @@ live:
   collisions; it is distinct from the fan-out index suffix `-<i>` that
   numbers siblings on [`worktree_name`](isolation.md#worktree_name) and on
   meta-prompt's rewritten [`artifact_path`](io.md#artifact_path).
+  ticket-breakdown takes the same posture at two levels: an existing
+  non-empty `{output_dir}` gets the directory-name suffix, and same-named
+  ticket files within a run get the before-extension suffix.
 
 ## Artifact-specific
 
@@ -99,5 +104,8 @@ live:
   otherwise.
 - `force` (design-skill) — overwrite an existing `artifact_path` instead of
   aborting. Default: `false`; rejected with `persistence=chat`.
+- `{emit_worklist}` (ticket-breakdown) — whether the `WORKLIST.md` index is
+  written at the root of `{output_dir}` alongside the ticket files. Default:
+  `true`; setting it explicitly with `{persistence}` = `chat` aborts.
 - `{allow_unpushed}` (soft-shutdown) — tolerate unpushed commits on the
   current branch without blocking shutdown. Default: `false`.

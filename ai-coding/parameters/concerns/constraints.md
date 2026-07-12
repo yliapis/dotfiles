@@ -64,6 +64,10 @@ also defines the validation vocabulary the other concern files reference.
 - `{max_items}` (address-worklist-commit-loop) — hard cap on total items
   addressed across all agents; items beyond the cap are reported as
   `deferred (cap-hit)`. Default: unlimited.
+- `{min_severity}` (ticket-breakdown) — lowest severity that still gets a
+  ticket, over `critical > major > minor > nit`; items below the threshold
+  are reported as `filtered`, never silently dropped, and severity-less
+  (`unclassified`) items are always retained. Default: include all.
 
 ## Validation vocabulary
 

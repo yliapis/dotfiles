@@ -41,6 +41,10 @@ is already pinned down.
   which triggers HELP).
 - `{worklist}` (address-worklist-commit-loop) — the work-item source: a
   markdown path, chat reference, MCP endpoint, or inline items. Required.
+- `{analysis}` (ticket-breakdown) — the work-item source to split into
+  tickets: a markdown file or directory path, chat reference, or inline items.
+  Kin to `{worklist}` but accepts directories and not MCP endpoints; the
+  emitted `WORKLIST.md` is itself a valid `{worklist}` source. Required.
 - `trait_name` (design-skill) — kebab-case identifier for the trait skill being
   authored; becomes the directory name (`<trait_name>-design/`) and the
   trait-map row. Validation: `^[a-z][a-z0-9-]*$`. Required.

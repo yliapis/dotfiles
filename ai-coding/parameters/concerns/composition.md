@@ -53,6 +53,11 @@ and style dimensions that bias drafting. This is the meta-programming concern
   supplying the principles list and walkthrough the loop walks. Default:
   `.cursor/skills/declarative-design/SKILL.md`. Read at invocation time;
   round count, step names, and deliverable shape are sourced from it.
+- `{ticket_template}` (ticket-breakdown) — path to the parameterized ticket
+  template rendered once per ticket. Default: the skill's own
+  `TICKET_TEMPLATE.md`. Read at invocation time (never inlined), like
+  `{design_skill}`; a custom template may use any subset of the skill's
+  token vocabulary, and unknown tokens abort before any write.
 - `precedence` (designer-controller) — trait-conflict resolution: `none`
   (default) | ordered trait list | explicit rule string. Only meaningful in
   `mode=propose` with two or more traits; rejected otherwise.

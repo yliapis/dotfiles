@@ -78,10 +78,10 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | `worktree_name` | [isolation](concerns/isolation.md) | `worktree` | worktree-task, address-worklist-commit-loop, ralph-design, meta-prompt |
 | `use_worktree` | [isolation](concerns/isolation.md) | — | ralph-design, design-skill, designer-controller |
 | `delete_worktree` | [isolation](concerns/isolation.md) | `delete_after_merge` | worktree-task, wrap-up |
-| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, ralph-design, design-skill, designer-controller, address-worklist-commit-loop, save-session-state |
+| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, ralph-design, design-skill, designer-controller, address-worklist-commit-loop, save-session-state, ticket-breakdown |
 | `merge_mode` | [lifecycle](concerns/lifecycle.md) | — | worktree-task, agent-swarm (sets it) |
 | `remote` | [lifecycle](concerns/lifecycle.md) | — | merge-commit-push, wrap-up, soft-shutdown |
-| `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library |
+| `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, ticket-breakdown |
 | `approval_mode` | [interaction](concerns/interaction.md) | `mode` | address-worklist-commit-loop, ralph-design |
 | `authoring_mode` | [interaction](concerns/interaction.md) | `mode` | design-skill, designer-controller |
 | `traits` | [composition](concerns/composition.md) | — | designer, designer-controller |
