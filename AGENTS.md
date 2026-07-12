@@ -7,8 +7,7 @@ Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
 backend, CI, or test suite.
 
 ### Setup / update
-- Setup runs the repo's own `install.sh`. Scripts are zsh, so run them with `zsh`.
-- `install.sh` needs `$SHELL` set, e.g. `SHELL=/bin/bash zsh install.sh`.
+- Setup runs the repo's own `install.sh`; it needs `$SHELL` set to a supported shell.
 - Do not set `GUI_INSTALL=1` on Linux; the Brewfile is macOS-only and will fail.
 - `INSTALL_OLLAMA=0` skips the ollama download. Homebrew install is idempotent.
 - The `tilix` apt prompt and the `fzf`/`starship` not-found warnings are non-fatal.
