@@ -35,6 +35,13 @@ only** — aspirational parameters and tooling ideas live in [future.md](future.
 - Validation is always **fail-fast**: parameters are checked before any side
   effect, and failure aborts with an explanatory error and no filesystem
   changes. Cards note only checks beyond that baseline.
+- **Flag contradictions, don't transcribe them.** When two artifacts state
+  incompatible contracts (e.g. a dispatch edge whose parameter shapes cannot
+  both hold), the wiki must not neutrally record both sides. Add a **Known
+  seams** note on the affected card(s) and in
+  [propagation.md](propagation.md) naming the conflict, and file the fix
+  against the artifacts. The wiki is a map of the live surface, not an
+  arbiter of last edit wins.
 
 Card template:
 
@@ -64,7 +71,7 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | `stop_condition` | [constraints](concerns/constraints.md) | — | worktree-task, ralph-design |
 | `max_iterations` | [constraints](concerns/constraints.md) | — | ralph-design, design-skill, designer-controller |
 | `candidate_count` | [replication](concerns/replication.md) | `n`, `num_experiments`, `parallelism`, `num_agents`, `num`, `fan_out`, `fanout_default_n` | meta-prompt, critique, worktree-task, address-worklist-commit-loop, agent-swarm, designer-controller, ralph-design |
-| `concurrency` | [replication](concerns/replication.md) | `k`, `parallel`, `parallel_agents`, `p` | meta-prompt, critique, agent-swarm |
+| `concurrency` | [replication](concerns/replication.md) | `k`, `parallel`, `parallel_agents`, `p` | meta-prompt, critique, agent-swarm, worktree-task |
 | `partition_count` | [replication](concerns/replication.md) | `num_partitions` | worktree-task, agent-swarm, address-worklist-commit-loop |
 | `agent_model` | [models](concerns/models.md) | — | worktree-task, address-worklist-commit-loop, ralph-design, designer-controller |
 | `base_branch` | [isolation](concerns/isolation.md) | — | worktree-task, address-worklist-commit-loop, ralph-design, wrap-up, soft-shutdown |

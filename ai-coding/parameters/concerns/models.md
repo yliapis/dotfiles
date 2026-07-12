@@ -35,4 +35,7 @@ bites when a fan-out mixes models.
   `broadcast` (one model to all, default) | `per-agent` (list of length
   `{num_agents}`) | `per-partition` (list of length `{num_partitions}`,
   broadcast across contiguous slices). Resolves into worktree-task's
-  `agent_model` at dispatch time — see [propagation.md](../propagation.md).
+  `agent_model` at dispatch time; the lengths satisfy the child's checks
+  because dispatch sets worktree-task's `parallelism = num_agents` (and
+  `concurrency = parallel_agents`) — see
+  [propagation.md](../propagation.md).
