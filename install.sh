@@ -60,6 +60,22 @@ if ! command -v curl > /dev/null 2>&1; then
   esac
 fi
 
+# zsh runs the Makefile and scripts/sync-coding-tools.sh; rsync drives the
+# copy-mode sync. Both ship with macOS but not with minimal linux images.
+for tool in zsh rsync; do
+  if ! command -v "$tool" > /dev/null 2>&1; then
+    case "$OSTYPE" in
+      linux-gnu*)
+        sudo apt install --update -y "$tool"
+        ;;
+      *)
+        echo "$tool expected to be installed; exiting"
+        exit 1
+        ;;
+    esac
+  fi
+done
+
 # install tilix on linux
 case "$OSTYPE" in
   linux-gnu*)
