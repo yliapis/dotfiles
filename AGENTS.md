@@ -3,8 +3,7 @@
 ## Cursor Cloud specific instructions
 
 Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
-`ai-coding/` commands + skills into the Cursor and Claude home locations. No web app,
-backend, CI, or test suite.
+`ai-coding/` commands + skills into the Cursor and Claude home locations.
 
 ### Setup / update
 - Setup runs the repo's own `install.sh`; it needs `$SHELL` set to a supported shell.
