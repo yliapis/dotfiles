@@ -8,7 +8,11 @@
 # --unlink reverse operation. This Makefile only translates target names
 # to the equivalent `./scripts/sync-coding-tools.sh ...` invocations.
 
-# Use GNU Make's default shell (/bin/sh); do not override SHELL.
+# GNU Make ignores $SHELL from the environment and defaults to /bin/sh.
+# Honor the user's login shell when make's SHELL was not set on the command line.
+ifneq ($(origin SHELL),command line)
+SHELL := $(shell printf '%s' "$${SHELL:-/bin/sh}")
+endif
 .SHELLFLAGS := -eu -c
 .DEFAULT_GOAL := help
 
