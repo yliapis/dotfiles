@@ -8,4 +8,4 @@ Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
 Setup runs the repo's own `install.sh`. Run `make help` for details on sync and
 other targets.
 
-See `README.md` for richer information.
+See `README.md` for the installation command and Makefile usage.
