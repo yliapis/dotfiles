@@ -48,25 +48,20 @@ elif [ "$SHELL_DETECTED" = "bash" ]; then
   DEFAULT_PROFILE_FILE="$HOME/.bashrc"
 fi
 
-if ! command -v curl > /dev/null 2>&1; then
-  case "$OSTYPE" in
-    linux-gnu*)
-      sudo apt install --update curl
-      ;;
-    *)
-      echo "curl expected to be installed; exiting"
-      exit 1
-      ;;
-  esac
-fi
+# baseline system packages on debian/ubuntu (curl, zsh, rsync, ...) declared
+# in packages/apt-*.txt; no-op elsewhere (macOS relies on system tools + the
+# Brewfile). The GUI list (tilix) only applies when GUI_INSTALL=1.
+GUI_INSTALL="$GUI_INSTALL" bash "$DOTFILES_ROOT/scripts/bootstrap-apt.sh" || {
+  echo "Error: apt bootstrap failed; exiting"
+  exit 1
+}
 
-# install tilix on linux
-case "$OSTYPE" in
-  linux-gnu*)
-    echo "installing tilix terminal emulator"
-    sudo apt-get install tilix
-    ;;
-esac
+# curl drives the Homebrew and ollama installs below; ships with macOS and is
+# in packages/apt-base.txt for linux, so this only trips on unusual hosts.
+if ! command -v curl > /dev/null 2>&1; then
+  echo "Error: curl expected to be installed; exiting"
+  exit 1
+fi
 
 if [ -f "$DEFAULT_PROFILE_FILE" ]; then
   echo "profile file exists"

@@ -1,0 +1,7 @@
+# packages/apt-gui.txt — GUI packages for Linux desktops, installed by
+# scripts/bootstrap-apt.sh only when GUI_INSTALL=1 (mirrors install.sh's
+# Brewfile gate, so headless VMs never pull in a desktop stack).
+#
+# Format: one apt package per line; '#' starts a comment (inline allowed).
+
+tilix      # terminal emulator (previously an inline apt-get in install.sh)
