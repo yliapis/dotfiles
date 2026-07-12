@@ -35,8 +35,13 @@ Robustness ([robustness](concerns/robustness.md)):
 Reporting (no live concern file yet):
 
 - `verbosity`, `require_diff`, `include_terminal_log`, `output_format` —
-  report-shape knobs; today every artifact fixes its Output Format section
-  instead of parameterizing it.
+  report-shape knobs. One output-shape parameter is live today:
+  trajectory-snapshot's `{granularity}` (documented under
+  [io](concerns/io.md#artifact-specific)); every other artifact fixes its
+  Output Format section instead of parameterizing it. Decision: a dedicated
+  reporting concern file is not warranted for a single artifact-specific
+  parameter — create one when a second artifact ships an output-shape knob,
+  and move `{granularity}` there.
 
 Isolation ([isolation](concerns/isolation.md)):
 

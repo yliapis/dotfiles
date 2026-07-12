@@ -11,8 +11,12 @@ lifecycle governs what escapes it.
 - **Aliases:** `update_mode` (meta-prompt), `persistence` (ralph-design, design-skill, designer-controller), `dry_run` (address-worklist-commit-loop), `mode` (save-session-state)
 - **Applies to:** command, skill
 - **Meaning:** Whether the run mutates the filesystem or only shows what it
-  would do. Four spellings with distinct enums, one concept — every artifact
-  that can write offers a no-write mode:
+  would do. Four spellings with distinct enums, one concept — each artifact
+  below gates its primary deliverable write behind a no-write mode. (Not
+  every writing artifact is in the family: trajectory-snapshot has no
+  preview mode and guards its snapshot write with a never-overwrite
+  collision rename instead — see
+  [Overwrite postures](#overwrite-postures).)
 
   | Artifact | Spelling | Values | Write behavior |
   |---|---|---|---|
@@ -54,6 +58,24 @@ lifecycle governs what escapes it.
   `base_branch` after the archive merge; soft-shutdown checks it for unpushed
   commits.
 - **Used by:** merge-commit-push, wrap-up, soft-shutdown
+
+## Overwrite postures
+
+What happens when an output path already exists. Three distinct postures are
+live:
+
+- **Abort or confirm** — save-session-state (`{mode}` = `write`): an existing
+  `{output_path}` aborts with an explanatory error naming the path; with
+  `-i` / `--interactive` the run asks before overwriting. No silent
+  truncation either way.
+- **Explicit force** — design-skill: an existing `artifact_path` aborts
+  unless `force=true` (see Artifact-specific below).
+- **Never overwrite, rename** — trajectory-snapshot: on collision a `-2`
+  (then `-3`, …) suffix is appended before the extension until the name is
+  free, so overwriting is impossible by contract. This suffix dodges
+  collisions; it is distinct from the fan-out index suffix `-<i>` that
+  numbers siblings on [`worktree_name`](isolation.md#worktree_name) and on
+  meta-prompt's rewritten [`artifact_path`](io.md#artifact_path).
 
 ## Artifact-specific
 

@@ -1,9 +1,12 @@
 # I/O
 
 How inputs are addressed and where outputs land. Input-side parameters
-(`context`, `criteria`, `worklist`) accept several addressing forms; output-side
-parameters name destination paths whose writes are gated by the
-[write gate family](lifecycle.md#write_gate-family).
+(`context`, `criteria`, `worklist`) accept several addressing forms;
+output-side parameters name destination paths. Whether a write may be skipped
+or previewed is a lifecycle concern — see the
+[write gate family](lifecycle.md#write_gate-family) — as is what happens when
+the target already exists
+([overwrite postures](lifecycle.md#overwrite-postures)).
 
 ## Addressing forms
 
@@ -56,3 +59,30 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
   `.ai-coding-artifacts/trajectories/<utc-iso-timestamp>.jsonl`.
 - `{learnings_path}` (wrap-up) — session learnings note path. Default:
   `.ai-coding-artifacts/learnings/<utc-iso-timestamp>.md`.
+- `{filename_format}` (trajectory-snapshot) — snapshot output path *template*:
+  an output-path concept adjacent to the [`artifact_path`](#artifact_path)
+  family, but in an addressing form the vocabulary above does not cover — the
+  path is rendered by substituting `{coding_tool}` and `{datetime_timestamp}`
+  tokens, then resolved against the workspace root. Default:
+  `{coding_tool}-snapshot-{datetime_timestamp}.md`; when `{granularity}` is
+  `native`, the `.md` extension is swapped for the native transcript's
+  extension. Collisions never overwrite: a `-2` (then `-3`, …) suffix is
+  appended before the extension — a third suffix semantics, distinct from the
+  fan-out index `-<i>` on [`worktree_name`](isolation.md#worktree_name) and on
+  meta-prompt's rewritten [`artifact_path`](#artifact_path), and a third
+  overwrite posture (see
+  [lifecycle.md](lifecycle.md#overwrite-postures)).
+- `{granularity}` (trajectory-snapshot) — snapshot detail level: closed enum
+  `verbatim` | `condensed` | `summary` | `native`. Default `summary`. The only
+  live output-shape parameter (see [future.md](../future.md) — Reporting).
+  `native` requires a locatable native transcript (no lossy reconstruction;
+  the run aborts without one). Security-relevant split: the rendered
+  granularities (`verbatim`, `condensed`, `summary`) redact secrets to
+  `<redacted>`; `native` copies the tool's session transcript byte-identically
+  and intentionally applies no redaction, so sensitive transcript bytes are
+  preserved.
+- `{coding_tool}` (trajectory-snapshot) — tool slug substituted into
+  `{filename_format}` and used to locate the native transcript. Default:
+  auto-detected — `cursor` when the session transcript lives under
+  `~/.cursor/projects/`, `claude-code` when under `~/.claude/projects/`, else
+  `agent`.
