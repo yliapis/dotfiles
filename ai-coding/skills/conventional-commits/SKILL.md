@@ -74,13 +74,19 @@ When determining commit type, ask:
 
 ## Breaking Changes
 
-Indicate breaking changes using either method:
+Indicate breaking changes using either method — a `!` after the type/scope:
 
 ```
 feat!: remove deprecated API endpoint
+```
 
+```
 feat(api)!: change authentication flow
+```
 
+or a `BREAKING CHANGE:` footer:
+
+```
 fix: update validation logic
 
 BREAKING CHANGE: validation now rejects empty strings
@@ -171,4 +177,4 @@ Fixes #234
 
 ## Full Specification
 
-For the complete Conventional Commits 1.0.0 specification including all rules and FAQ, see [references/full-spec.md](references/full-spec.md).
+For the complete Conventional Commits 1.0.0 specification including all rules and FAQ, see [conventionalcommits.org/en/v1.0.0](https://www.conventionalcommits.org/en/v1.0.0/).

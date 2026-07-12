@@ -1,6 +1,7 @@
 ---
 name: worktree-task
 description: "Launch agents in isolated git worktrees to execute a task end-to-end, then present per-worktree diffs for review and selective merge. Use when worktrees are referenced to execute a task resulting in file changes, when sandboxing risky edits, or when running parallel attempts on one task. Composed by the `agent-swarm` skill as the worktree primitive."
+license: MIT
 ---
 
 # Worktree Task
@@ -17,14 +18,14 @@ The `agent-swarm` skill composes this skill as the worktree primitive; `agent-sw
 - `{delete_worktree}` — whether to delete a worktree after its branch is merged successfully; optional, default: `true`. Worktrees whose branches are not merged are left in place.
 - `{merge_mode}` — merge behavior after showing the diff(s); optional, default: `interactive`. Allowed values: `interactive`, `auto`.
 - `{test_command}` — shell command each agent runs inside its worktree before the diff is presented; optional. Exit code `0` counts as pass; any other exit code counts as fail.
-- `{agent_model}` — model(s) to use for the worktree agent(s); optional, default: the parent agent's model. Accepts a single model identifier (broadcast to every agent) or a list of identifiers whose length MUST equal `{parallelism}` (mapped positionally by index).
+- `{agent_model}` — model(s) to use for the worktree agent(s); optional, default: the parent agent's model. Accepts a single model identifier (broadcast to every agent), a list of length `{parallelism}` (one model per agent, mapped positionally by index), or a list of length `{num_partitions}` (one model per partition, broadcast within each contiguous slice).
 - `{parallelism}` — total number of sibling agents to launch, each in its own worktree; optional, default: `1`. MUST be an integer `>= 1`; otherwise the workflow fails before any worktree is created.
 - `{concurrency}` — maximum number of agents running simultaneously; optional, default: `{parallelism}` (all agents launch together). MUST be an integer in `1..{parallelism}`. Changes pacing only, never the total: exactly `{parallelism}` worktrees are created regardless.
-- `{num_partitions}` — number of partitions; optional, default: same as parallelism. MUST be an integer `>= 1`. When set together with an iterable `{agent_model}`, the workflow raises an error unless `{agent_model}` provides a full iteration or a correctly-sized iterable slice for the partitions.
+- `{num_partitions}` — number of contiguous model-assignment partitions over the `{parallelism}` agents; optional, default: same as `{parallelism}`. MUST be an integer `>= 1` that evenly divides `{parallelism}`. When set together with a list-valued `{agent_model}`, the list length MUST be either `{parallelism}` (per agent) or `{num_partitions}` (per partition, broadcast within each contiguous slice of `{parallelism} / {num_partitions}` agents).
 - `{stop_condition}` — explicit completion condition beyond "task implemented and verified"; optional.
 
 ## Success Criteria
-- [ ] Parameters are validated before any worktree is created: `{parallelism}` and `{num_partitions}` are integers `>= 1`; `{concurrency}` is an integer in `1..{parallelism}`; if `{agent_model}` is a list its length equals `{parallelism}`; if `{num_partitions}` is set together with an iterable `{agent_model}`, the iterable is either a full iteration or a correctly-sized slice for the partitions. Validation failure aborts with an explanatory error and no filesystem side effects.
+- [ ] Parameters are validated before any worktree is created: `{parallelism}` and `{num_partitions}` are integers `>= 1`; `{num_partitions}` evenly divides `{parallelism}`; `{concurrency}` is an integer in `1..{parallelism}`; if `{agent_model}` is a list its length equals `{parallelism}` or `{num_partitions}`. Validation failure aborts with an explanatory error and no filesystem side effects.
 - [ ] Exactly `{parallelism}` isolated worktrees are created from `{base_branch}` (or the current branch when omitted), each on its own branch derived from `{worktree_name}`; at most `{concurrency}` agents run at any moment, and every slot keeps its 1-based launch index regardless of scheduling order.
 - [ ] Each agent completes `{task}` (and `{stop_condition}` when provided) inside its own worktree, producing no edits, staged changes, or untracked files in the original working tree or in any sibling worktree.
 - [ ] If `{test_command}` is provided, each agent runs it once inside its worktree and the captured exit code is reported per worktree.
@@ -43,9 +44,9 @@ The `agent-swarm` skill composes this skill as the worktree primitive; `agent-sw
 - Scope: this workflow manages one `{task}`, up to `{parallelism}` sibling worktrees forked from one `{base_branch}`, and at most one resulting merge into `{base_branch}`. Out of scope: pushing, opening PRs, creating tags, rebasing pre-existing branches, or touching unrelated branches.
 
 ## Workflow
-1. Validate parameters; fail fast if `{parallelism}` or `{num_partitions}` is not an integer `>= 1`, `{concurrency}` is not an integer in `1..{parallelism}`, `{agent_model}` is a list whose length differs from `{parallelism}`, or `{num_partitions}` is set together with an iterable `{agent_model}` that is neither a full iteration nor a correctly-sized slice. Create no worktrees on validation failure.
+1. Validate parameters; fail fast if `{parallelism}` or `{num_partitions}` is not an integer `>= 1`, `{num_partitions}` does not evenly divide `{parallelism}`, `{concurrency}` is not an integer in `1..{parallelism}`, or `{agent_model}` is a list whose length is neither `{parallelism}` nor `{num_partitions}`. Create no worktrees on validation failure.
 2. Record the current branch as `{base_branch}` unless explicitly provided.
-3. Resolve the per-agent model assignment: broadcast a scalar `{agent_model}` to every agent, or zip a list of identifiers positionally by index.
+3. Resolve the per-agent model assignment: broadcast a scalar `{agent_model}` to every agent; zip a length-`{parallelism}` list positionally by index; or expand a length-`{num_partitions}` list by broadcasting each entry across its contiguous slice of `{parallelism} / {num_partitions}` agents.
 4. For each `i` in `1..{parallelism}`, create a new branch off `{base_branch}` named after `{worktree_name}` (with `-{i}` suffix when `{parallelism}` > 1) and add a matching worktree via `git worktree add`.
 5. Launch one agent per worktree, each on its assigned model, with instructions to complete `{task}` until done (and until `{stop_condition}` is satisfied, when provided). Keep at most `{concurrency}` agents running at once: start slots in index order and start the next pending slot as a running one finishes. Slot indexes, worktree names, and model assignments are fixed at creation time and do not depend on scheduling order.
 6. After each agent reports completion, run `{test_command}` (if provided) inside that worktree and capture the exit code.
@@ -77,7 +78,7 @@ One block per worktree, in launch order:
 - `Summary`: 1–5 bullets describing the changes and why.
 - `Verification`: `{test_command}` exit code and a brief output tail, or `n/a` when `{test_command}` is not provided.
 - `Diff`: a fenced ` ```diff ` block containing `git diff {base_branch}..<branch>`, truncated above ~400 lines with `... (truncated, K lines omitted)` when oversized.
-- `Merge recommendation`: `merge`, `skip`, or `hold`, with a one-line reason.
+- `Merge verdict`: `merge`, `skip`, or `hold`, with a one-line reason.
 
 ### Merge Recommendation
 - The recommended worktree branch to merge (or `none`) and a one-line rationale.

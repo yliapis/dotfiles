@@ -8,19 +8,19 @@ Merge a source branch into a target branch with an explicit merge strategy, then
 - `{target_branch}` — branch the source is merged into; optional, default: `main`.
 - `{merge_strategy}` — git merge flag governing the merge commit shape; one of `--no-ff`, `--ff-only`, `--squash`; optional, default: `--no-ff`.
 - `{remote}` — remote name to push the target branch to; optional, default: `origin`.
-- `{commit_message}` — commit message for the squash commit; required when `{merge_strategy}` is `--squash`, otherwise optional.
+- `{commit_message}` — commit message for the squash commit; required when `{merge_strategy}` is `--squash`, otherwise ignored.
 - `{include_push}` — whether to push after a successful merge; optional, default: `true`.
 
 ## Success Criteria
-- [ ] Validation runs before any state-changing git command: `{source_branch}` and `{target_branch}` both exist locally, `{remote}` is configured, and the source-branch working tree is free of staged or unstaged changes (`git status --porcelain` is empty).
+- [ ] Validation runs before any state-changing git command: `{source_branch}` and `{target_branch}` both exist locally, `{remote}` is configured, and the current working tree is free of staged or unstaged changes (`git status --porcelain` is empty) before any branch switch.
 - [ ] When `{merge_strategy}` is `--squash`, `{commit_message}` is set; otherwise the workflow aborts before staging the squash.
-- [ ] After merge, `{target_branch}` HEAD has advanced to incorporate `{source_branch}`; no conflict markers remain.
+- [ ] After merge, `{target_branch}` HEAD incorporates `{source_branch}` (its HEAD advanced, or was already up to date under `--ff-only`); no conflict markers remain.
 - [ ] When `{include_push}` is `true` and the merge succeeded, `git push {remote} {target_branch}` exits `0` and the local and remote tips of `{target_branch}` match.
 - [ ] On any failing step (validation, merge conflict, push rejection), the workflow stops at that step, reports the failing command and its stderr, and leaves the repository in an inspectable state — no automatic abort, reset, or retry.
 - [ ] The final report names the source SHA, the target SHA before merge, the target SHA after merge, the merge commit SHA (when applicable), and the pushed refspec (when push ran).
 
 ## Guardrails
-- MUST verify the source-branch working tree is clean before switching branches; abort if `git status --porcelain` returns any output.
+- MUST verify the current working tree is clean before switching branches; abort if `git status --porcelain` returns any output.
 - MUST NOT push when the merge produced conflicts, was aborted, or did not advance `{target_branch}`'s HEAD.
 - MUST use `git push {remote} {target_branch}`; MUST NOT use `--force` or `--force-with-lease`.
 - MUST refuse if `{target_branch}` is not a local branch; bail before any switch.
@@ -29,7 +29,7 @@ Merge a source branch into a target branch with an explicit merge strategy, then
 
 ## Workflow
 1. Resolve parameters: `{source_branch}` defaults to the current branch via `git rev-parse --abbrev-ref HEAD`; `{target_branch}` defaults to `main`; `{merge_strategy}` defaults to `--no-ff`; `{remote}` defaults to `origin`; `{include_push}` defaults to `true`.
-2. Validate: `git rev-parse --verify {source_branch}` and `git rev-parse --verify {target_branch}` succeed; `git remote get-url {remote}` succeeds; `git status --porcelain` on `{source_branch}` is empty; when `{merge_strategy}` is `--squash`, `{commit_message}` is non-empty. Abort with the failing check on any failure.
+2. Validate: `git rev-parse --verify {source_branch}` and `git rev-parse --verify {target_branch}` succeed; `git remote get-url {remote}` succeeds; `git status --porcelain` in the current working tree is empty; when `{merge_strategy}` is `--squash`, `{commit_message}` is non-empty. Abort with the failing check on any failure.
 3. Switch to `{target_branch}` via `git switch {target_branch}`. If git refuses because the target is checked out in another worktree, abort and report the conflicting worktree path.
 4. Merge: run `git merge {merge_strategy} {source_branch}`, except for `--squash` where the workflow runs `git merge --squash {source_branch}` followed by `git commit -m "{commit_message}"`. On conflict, run `git status` to surface the conflicting paths, leave the merge in progress, and stop the workflow.
 5. When `{include_push}` is `true` and the merge succeeded, run `git push {remote} {target_branch}`. On non-fast-forward rejection, do NOT auto-fetch or rebase; surface the rejection and stop.
@@ -50,7 +50,7 @@ One pass/fail bullet per check: working tree clean on source; source and target 
 
 ### Merge
 - `Command`: the literal `git merge` invocation used.
-- `Result`: `success`, `conflict`, or `aborted`.
+- `Result`: `success` or `conflict`.
 - `New target SHA`: post-merge SHA on `{target_branch}` (and the merge-commit SHA when applicable).
 
 ### Push

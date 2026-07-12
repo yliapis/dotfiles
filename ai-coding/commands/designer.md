@@ -3,12 +3,12 @@
 ## Task
 Invoke `/designer {traits} {target}` to apply every named design-style trait's skill to `{target}` and emit one unified design proposal that credits each trait and surfaces any unresolvable tensions between them.
 
-The command is composable (every named trait's skill is applied together), idempotent (running it twice with the same `{traits}` and `{target}` produces byte-equivalent output), extensible (adding a future trait requires one row in `{trait_map}` plus a new `SKILL.md`), and decoupled from skill bodies — each design skill is referenced by its canonical `.cursor/skills/{trait}-design/SKILL.md` path and read at invocation time rather than inlined into this file.
+The command is composable (every named trait's skill is applied together), stable (the same `{traits}` and `{target}` always resolve to the same skill set and the same report structure, with no run-specific metadata; the LLM-rendered prose itself is not bit-stable across runs), extensible (adding a future trait requires one row in `{trait_map}` plus a new `SKILL.md`), and decoupled from skill bodies — each design skill is referenced by its canonical `.cursor/skills/{trait}-design/SKILL.md` path and read at invocation time rather than inlined into this file.
 
 ## Parameters
 - `{traits}` — ordered list of trait names parsed from the leading tokens of the `/designer` invocation, up to but not including the first token that begins `{target}`; required. Every entry MUST be a key in `{trait_map}`.
 - `{target}` — artifact to design: inline text, repo-relative file path, repo-relative directory path, or free-form description; required.
-- `{trait_map}` — trait-name → skill-path mapping declared verbatim below; required. Extend in place per `## Extending the Trait Map`. Seeded entries:
+- `{trait_map}` — trait-name → skill-path mapping declared verbatim below (fixed in this file, not invocation-supplied). Extend in place per `## Extending the Trait Map`. Seeded entries:
   - `declarative` → `.cursor/skills/declarative-design/SKILL.md`
   - `deterministic` → `.cursor/skills/deterministic-design/SKILL.md`
 
@@ -17,7 +17,7 @@ The command is composable (every named trait's skill is applied together), idemp
 - [ ] Every resolved skill file is `Read` at its canonical `.cursor/skills/{trait}-design/SKILL.md` path and its guidance is `apply`-ed; the rendered report credits each named trait in its own `### {trait}` subsection under `## Per-Trait Contribution`, one subsection per trait in invocation order.
 - [ ] When `{traits}` contains more than one entry, every named trait's skill is applied together; no trait is dropped, down-weighted, reordered out of invocation order, or silently merged with another.
 - [ ] Tensions between traits are surfaced in `## Tensions and Tradeoffs` with both positions labeled by the traits involved; conflicting guidance is never silently reconciled, and `_None._` is rendered if and only if no tension was detected.
-- [ ] Running `/designer` twice with the same `{traits}` (same names, same order) and the same `{target}` produces byte-equivalent output.
+- [ ] Running `/designer` twice with the same `{traits}` (same names, same order) and the same `{target}` resolves the same skill set and produces a report with the same section structure and no run-specific metadata (no timestamps or random identifiers).
 - [ ] Every skill reference resolved at runtime is a repo-relative path under `.cursor/skills/`; absolute paths, `~/`, `$HOME`, and machine-specific home directories are rejected before any design work begins.
 
 ## Guardrails
@@ -26,7 +26,7 @@ The command is composable (every named trait's skill is applied together), idemp
 - MUST surface unresolvable conflicts between traits in `## Tensions and Tradeoffs`, labeled by the traits involved with both positions stated; MUST NOT pick a winner or silently prefer one trait unless the invocation supplied an explicit precedence rule.
 - MUST reference each design skill by its canonical `.cursor/skills/{trait}-design/SKILL.md` path and load that file at invocation time; MUST NOT inline, hard-code, summarize, or paraphrase the body of any design skill into this command or the emitted report.
 - MUST abort with an explanatory error before any design work begins if any name in `{traits}` has no entry in `{trait_map}` or if any resolved skill file cannot be read; emit no partial report on failure.
-- MUST keep output deterministic: no timestamps, random identifiers, or run-specific metadata; identical `{traits}` and `{target}` always produce byte-equivalent output.
+- MUST keep output free of run-specific metadata: no timestamps or random identifiers; identical `{traits}` and `{target}` always resolve the same skills and render the same report structure. MUST NOT promise byte-equivalent output — the LLM-rendered prose is not bit-stable across runs.
 - MUST keep every skill reference repo-relative under `.cursor/skills/`; MUST NOT use `~/`, `$HOME`, absolute paths outside the repo, or machine-specific home directories.
 - Scope: produce one unified design proposal for one `{target}` using the traits named in `{traits}`. Out of scope: editing `{target}`, creating or editing any file under `.cursor/skills/`, executing the resulting design, seeding traits beyond those listed in `{trait_map}`, or invoking `/designer` recursively.
 
@@ -63,4 +63,4 @@ A single markdown report:
 ````
 
 ## Extending the Trait Map
-To add a new design-style trait, append one row to the `{trait_map}` list in `## Parameters` above pairing the new trait name with its canonical `.cursor/skills/{new-trait}-design/SKILL.md` path, then create the matching `SKILL.md` at that path. No edits to callers of `/designer`, to design skills already in `{trait_map}`, or to any file outside this command file and the new `SKILL.md` are required.
+To add a new design-style trait, append one row to the `{trait_map}` list in `## Parameters` above pairing the new trait name with its canonical `.cursor/skills/{new-trait}-design/SKILL.md` path, then create the matching `SKILL.md` at that path. No edits to callers of `/designer`, to design skills already in `{trait_map}`, or to any file outside this command file and the new `SKILL.md` are required. (The `designer-controller` skill keeps its own `## Trait Map`; add a matching row there when the trait should also be reachable through the controller.)

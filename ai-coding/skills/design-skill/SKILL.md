@@ -45,7 +45,7 @@ Same parsing rules as [../designer-controller/SKILL.md](../designer-controller/S
 **Persistence:**
 
 - `persistence` — `chat` | `codebase`. Default `codebase` (the artifact IS the deliverable).
-- `artifact_path` — repo-relative path. Default `.cursor/skills/<trait_name>-design/SKILL.md`. Required when `persistence=codebase`; rejected when `persistence=chat`.
+- `artifact_path` — repo-relative path. Only meaningful when `persistence=codebase` (defaulted to `.cursor/skills/<trait_name>-design/SKILL.md` when unset); rejected when `persistence=chat`.
 - `use_worktree` — boolean. Default `true` when `persistence=codebase`; MUST be `false` when `persistence=chat`. When `true`, the disk write happens inside a dedicated worktree forked from the current branch; the calling working tree is never touched.
 
 **Safety:**
@@ -67,7 +67,7 @@ Same parsing rules as [../designer-controller/SKILL.md](../designer-controller/S
 4. **Set up persistence.** When `persistence=codebase` and `use_worktree=true`, run `git worktree add` to create a new worktree forked from the current branch and route every subsequent disk write into it. When `persistence=codebase` and `use_worktree=false`, write directly into the calling working tree (caller has accepted the risk). When `persistence=chat`, hold draft state in memory only.
 5. **Dispatch on `mode`:**
    - **`propose`**: from `trait_name` and `description`, generate every section of TEMPLATE.md in a single pass. Replace placeholders with concrete content; remove the template's `<!-- TEMPLATE FILE -->` HTML comment and every italic *guidance note*. Emit the assembled draft.
-   - **`walkthrough`**: walk TEMPLATE.md's sections in declared order. For each section:
+   - **`walkthrough`**: run a leading round 0 that collects the framing paragraph (the trait `description`) when it was not pinned at invocation, then walk TEMPLATE.md's sections in declared order. For each section:
      1. Read the section's placeholder structure and italic guidance from TEMPLATE.md.
      2. Draft the section's body (anchored on `trait_name`, `description`, and content drafted in earlier sections).
      3. Present the draft and the running working-document state; prompt the user to review.
@@ -113,14 +113,14 @@ Present this section only when `persistence=codebase`.
 
 A short bullet list reminding the user of the steps NOT done by this skill:
 
-- Add a row to [../designer-controller/SKILL.md](../designer-controller/SKILL.md)'s `## Trait Map` pairing `<trait_name>` with the new skill path.
+- Add a row to [../designer-controller/SKILL.md](../designer-controller/SKILL.md)'s `## Trait Map` pairing `<trait_name>` with the new skill path (and the matching row in the `/designer` command's `{trait_map}` when the trait should be reachable there too).
 - Review and merge the worktree branch.
 - Optionally, add the new skill's `description` triggers to any caller's auto-attach allowlists.
 
 ## Guardrails
 
 - MUST require explicit invocation (a phrase from `## When to Invoke`); MUST NOT auto-apply on bare "create a skill" phrasings or unrelated authoring tasks.
-- MUST `Read` [./TEMPLATE.md](./TEMPLATE.md) at invocation time and use it as the canonical contract for the new skill's structure; MUST NOT inline, hard-code, summarize, or paraphrase TEMPLATE.md's body into this skill or the emitted draft.
+- MUST `Read` [./TEMPLATE.md](./TEMPLATE.md) at invocation time and use it as the canonical contract for the new skill's structure; MUST NOT inline, hard-code, summarize, or paraphrase TEMPLATE.md's body into this skill's own prompt, and MUST NOT carry TEMPLATE.md's placeholder text or italic guidance notes into the emitted draft (the draft instantiates the template's section structure and fixed skeleton prose; that is expected).
 - MUST strip the template's `<!-- TEMPLATE FILE -->` HTML comment and every italic *guidance note* from the emitted draft before writing or rendering.
 - MUST refuse to overwrite an existing `<artifact_path>` unless `force=true`.
 - MUST keep every disk write inside the worktree when `use_worktree=true`; MUST NOT touch the calling working tree's working directory or index.
@@ -155,7 +155,7 @@ Behavior: the meta-skill reads TEMPLATE.md, generates a full draft of `accessibl
 
 - **Bare "create a skill" phrasings.** This skill is manually invoked. If the user has not used a phrase from `## When to Invoke`, point them at the right artifact (a new trait-design skill, a hook, a rule, a regular skill) instead of inferring intent.
 - **Editing an existing trait-design skill.** This skill scaffolds NEW skills. To change an existing trait skill, edit it directly; this skill MUST refuse to overwrite without `force=true`.
-- **Authoring a non-design-style skill.** TEMPLATE.md is specific to the `<trait>-design` family (When to Invoke → Walkthrough → Worked Example → Deliverable → Validation & Verification → When Not To Use → Principles). For non-design skills, see the `create-skill` skill or write `SKILL.md` from scratch.
+- **Authoring a non-design-style skill.** TEMPLATE.md is specific to the `<trait>-design` family (When to Invoke → Walkthrough → Worked Example → Deliverable → Validation & Verification → When Not To Use → Principles). For non-design skills, write `SKILL.md` from scratch.
 - **Registering a new trait in the controller.** This skill produces the new SKILL.md only; adding the row to the controller's `## Trait Map` is the user's call. Out of scope on purpose so the new skill can be reviewed before it goes live.
 - **Recursive scaffolding.** This skill MUST NOT invoke itself.
 

@@ -142,7 +142,7 @@ A table that names every non-determinism source identified in the target and pai
 | `__del__` flushes log file | `cache.py:55` | Move flush into `__exit__`; remove finalizer side effect | proposed |
 | Weak references | (none found) | N/A — no `weakref` usage in target | N/A |
 
-`Status` values: `proposed` (identified, not yet applied), `applied` (fix landed), `verified` (fix landed and determinism check passes), `N/A` (does not apply to this target, with a one-line rationale recorded in the row). No other values. The checklist must include one row per source enumerated above that applies to the target; a row marked `proposed` blocks acceptance, and any source that genuinely does not apply must be recorded as `N/A` with a rationale, not silently dropped.
+`Status` values: `proposed` (identified, not yet applied), `applied` (fix landed), `verified` (fix landed and determinism check passes), `N/A` (does not apply to this target, with a one-line rationale recorded in the row). No other values. The checklist must include one row per source enumerated above that applies to the target; `proposed` rows are expected here (scoping is the point of this deliverable) but block acceptance of deliverable (a), and any source that genuinely does not apply must be recorded as `N/A` with a rationale, not silently dropped.
 
 ## Example: Before / After
 
@@ -291,22 +291,17 @@ If a container is the canonical environment, run the same image (pinned by diges
 
 ### 3. Vary CPU count, locale, timezone, and environment; output MUST be unchanged
 
-Sweep across configurations that historically perturb output and confirm the hash is invariant:
+Vary one factor at a time from a fixed baseline and confirm the hash is invariant (6 runs instead of the 12-run thread×locale cross-product; escalate to the full cross-product only when a single-factor run drifts, since genuine thread×locale interactions are rare and each run of a typical target is expensive):
 
 ```bash
-for nthreads in 1 4 16; do
-  for locale in C C.UTF-8 en_US.UTF-8 tr_TR.UTF-8; do
-    OMP_NUM_THREADS=$nthreads \
-    MKL_NUM_THREADS=$nthreads \
-    OPENBLAS_NUM_THREADS=$nthreads \
-    LC_ALL=$locale \
-    LANG=$locale \
-    TZ=UTC \
-    PYTHONHASHSEED=0 \
-    SOURCE_DATE_EPOCH=0 \
-    ./run.sh | sha256sum
-  done
-done
+run_hashed() {
+  OMP_NUM_THREADS=$1 MKL_NUM_THREADS=$1 OPENBLAS_NUM_THREADS=$1 \
+  LC_ALL=$2 LANG=$2 TZ=UTC PYTHONHASHSEED=0 SOURCE_DATE_EPOCH=0 \
+  ./run.sh | sha256sum
+}
+run_hashed 1 C.UTF-8                 # baseline
+for nthreads in 4 16; do run_hashed $nthreads C.UTF-8; done
+for locale in C en_US.UTF-8 tr_TR.UTF-8; do run_hashed 1 $locale; done
 # every printed digest MUST be identical
 ```
 

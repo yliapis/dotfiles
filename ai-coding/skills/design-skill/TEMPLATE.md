@@ -86,7 +86,7 @@ Verify the deliverable by running these checks (each MUST pass before declaring 
 - **{Anti-case 3}.** {one sentence}.
 - **{Adjacent skill is a better fit}.** {If another trait-design skill or a non-design tool covers the case better, name it.}
 
-*The "When Not To Use" section is what makes the skill safe to auto-attach against bare phrasings. The longer this section, the safer the skill.*
+*The "When Not To Use" section is what keeps the skill from being misapplied when a user's phrasing is ambiguous. The longer this section, the safer the skill.*
 
 ## {Trait} Principles
 

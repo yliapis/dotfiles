@@ -22,8 +22,8 @@ The snapshot favors factual, citable state (resolved paths, git identifiers, str
 - [ ] When `{mode}` is `write`, the snapshot file exists at the resolved absolute `{output_path}`, parent directories were created as needed, and the file is non-empty.
 - [ ] The saved or previewed snapshot includes **Header** with UTC ISO-8601 timestamp (second or finer precision), resolved absolute `{output_path}`, and resolved `{format}` and `{mode}`.
 - [ ] **Thread summary** states the user’s underlying goal in one short paragraph and lists the main tasks attempted in bulleted form with current completion state (`done` / `in progress` / `blocked` / `not started`) per item.
-- [ ] **Decisions** lists at least zero explicit decisions or constraints stated in the thread; when none exist, the section body is exactly `_None recorded._`
-- [ ] **Blockers** and **Open questions** each list at least zero items using the same `_None recorded._` convention when empty.
+- [ ] **Decisions** lists the explicit decisions or constraints stated in the thread; when none exist, the section body is exactly `_None recorded._`
+- [ ] **Blockers** and **Open questions** each list their items, using the same `_None recorded._` convention when empty.
 - [ ] When `todos` is included and a todo tool or explicit inline checklist exists in the thread, **Todos** reflects the latest known states; when no todos exist, the section body is `_None recorded._`
 - [ ] When `open_files` is included, **Open / recent files** lists paths from the IDE context when available; when unavailable, the section states that explicitly in one line.
 - [ ] When `git_workspace` is included, **Git / workspace** runs `git rev-parse --show-toplevel`, `git branch --show-current`, and `git status --short --branch` (or equivalents) once per resolved root in `{workspace_roots}` and records verbatim command plus representative output lines; on non-git directories, records `_Not a git repository._` for that root.
@@ -68,6 +68,7 @@ Use this section order and headings. Replace brace placeholders with captured va
 - **Captured at (UTC):** {iso_8601_utc}
 - **Output path:** {absolute_output_path}
 - **Format:** markdown
+- **Mode:** {mode}
 
 ## Goal
 {one_paragraph_goal}
@@ -118,9 +119,7 @@ git status --short --branch
 
 **File body when `{format}` is `json`**
 
-A single JSON object. Each key mirrors an included section slug in snake_case (`header`, `goal`, `thread_summary`, `decisions`, `blockers`, `open_questions`, `todos`, `open_files`, `git_workspace`, `artifact_pointers`, `resume_instructions`). Arrays contain strings or objects as appropriate; omit keys excluded by `{include_sections}`.
-
-Omit keys entirely when the matching entry is excluded via `{include_sections}`.
+A single JSON object. Each key mirrors an included section slug in snake_case (`header`, `goal`, `thread_summary`, `decisions`, `blockers`, `open_questions`, `todos`, `open_files`, `git_workspace`, `artifact_pointers`, `resume_instructions`). Arrays contain strings or objects as appropriate; omit keys entirely when the matching section is excluded via `{include_sections}`.
 
 ## Help
 

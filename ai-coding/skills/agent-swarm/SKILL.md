@@ -19,7 +19,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 - `{model_mix}` — model-assignment shape: `broadcast` (one model to all), `per-agent` (list of length `{num_agents}`), or `per-partition` (list of length `{num_partitions}` broadcast across contiguous slices); optional, default: `broadcast` with the parent agent's model.
 - `{num_partitions}` — partition count when `{model_mix} = per-partition`; optional, default: `{num_agents}`. MUST divide `{num_agents}` evenly.
 - `{selection_modes}` — list (any subset) of: `manual`, `auto-best`, `synthesize`, `vote`, `hybrid`, `tournament`, `consensus`. Every listed mode runs in parallel over the surviving members and produces its own outcome block; optional, default: `auto` (every mode whose prerequisites are met given the other parameters; skipped modes are listed in the report with the missing prerequisite).
-- `{test_command}` — shell verifier each member runs in its worktree; required when any of `auto-best`, `vote`, `hybrid`, `tournament` is in `{selection_modes}`.
+- `{test_command}` — shell verifier each member runs in its worktree; required when any of `auto-best`, `hybrid`, `tournament` is in `{selection_modes}`. `vote` uses it when present but can group on a structural diff signature alone (see the mode table).
 - `{aggregator}` — prompt or shell command that produces a merged artifact from candidates; required when `synthesize` or `hybrid` is in `{selection_modes}`.
 - `{min_successes}` — minimum members reaching `success` before aggregation runs; optional, default: `ceil({num_agents} / 2)`. If unmet after replacements terminate, every selection mode reports `under-floor` and no winner is auto-selected.
 - `{relaunch_on_hang_after}` — wall-clock duration after which a silent member is force-aborted; optional, default: `5m`. Replacement happens per `{replacement_policy}`.
@@ -104,7 +104,7 @@ Three shapes, dispatched through `worktree-task`'s `{agent_model}` parameter:
 - **`per-agent`** — list of length `{num_agents}`, one model per slot positionally. Use for explicit head-to-head model comparison.
 - **`per-partition`** — list of length `{num_partitions}`, broadcast across `{num_agents} / {num_partitions}` contiguous slots. Use for "k samples per model" comparisons.
 
-Validation: list-by-agent length MUST equal `{num_agents}`; list-by-partition length MUST equal `{num_partitions}`, and `{num_partitions}` MUST divide `{num_agents}` evenly. These lengths line up with the child skill's checks because dispatch sets worktree-task's `{parallelism}` to `{num_agents}` (see Workflow step 6): the child requires a list-valued `{agent_model}` of length `{parallelism}`.
+Validation: list-by-agent length MUST equal `{num_agents}`; list-by-partition length MUST equal `{num_partitions}`, and `{num_partitions}` MUST divide `{num_agents}` evenly. These lengths line up with the child skill's checks because dispatch sets worktree-task's `{parallelism}` to `{num_agents}` and, for `per-partition`, forwards `{num_partitions}` alongside the partition-sized list (see Workflow step 6): the child accepts a list-valued `{agent_model}` of length `{parallelism}` or `{num_partitions}`.
 
 ## Selection Modes (run in parallel)
 
@@ -116,7 +116,7 @@ All modes listed in the resolved `{selection_modes}` run independently over the 
 | `auto-best` | Rank by `{test_command}` exit (0 wins); break ties on smaller diff, fewer files touched, lower-index slot | `{test_command}` |
 | `synthesize` | Run `{aggregator}` over surviving members; emit one merged artifact (no branch is merged) | `{aggregator}` |
 | `vote` | Group members by output equivalence (test result + structural diff hash); pick largest group; tie-break on lower-index | `{test_command}` or comparable signature |
-| `hybrid` | Filter to members passing `{test_command}`, then run `{aggregator}` over the filtered subset (or fall back to manual pick if synthesis is inappropriate for the artifact type) | `{test_command}` AND `{aggregator}` |
+| `hybrid` | Filter to members passing `{test_command}`, then run `{aggregator}` over the filtered subset (or fall back to manual pick if synthesis is inappropriate for the artifact type); when the filtered subset equals the surviving set and `synthesize` also ran, reuse its result rather than re-running `{aggregator}` | `{test_command}` AND `{aggregator}` |
 | `tournament` | Pairwise comparisons reduce `2^k` members to `1`; requires comparison cost to be cheap relative to member cost | `{test_command}`; `{num_agents}` MUST be a power of 2 |
 | `consensus` | Strict per-hunk overlap across members; emit only the agreed subset as a unified diff plus a list of contested hunks | comparable diffs |
 
@@ -155,7 +155,7 @@ The skill emits structured events in a dedicated `### Events` section of the rep
 | `swarm.gate_decided` | `verdict`, `triggers_fired`, `pattern` | After the Swarm Gate runs |
 | `swarm.dispatched` | `num_agents`, `parallel_agents`, `model_mix`, `selection_modes` | After `worktree-task` is launched |
 | `member.started` | `slot`, `model`, `worktree_path` | When a member begins |
-| `member.progress` | `slot`, `last_activity_ms` | Heartbeat (per `worktree-task`'s reporting cadence) |
+| `member.progress` | `slot`, `last_activity_ms` | On each watchdog check that observes new activity (worktree mtime or agent output) |
 | `member.completed` | `slot`, `status`, `test_exit`, `diff_lines` | When a member terminates (success / failed / incomplete) |
 | `member.replaced` | `slot`, `reason`, `replacement_model` | When a hung member is killed and respawned |
 | `selection.completed` | `mode`, `result`, `rationale` | Once per resolved entry in `{selection_modes}` |
@@ -170,8 +170,8 @@ Events MUST appear in chronological order. Do NOT inline events outside the dedi
 3. **Resolve `{selection_modes}`.** When the value is `auto`, include every mode whose prerequisites are met given the other parameters. Record which modes were resolved and which were skipped (with the missing prerequisite) for the report.
 4. **Validate parameters.** Confirm sizing, mix shape, partition divisibility, and selection-mode prerequisites. Fail fast on any mismatch (no filesystem side effects).
 5. **Cost projection (when `{cost_cap}` is set).** Compute projected cost. If `projected > {cost_cap}`, propose the largest `{num_agents}` that fits and wait for user approval.
-6. **Dispatch via `worktree-task`.** Invoke it with `{parallelism} = {num_agents}` (total members), `{concurrency} = {parallel_agents}` (simultaneous cap), the resolved `{agent_model}` shape, the verbatim `{task}` for every member, `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched`. Do not re-implement worktree mechanics.
-7. **Watchdog.** Track each member's last activity. Emit `member.started`, `member.progress`, `member.completed` events as they fire. When `{relaunch_on_hang_after}` expires for a member, force-abort it; respawn per `{replacement_policy}` and emit `member.replaced`.
+6. **Dispatch via `worktree-task`.** Invoke it with `{parallelism} = {num_agents}` (total members), `{concurrency} = {parallel_agents}` (simultaneous cap), the resolved `{agent_model}` shape (forwarding `{num_partitions}` alongside a partition-sized list for `per-partition`), the verbatim `{task}` for every member, `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched`. Do not re-implement worktree mechanics.
+7. **Watchdog.** Track each member's last activity (worktree mtime or agent output), checking no more often than `{relaunch_on_hang_after} / 5` and backing off while nothing changes. Emit `member.started`, `member.progress`, `member.completed` events as they fire. When `{relaunch_on_hang_after}` expires for a member, force-abort it; respawn per `{replacement_policy}` and emit `member.replaced`.
 8. **Floor check.** When all live members terminate, count `success`. If below `{min_successes}`, every selection mode reports `under-floor`; skip aggregation and emit `swarm.done` with `floor_met=false`.
 9. **Run all resolved selection modes in parallel.** For each entry in the resolved `{selection_modes}`, apply its rule over the surviving members and emit `selection.completed`. Each mode produces its own outcome block.
 10. **Report and merge handoff.** Render the Output Format. Hand the chosen branch (if any) back through `worktree-task`'s merge prompt. Emit `swarm.done`. At most one branch is merged per invocation, even if several modes converge on it.

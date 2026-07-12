@@ -59,7 +59,7 @@ Collect text fragments from the caller's drafting context, in this order:
 
 1. The natural-language task description the caller will pass to the renderer.
 2. Any requested output format (e.g., "yaml schema", "markdown report", "checklist").
-3. Any keywords the user supplied inline in the invocation (no separate keywords parameter is introduced; user-supplied keywords appear in natural language inside items 1 and 2).
+3. Any keywords the user supplied inline in the invocation.
 
 Concatenate the fragments, then tokenize:
 
@@ -168,12 +168,12 @@ When no template scores above zero and `default.md` is absent or unreadable, han
 <Exact structure of what the executing agent should produce.>
 ````
 
-The skeleton mirrors `/meta-prompt`'s built-in Output Format so callers can substitute it transparently.
+The skeleton is a deliberately reduced form of `/meta-prompt`'s built-in Output Format (Parameters omitted, one exemplar bullet per section) so callers can substitute it transparently.
 
 ## Workflow
 
 1. **Detect mode.** If `--interactive-template` is present, take the interactive branch; otherwise take the auto branch.
-2. **Enumerate templates.** List `ai-coding/templates/*.md`, excluding `INDEX.md`. Read each file's frontmatter. Skip and record any file whose frontmatter is missing or malformed.
+2. **Enumerate templates.** List `ai-coding/templates/*.md`, excluding `INDEX.md`. The auto branch additionally excludes `default.md` from scoring (it is the fallback, per Auto-Selection Step 2); the interactive branch keeps it as a pickable option. Read each file's frontmatter. Skip and record any file whose frontmatter is missing or malformed.
 3. **Auto branch.** Build `intent_terms` from the drafting context (Auto-Selection Step 1). Score each readable candidate (Step 3). Choose the highest-scoring template; tie-break deterministically (Step 4). If max score is zero, fall back to `default.md` or the inline minimal skeleton (Step 5).
 4. **Interactive branch.** Present every readable template's `name` and `description` via `AskQuestion`. On a pick, use that template. On cancel, decline, or no pick, fall back to the auto branch for this invocation.
 5. **Emit the seed.** Hand the chosen template's body (the Markdown content below the frontmatter) back to the caller as the starting skeleton. Yield control; the caller renders the final prompt.

@@ -27,7 +27,7 @@ Inspect the current agent thread for outstanding work and emit either a `READY_T
 ## Guardrails
 - MUST be read-only: no `git commit`, `git merge`, `git push`, `git worktree remove`, `git worktree prune`, `git branch -d`, `git branch -D`, `git reset`, `git rebase`, `git stash`, file write, or file delete is executed under any branch or mode.
 - MUST evaluate every gate even when an earlier gate fails; never short-circuit the diagnosis.
-- MUST cite the literal shell command and a verbatim slice of its captured output for every gate; MUST NOT paraphrase, summarize, or fabricate the git state.
+- MUST cite the literal shell command and a verbatim slice of its captured output for every gate; MUST NOT paraphrase, summarize, or fabricate the git state. A gate MAY batch its per-path or per-branch commands into one scripted shell invocation (e.g., a `for` loop that echoes each path before its output), provided each path's or branch's output remains separately attributable.
 - MUST NOT propose destructive remediation (for example `git reset --hard`, `git push --force`, `rm -rf` of a worktree); remediation hints stay advisory and reference existing slash commands when applicable.
 - MUST NOT classify a worktree absent from `{session_worktrees}` or a branch absent from `{session_branches}` as outstanding; out-of-session items are ignored on purpose.
 - MUST NOT silently substitute a default when an explicitly supplied parameter is malformed; abort with the failing parameter named.
@@ -37,7 +37,7 @@ Inspect the current agent thread for outstanding work and emit either a `READY_T
 ## Workflow
 1. Parse parameters and validate. Extract `-i` / `--interactive` and remove it from the input. Validate that `{todo_source}` matches `agent`, `none`, or `path:<...>`; that `{session_branches}` and `{session_worktrees}` are lists of strings; and that `{allow_unpushed}` is a boolean. Abort with the failing parameter named on any malformed value before evaluating any gate.
 2. Resolve defaults: `{session_worktrees}` defaults to every path returned by `git worktree list --porcelain` other than the main worktree and the calling worktree; `{session_branches}` defaults to each branch associated with those worktrees plus the current branch when it differs from `{base_branch}`. Record whether each list was supplied explicitly or inferred, so the Header can surface the source.
-3. Snapshot `git status --porcelain` from the calling worktree and from every path in `{session_worktrees}`; retain each byte string keyed by path as `pre_state`.
+3. Snapshot `git -C <path> status --porcelain --untracked-files=all` from the calling worktree and from every path in `{session_worktrees}` (same flags as G1, so G1 can reuse these outputs); retain each byte string keyed by path as `pre_state`.
 4. Evaluate the six gates below in order, capturing `command`, `output`, and `outcome` per gate; never short-circuit:
    - **G1 — Uncommitted changes.** For the calling worktree and every path in `{session_worktrees}`, run `git -C <path> status --porcelain --untracked-files=all`. Outcome is `pass` only when every output is empty; otherwise `fail` with each non-empty output captured per path (staged, unstaged, and untracked entries are reported as a single block per worktree).
    - **G2 — In-progress git operations.** For each path covered by G1, locate `.git` via `git -C <path> rev-parse --git-dir`, then check for any of `MERGE_HEAD`, `rebase-merge/`, `rebase-apply/`, `CHERRY_PICK_HEAD`, `REVERT_HEAD`, `BISECT_LOG`. Outcome is `pass` only when none exist; otherwise `fail` listing each present marker with its containing path and the matching operation name.
@@ -50,15 +50,7 @@ Inspect the current agent thread for outstanding work and emit either a `READY_T
 7. Render the Output Format below. When the verdict is `STAY_ON_THREAD`, group every `fail` gate into the Outstanding Items list ordered by gate ID. When the verdict is `READY_TO_EXIT`, populate the Final State section instead.
 
 ## Output Format
-A single response. The very first line is the verdict token on its own line, followed by the named sections below in order. Omit the section (Outstanding Items or Final State) whose precondition does not hold.
-
-```
-READY_TO_EXIT
-```
-or
-```
-STAY_ON_THREAD
-```
+A single response. The very first line is the bare verdict token — `READY_TO_EXIT` or `STAY_ON_THREAD` — on its own line with no code fence or other markup, followed by the named sections below in order. Omit the section (Outstanding Items or Final State) whose precondition does not hold.
 
 ### Header
 - `Verdict`: `READY_TO_EXIT` or `STAY_ON_THREAD`.
@@ -85,7 +77,7 @@ Present this section only when the verdict is `STAY_ON_THREAD`. A numbered list,
 
 1. **G<n> — <Category>** — one-sentence summary of what blocks shutdown.
    - Items: bullet list of the concrete blockers (paths, branches, SHAs, TODO entries).
-   - Remediation hint: one advisory next step (for example `commit or stash uncommitted changes in <path>`, `merge <branch> into {base_branch} via /merge-commit-push`, `mark TODO entry "<title>" as completed or cancelled`).
+   - Remediation hint: one advisory next step (for example `commit or stash uncommitted changes in <path>`, `merge <branch> into {base_branch} via /merge-commit-push`, `archive and clean up session worktrees via /wrap-up`, `mark TODO entry "<title>" as completed or cancelled`).
 
 Omit this section entirely when the verdict is `READY_TO_EXIT`.
 

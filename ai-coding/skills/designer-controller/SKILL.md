@@ -61,7 +61,7 @@ Inline parsing rules:
 **Persistence:**
 
 - `persistence` — `chat` | `codebase`. Default `chat`. `chat` emits the deliverable inline only; `codebase` writes the deliverable to `artifact_path`.
-- `artifact_path` — repo-relative path. Required when `persistence=codebase`; default `schemas/<kebab-target>.md` derived from `target`. Rejected when `persistence=chat`.
+- `artifact_path` — repo-relative path. Only meaningful when `persistence=codebase` (defaulted to `schemas/<kebab-target>.md` derived from `target` when unset); rejected when `persistence=chat`.
 - `use_worktree` — boolean. Default `true` when `persistence=codebase`; MUST be `false` when `persistence=chat`. When `true`, all disk writes happen inside a dedicated worktree forked from the current branch; the calling working tree is never touched.
 
 **Safety:**

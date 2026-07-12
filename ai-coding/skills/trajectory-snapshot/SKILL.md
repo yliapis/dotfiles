@@ -1,6 +1,7 @@
 ---
 name: trajectory-snapshot
 description: "Snapshot the current agent session's trajectory into a file at a chosen granularity — verbatim replay, condensed per-turn bullets, summary narrative, or a lossless copy of the tool's native session transcript. Use when the user asks to snapshot this session, save or export the trajectory, dump the conversation to markdown, export the raw session transcript, or capture the session timeline before wrapping up."
+license: MIT
 ---
 
 # Trajectory Snapshot
@@ -46,7 +47,7 @@ Complements the `save-session-state` command: that captures resumable *state*; t
 3. Render the output path from `{filename_format}` using `{coding_tool}` and `date -u +%Y-%m-%dT%H-%M-%SZ`; for `native`, swap the `.md` extension for the native transcript's extension.
 4. Resolve the rendered path to an absolute path against the workspace root; create missing parent directories; on collision append `-2`, `-3`, … before the extension until the name is free.
 5. Locate the raw transcript for this session when possible — Cursor: `~/.cursor/projects/<workspace-slug>/agent-transcripts/<session-id>/<session-id>.jsonl`; Claude Code: `~/.claude/projects/<munged-cwd>/<session-id>.jsonl`. When the session id is unknown, take the most recently modified transcript in that directory as the current session (it is being appended live). For `native`, a locatable transcript is required; abort with an explanatory error when none is found.
-6. Build the body per the `{granularity}` contract in Output Format. For `verbatim`, prefer the on-disk transcript as the source; fall back to in-context reconstruction and mark it in the header. For `native`, skip rendering entirely: copy the transcript byte-identically and verify the copy with `cmp`.
+6. Build the body per the `{granularity}` contract in Output Format. For `verbatim`, prefer the on-disk transcript as the source, transforming it to markdown with a script (e.g. `jq` or a short Python one-liner) rather than re-emitting the whole transcript through the model; fall back to in-context reconstruction and mark it in the header. For `native`, skip rendering entirely: copy the transcript byte-identically and verify the copy with `cmp`.
 7. For rendered granularities, redact secrets and write the file (the `native` copy was already written in step 6); reply with the one-line confirmation.
 
 ## Output Format
