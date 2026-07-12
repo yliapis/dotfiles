@@ -291,17 +291,22 @@ If a container is the canonical environment, run the same image (pinned by diges
 
 ### 3. Vary CPU count, locale, timezone, and environment; output MUST be unchanged
 
-Vary one factor at a time from a fixed baseline and confirm the hash is invariant (6 runs instead of the 12-run thread×locale cross-product; escalate to the full cross-product only when a single-factor run drifts, since genuine thread×locale interactions are rare and each run of a typical target is expensive):
+Sweep across configurations that historically perturb output and confirm the hash is invariant:
 
 ```bash
-run_hashed() {
-  OMP_NUM_THREADS=$1 MKL_NUM_THREADS=$1 OPENBLAS_NUM_THREADS=$1 \
-  LC_ALL=$2 LANG=$2 TZ=UTC PYTHONHASHSEED=0 SOURCE_DATE_EPOCH=0 \
-  ./run.sh | sha256sum
-}
-run_hashed 1 C.UTF-8                 # baseline
-for nthreads in 4 16; do run_hashed $nthreads C.UTF-8; done
-for locale in C en_US.UTF-8 tr_TR.UTF-8; do run_hashed 1 $locale; done
+for nthreads in 1 4 16; do
+  for locale in C C.UTF-8 en_US.UTF-8 tr_TR.UTF-8; do
+    OMP_NUM_THREADS=$nthreads \
+    MKL_NUM_THREADS=$nthreads \
+    OPENBLAS_NUM_THREADS=$nthreads \
+    LC_ALL=$locale \
+    LANG=$locale \
+    TZ=UTC \
+    PYTHONHASHSEED=0 \
+    SOURCE_DATE_EPOCH=0 \
+    ./run.sh | sha256sum
+  done
+done
 # every printed digest MUST be identical
 ```
 

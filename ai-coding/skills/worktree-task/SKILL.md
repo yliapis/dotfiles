@@ -78,7 +78,7 @@ One block per worktree, in launch order:
 - `Summary`: 1–5 bullets describing the changes and why.
 - `Verification`: `{test_command}` exit code and a brief output tail, or `n/a` when `{test_command}` is not provided.
 - `Diff`: a fenced ` ```diff ` block containing `git diff {base_branch}..<branch>`, truncated above ~400 lines with `... (truncated, K lines omitted)` when oversized.
-- `Merge verdict`: `merge`, `skip`, or `hold`, with a one-line reason.
+- `Merge recommendation`: `merge`, `skip`, or `hold`, with a one-line reason.
 
 ### Merge Recommendation
 - The recommended worktree branch to merge (or `none`) and a one-line rationale.
