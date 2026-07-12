@@ -8,8 +8,8 @@
 # --unlink reverse operation. This Makefile only translates target names
 # to the equivalent `./scripts/sync-coding-tools.sh ...` invocations.
 
-SHELL := /bin/zsh
-.SHELLFLAGS := -eu -o pipefail -c
+# Use GNU Make's default shell (/bin/sh); do not override SHELL.
+.SHELLFLAGS := -eu -c
 .DEFAULT_GOAL := help
 
 SCRIPT := ./scripts/sync-coding-tools.sh
