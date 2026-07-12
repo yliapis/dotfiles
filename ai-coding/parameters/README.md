@@ -105,6 +105,8 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 
 ## Other pages
 
+- [options/](options/README.md) — one page per parameter: a header stating
+  what it is, what it is used for, and a link to its concern entry.
 - [propagation.md](propagation.md) — scope and propagation rules between an
   invocation and its spawned agents.
 - [coverage.md](coverage.md) — per-artifact index of declared parameters.
