@@ -48,16 +48,17 @@ elif [ "$SHELL_DETECTED" = "bash" ]; then
   DEFAULT_PROFILE_FILE="$HOME/.bashrc"
 fi
 
-# baseline system packages on debian/ubuntu (curl, zsh, rsync, ...) declared
-# in packages/apt-*.txt; no-op elsewhere (macOS relies on system tools + the
-# Brewfile). The GUI list (tilix) only applies when GUI_INSTALL=1.
-GUI_INSTALL="$GUI_INSTALL" bash "$DOTFILES_ROOT/scripts/bootstrap-apt.sh" || {
-  echo "Error: apt bootstrap failed; exiting"
+# baseline system packages (curl, zsh, rsync, ...) declared in packages/*.txt,
+# installed with the detected package manager (apt/dnf/pacman/apk/zypper);
+# no-op on macOS, which relies on system tools + the Brewfile. The GUI list
+# (tilix) only applies when GUI_INSTALL=1.
+GUI_INSTALL="$GUI_INSTALL" sh "$DOTFILES_ROOT/scripts/bootstrap-packages.sh" || {
+  echo "Error: system package bootstrap failed; exiting"
   exit 1
 }
 
 # curl drives the Homebrew and ollama installs below; ships with macOS and is
-# in packages/apt-base.txt for linux, so this only trips on unusual hosts.
+# in packages/base.txt for linux, so this only trips on unusual hosts.
 if ! command -v curl > /dev/null 2>&1; then
   echo "Error: curl expected to be installed; exiting"
   exit 1

@@ -12,8 +12,8 @@ REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 # run scripts/install-*.sh installers
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
 
-# keep the linux apt baseline current (no-op on macOS or when nothing missing)
-bash "$DOTFILES_ROOT/scripts/bootstrap-apt.sh"
+# keep the linux baseline packages current (no-op on macOS or when complete)
+sh "$DOTFILES_ROOT/scripts/bootstrap-packages.sh"
 
 if [[ "$RERUN_INSTALL" == "1" ]]; then
   source "$DOTFILES_ROOT/install.sh"

@@ -1,0 +1,9 @@
+# packages/gui.txt — GUI packages for linux desktops, installed by
+# scripts/bootstrap-packages.sh only when GUI_INSTALL=1 (mirrors install.sh's
+# Brewfile gate, so headless hosts and containers never pull in a desktop
+# stack). Same format as packages/base.txt.
+
+# terminal emulator (previously an inline apt-get in install.sh).
+# arch official repos do not carry tilix (AUR only), so it is skipped there;
+# opensuse leap needs the PackageHub extension (tumbleweed ships it in oss).
+tilix      pacman=-
