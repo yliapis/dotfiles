@@ -17,44 +17,6 @@ confidence signal. Evidence pointers cite files/lines as of `9560abb`.
 
 ## P0 — Correctness of the live contract (unanimous findings)
 
-### 1. Fix the `agent-swarm` → `worktree-task` dispatch contract
-
-Flagged by: C1, C2 (partially — treated as matching the artifacts), C3, C4.
-
-When `num_agents > parallel_agents`, the documented single dispatch cannot be
-executed:
-
-- `agent-swarm/SKILL.md:17-18` defines `{num_agents}` as the total and
-  `{parallel_agents}` as a concurrency cap in `1..num_agents`.
-- The only dispatch instruction (`agent-swarm/SKILL.md:173`) invokes
-  `worktree-task` with `{parallelism} = {parallel_agents}`.
-- `worktree-task/SKILL.md:21,27` defines `{parallelism}` as both the number of
-  worktrees created and the number run concurrently, and `SKILL.md:20`
-  requires a list-valued `{agent_model}` to have length exactly
-  `{parallelism}`.
-
-With `num_agents=8, parallel_agents=4`, only four worktrees are created and a
-per-agent model list of length 8 fails the child skill's fail-fast validation.
-No artifact defines a queue, wave, or repeated-dispatch step for the
-remainder. The wiki transcribes both halves of the contradiction without
-flagging it (`propagation.md:54-56`, `concerns/replication.md:37-40`,
-`concerns/models.md:34-38`).
-
-Resolution — fix the artifacts first, then the wiki:
-
-1. Either add a separate concurrency parameter to `worktree-task`, keep
-   `parallelism` as total count, and dispatch
-   `parallelism=num_agents, concurrency=parallel_agents`; or
-2. Have `agent-swarm` dispatch explicit waves of at most `parallel_agents`,
-   slicing model assignments and maintaining globally stable member indexes.
-
-Then update `propagation.md`, `concerns/replication.md`, and
-`concerns/models.md` to state the resolved contract, including the receiving
-side's `len(agent_model) == parallelism` check. Add contract tests for `n=p`,
-`n>p`, per-agent models, and per-partition models. Adopt a wiki norm of
-flagging cross-artifact contradictions (a "Seams" / "Known mismatches"
-subsection) instead of transcribing both sides.
-
 ### 2. Add `trajectory-snapshot` to the wiki
 
 Flagged by: C1, C2, C3, C4.
