@@ -2,9 +2,10 @@
 
 How many independent runs happen, how many run at once, and how they group.
 This is the highest-collision concern in the repo: seven artifacts spell the
-same three concepts eleven different ways. The three cards below are the
-canonical split — **total count**, **concurrency cap**, and **partition
-grouping** are distinct knobs even where an artifact conflates them.
+same three concepts more than a dozen different ways. The three cards below
+are the canonical split — **total count**, **concurrency cap**, and
+**partition grouping** are distinct knobs even where an artifact conflates
+them.
 
 ## Cards
 
@@ -26,20 +27,18 @@ grouping** are distinct knobs even where an artifact conflates them.
 - **Used by:** meta-prompt, critique, worktree-task, address-worklist-commit-loop, agent-swarm, designer-controller, ralph-design
 
 ### `concurrency`
-- **Aliases:** `k` (meta-prompt), `parallel` (critique), `parallel_agents` / `p` (agent-swarm)
+- **Aliases:** `k` (meta-prompt), `parallel` (critique), `parallel_agents` / `p` (agent-swarm); worktree-task spells it canonically (`concurrency`)
 - **Applies to:** command, skill
 - **Type:** integer in `1..candidate_count`
-- **Default:** `= candidate_count` (meta-prompt, agent-swarm — full parallelism); `1` (critique)
+- **Default:** `= candidate_count` (meta-prompt, agent-swarm, worktree-task — full parallelism); `1` (critique)
 - **Meaning:** Cap on how many members are active simultaneously. Changes
   pacing, never the total.
 - **Validation:** must not exceed `candidate_count`.
-- **Propagation:** invocation-level only; members have no inner concurrency
-  knob. Note: worktree-task has no separate concurrency parameter — its
-  `parallelism` is both count and concurrency (all members launch together),
-  which is why agent-swarm dispatches it with
-  `{parallelism} = {parallel_agents}` and owns the total via `{num_agents}`.
-  See [propagation.md](../propagation.md).
-- **Used by:** meta-prompt, critique, agent-swarm
+- **Propagation:** maps across the agent-swarm → worktree-task dispatch edge
+  (`{parallel_agents}` → `{concurrency}`, alongside
+  `{num_agents}` → `{parallelism}`); members themselves have no inner
+  concurrency knob. See [propagation.md](../propagation.md).
+- **Used by:** meta-prompt, critique, agent-swarm, worktree-task
 
 ### `partition_count`
 - **Aliases:** `num_partitions` (worktree-task, agent-swarm, address-worklist-commit-loop)
