@@ -20,7 +20,7 @@ is already pinned down.
 - **Used by:** worktree-task (declared), agent-swarm (relayed, undeclared)
 
 ### `context`
-- **Aliases:** `target` (designer, ticket-execute, crud-tickets update), `domain`
+- **Aliases:** `target` (designer, ticket-execute, ticket-crud update), `domain`
   (ralph-design — loose alias: names the domain being modeled rather than an
   existing artifact, and is forwarded to designer's `target`)
 - **Applies to:** command, skill
@@ -34,7 +34,7 @@ is already pinned down.
   section instead of guessing.
 - **Used by:** critique (`{context}`), designer (`target`), the `/designer`
   preset (`{target}`), ralph-design (`{domain}`), ticket-execute
-  (`{target}`), crud-tickets (`{target}`)
+  (`{target}`), ticket-crud (`{target}`)
 
 ## Artifact-specific
 
@@ -45,7 +45,7 @@ is already pinned down.
   which triggers HELP).
 - `{worklist}` (address-worklist-commit-loop compatibility command) — a native
   managed `WORKLIST.md` path routed to `ticket-execute`. Required.
-- `{source}` / `{analysis}` (crud-tickets create) — the work-item source to split
+- `{source}` / `{analysis}` (ticket-crud create) — the work-item source to split
   into tickets: a Markdown file or directory, chat reference, or inline items.
   `{analysis}` is a compatibility alias; supplying both aborts. Required.
 - `trait_name` (design-skill) — kebab-case identifier for the trait skill being

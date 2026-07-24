@@ -215,7 +215,7 @@ are presets over this skill and add no knobs of their own.
 | `{granularity}` | artifact-specific | [reporting](concerns/reporting.md#trajectory-snapshot) |
 | `{coding_tool}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 
-### [crud-tickets](../plugins/ticket-operations/skills/crud-tickets/SKILL.md)
+### [ticket-crud](../plugins/ticket-operations/skills/ticket-crud/SKILL.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|

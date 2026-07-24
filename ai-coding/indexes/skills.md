@@ -19,13 +19,13 @@ characters at a word boundary.
 |---:|---|---|---|---|
 | 1 | `agent-swarm` | `ai-coding/plugins/orchestration/skills/agent-swarm/SKILL.md` | yes | Orchestrate parallel agent fan-out (best-of-N) for AI coding tasks — gate the swarm-vs-single... |
 | 2 | `conventional-commits` | `ai-coding/plugins/git-operations/skills/conventional-commits/SKILL.md` | no | Format git commit messages following Conventional Commits 1.0.0 specification. Use when the user... |
-| 3 | `crud-tickets` | `ai-coding/plugins/ticket-operations/skills/crud-tickets/SKILL.md` | yes | Create a new local Markdown ticket set and WORKLIST.md from an analysis, review, plan, or... |
-| 4 | `design-skill` | `ai-coding/plugins/design-suite/skills/design-skill/SKILL.md` | no | Manually-invoked meta-skill that authors a new designer trait card against... |
-| 5 | `designer` | `ai-coding/plugins/design-suite/skills/designer/SKILL.md` | no | Manually-invoked design controller that applies one or more design traits — declarative (YAML... |
-| 6 | `file-dump` | `ai-coding/plugins/session-state/skills/file-dump/SKILL.md` | yes | Dump ad-hoc content from the current session — an analysis, review, report, comparison, plan,... |
-| 7 | `minimal-diffs` | `ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md` | no | Apply minimal, surgical changes when creating, editing, modifying, refactoring, or fixing any... |
-| 8 | `prompt-template-library` | `ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md` | yes | Pick a starting skeleton from the prompt template library when an agent is drafting a new... |
-| 9 | `stop-slop` | `ai-coding/plugins/writing/skills/stop-slop/SKILL.md` | no | Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to... |
+| 3 | `design-skill` | `ai-coding/plugins/design-suite/skills/design-skill/SKILL.md` | no | Manually-invoked meta-skill that authors a new designer trait card against... |
+| 4 | `designer` | `ai-coding/plugins/design-suite/skills/designer/SKILL.md` | no | Manually-invoked design controller that applies one or more design traits — declarative (YAML... |
+| 5 | `file-dump` | `ai-coding/plugins/session-state/skills/file-dump/SKILL.md` | yes | Dump ad-hoc content from the current session — an analysis, review, report, comparison, plan,... |
+| 6 | `minimal-diffs` | `ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md` | no | Apply minimal, surgical changes when creating, editing, modifying, refactoring, or fixing any... |
+| 7 | `prompt-template-library` | `ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md` | yes | Pick a starting skeleton from the prompt template library when an agent is drafting a new... |
+| 8 | `stop-slop` | `ai-coding/plugins/writing/skills/stop-slop/SKILL.md` | no | Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to... |
+| 9 | `ticket-crud` | `ai-coding/plugins/ticket-operations/skills/ticket-crud/SKILL.md` | yes | Create a new local Markdown ticket set and WORKLIST.md from an analysis, review, plan, or... |
 | 10 | `ticket-execute` | `ai-coding/plugins/ticket-operations/skills/ticket-execute/SKILL.md` | yes | Execute open runnable tickets from a native local Markdown ticket set, verify acceptance with... |
 | 11 | `trajectory-snapshot` | `ai-coding/plugins/session-state/skills/trajectory-snapshot/SKILL.md` | yes | Snapshot the current agent session's trajectory into a file at a chosen granularity — verbatim... |
 | 12 | `worktree-task` | `ai-coding/plugins/orchestration/skills/worktree-task/SKILL.md` | yes | Launch agents in isolated git worktrees to execute a task end-to-end, then present per-worktree... |
@@ -35,7 +35,7 @@ characters at a word boundary.
 Comma-separated slugs for command parameters:
 
 ```text
-agent-swarm, conventional-commits, crud-tickets, design-skill, designer, file-dump, minimal-diffs, prompt-template-library, stop-slop, ticket-execute, trajectory-snapshot, worktree-task
+agent-swarm, conventional-commits, design-skill, designer, file-dump, minimal-diffs, prompt-template-library, stop-slop, ticket-crud, ticket-execute, trajectory-snapshot, worktree-task
 ```
 
 ## Path list
@@ -43,13 +43,13 @@ agent-swarm, conventional-commits, crud-tickets, design-skill, designer, file-du
 ```text
 ai-coding/plugins/orchestration/skills/agent-swarm/SKILL.md
 ai-coding/plugins/git-operations/skills/conventional-commits/SKILL.md
-ai-coding/plugins/ticket-operations/skills/crud-tickets/SKILL.md
 ai-coding/plugins/design-suite/skills/design-skill/SKILL.md
 ai-coding/plugins/design-suite/skills/designer/SKILL.md
 ai-coding/plugins/session-state/skills/file-dump/SKILL.md
 ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md
 ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md
 ai-coding/plugins/writing/skills/stop-slop/SKILL.md
+ai-coding/plugins/ticket-operations/skills/ticket-crud/SKILL.md
 ai-coding/plugins/ticket-operations/skills/ticket-execute/SKILL.md
 ai-coding/plugins/session-state/skills/trajectory-snapshot/SKILL.md
 ai-coding/plugins/orchestration/skills/worktree-task/SKILL.md

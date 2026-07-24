@@ -78,11 +78,11 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | `worktree_name` | [isolation](concerns/isolation.md) | `worktree` | worktree-task, designer, meta-prompt |
 | `use_worktree` | [isolation](concerns/isolation.md) | — | designer, design-skill |
 | `delete_worktree` | [isolation](concerns/isolation.md) | `delete_after_merge` | worktree-task, wrap-up |
-| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, designer, design-skill, crud-tickets, ticket-execute, address-worklist-commit-loop, save-session-state |
+| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, designer, design-skill, ticket-crud, ticket-execute, address-worklist-commit-loop, save-session-state |
 | `merge_mode` | [lifecycle](concerns/lifecycle.md) | — | worktree-task, agent-swarm (sets it) |
 | `remote` | [lifecycle](concerns/lifecycle.md) | — | merge-commit-push, wrap-up, soft-shutdown |
-| `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, crud-tickets |
-| `approval_mode` | [interaction](concerns/interaction.md) | `mode`, `approval` | ticket-execute, crud-tickets, address-worklist-commit-loop, designer, agent-swarm |
+| `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, ticket-crud |
+| `approval_mode` | [interaction](concerns/interaction.md) | `mode`, `approval` | ticket-execute, ticket-crud, address-worklist-commit-loop, designer, agent-swarm |
 | `authoring_mode` | [interaction](concerns/interaction.md) | `mode` | design-skill, designer |
 | `traits` | [composition](concerns/composition.md) | — | designer |
 | `trait_map` | [composition](concerns/composition.md) | — | designer |
