@@ -41,6 +41,7 @@ SRC_MARKETPLACE="$REPO_ROOT"
 typeset -a SRC_COMMANDS SRC_SKILLS
 SRC_COMMANDS=("$SRC_PLUGINS"/*/commands/*.md(N))
 SRC_SKILLS=("$SRC_PLUGINS"/*/skills/*(N/))
+
 BACKUP_ROOT="$HOME/.dotfiles-backup"
 LOG_FILE="$HOME/.cache/dotfiles/sync.log"
 
