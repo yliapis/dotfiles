@@ -9,7 +9,7 @@ walkthrough).
 ## Cards
 
 ### `interactive`
-- **Aliases:** `-i` / `--interactive` (critique, meta-prompt, wrap-up, save-session-state, soft-shutdown), `--interactive-template` (prompt-template-library)
+- **Aliases:** `-i` / `--interactive` (critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, ticket-breakdown), `--interactive-template` (prompt-template-library)
 - **Applies to:** command, skill
 - **Type:** boolean flag; bare token, no value (`key=value` form rejected
   where validated)
@@ -27,10 +27,11 @@ walkthrough).
   | save-session-state | asks before overwriting an existing `{output_path}` (otherwise an existing target aborts) |
   | soft-shutdown | asks about ambiguous session scope (otherwise unresolved scope is recorded as a blocker) |
   | prompt-template-library | presents the template catalog and lets the user pick, instead of auto-selecting by score |
+  | ticket-breakdown | asks about ambiguous `{analysis}` content and presents the ticket plan for approval before rendering or writing (otherwise ambiguities go to Open Questions and the plan is not gated) |
 
 - **Propagation:** meta-prompt passes the same flag setting to its spawned
   variant agents.
-- **Used by:** critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library
+- **Used by:** critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, ticket-breakdown
 
 ### `approval_mode`
 - **Aliases:** `mode` (address-worklist-commit-loop, ralph-design)

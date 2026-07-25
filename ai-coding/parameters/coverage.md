@@ -217,6 +217,21 @@ Knobs are unbraced `key=value` tokens.
 | `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 | `{coding_tool}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 
+### [ticket-breakdown](../skills/ticket-breakdown/SKILL.md)
+
+| Parameter | Canonical card | Concern |
+|---|---|---|
+| `{analysis}` | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
+| `{ticket_template}` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
+| `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{min_severity}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
+| `{id_prefix}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{output_dir}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{persistence}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
+| `{emit_worklist}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
+| `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
+
 ### No parameter surface
 
 Four skills declare no parameters, knobs, or flags — they activate
