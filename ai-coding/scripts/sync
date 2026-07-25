@@ -1,7 +1,8 @@
 #!/bin/sh
 # sync — propagate AI-coding commands/skills/rules from this dotfiles repo
 # into per-tool home-directory locations via atomic symlinks. Commands and
-# skills live under ai-coding/commands and ai-coding/skills; plugin paths symlink there.
+# skills live inside the plugins under ai-coding/plugins/<plugin>/{commands,skills}
+# and are flattened into one destination directory per tool and type.
 #
 # Synthesised from a four-way swarm: kept POSIX /bin/sh + `ln -sfn` symlinks
 # (so source edits in this repo reflect immediately at the destination); added
@@ -119,10 +120,7 @@ fi
 
 [ -d "$REPO_ROOT" ] || die "repo root not found: $REPO_ROOT"
 
-SRC_COMMANDS="$REPO_ROOT/ai-coding/commands"
-SRC_SKILLS="$REPO_ROOT/ai-coding/skills"
-SRC_BASE="$REPO_ROOT/ai-coding/plugins/ai-coding"
-SRC_RULES="$SRC_BASE/rules"
+SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
 
 # ---- destination registry --------------------------------------------------
 
@@ -179,61 +177,67 @@ $1"
 
 # ---- per-type sync ---------------------------------------------------------
 
-sync_commands() {
-    dest_dir="$1"
-    if [ ! -d "$SRC_COMMANDS" ]; then
-        notice "commands source missing at $SRC_COMMANDS; skipping --type command"
-        add_summary "command: 0 -> $dest_dir (source missing)"
-        return 0
-    fi
-    ensure_dir "$dest_dir"
-    found=0
-    for src in "$SRC_COMMANDS"/*.md; do
-        [ -e "$src" ] || continue
-        found=$((found + 1))
-        name="$(basename "$src")"
-        link_one "$src" "$dest_dir/$name"
-    done
-    [ "$found" -gt 0 ] || notice "no command .md files found in $SRC_COMMANDS"
-    add_summary "command: $found -> $dest_dir"
+# ai-coding/plugins/<plugin>/<type>/<entry> -> <plugin>
+plugin_of() {
+    basename "$(dirname "$(dirname "$1")")"
 }
 
-sync_skills() {
-    dest_dir="$1"
-    if [ ! -d "$SRC_SKILLS" ]; then
-        notice "skills source missing at $SRC_SKILLS; skipping --type skill"
-        add_summary "skill: 0 -> $dest_dir (source missing)"
-        return 0
-    fi
-    ensure_dir "$dest_dir"
-    found=0
-    for src in "$SRC_SKILLS"/*; do
-        [ -d "$src" ] || continue
-        found=$((found + 1))
-        name="$(basename "$src")"
-        link_one "$src" "$dest_dir/$name"
+# First plugin to claim a basename during the current collect pass.
+claimant_of() {
+    printf '%s' "$PAIRS" | while IFS=' ' read -r n p; do
+        if [ "$n" = "$1" ]; then
+            printf '%s' "$p"
+            break
+        fi
     done
-    [ "$found" -gt 0 ] || notice "no skill directories found in $SRC_SKILLS"
-    add_summary "skill: $found -> $dest_dir"
 }
 
-sync_rules() {
-    dest_dir="$1"
-    if [ ! -d "$SRC_RULES" ]; then
-        notice "rules source not present at $SRC_RULES (no rules to sync yet)"
-        add_summary "rule: 0 -> $dest_dir (source missing)"
+# Every plugin's entries of a given type flatten into one destination
+# directory, so the same basename in two plugins would race for a single
+# symlink. That is a repo bug, not a preference: reject it before writing
+# anything rather than letting the last plugin win.
+sync_type() {
+    type_name="$1"
+    dest_dir="$2"
+    kind_test="$3"
+    pattern="$4"
+
+    if [ ! -d "$SRC_PLUGINS" ]; then
+        notice "plugin source missing at $SRC_PLUGINS; skipping --type $type_name"
+        add_summary "$type_name: 0 -> $dest_dir (source missing)"
         return 0
     fi
-    ensure_dir "$dest_dir"
+
     found=0
-    for src in "$SRC_RULES"/*; do
-        [ -e "$src" ] || continue
-        found=$((found + 1))
+    SEEN=""
+    PAIRS=""
+    for src in "$SRC_PLUGINS"/*/$pattern; do
+        [ "$kind_test" "$src" ] || continue
         name="$(basename "$src")"
-        link_one "$src" "$dest_dir/$name"
+        plugin="$(plugin_of "$src")"
+        case " $SEEN " in
+            *" $name "*)
+                die "duplicate $type_name '$name' in plugins '$(claimant_of "$name")' and '$plugin'; basenames must be unique across plugins because they all flatten into $dest_dir"
+                ;;
+        esac
+        SEEN="$SEEN $name"
+        PAIRS="$PAIRS$name $plugin
+"
+        found=$((found + 1))
     done
-    [ "$found" -gt 0 ] || notice "rules source present but empty: $SRC_RULES"
-    add_summary "rule: $found -> $dest_dir"
+
+    if [ "$found" -eq 0 ]; then
+        notice "no ${type_name}s found under $SRC_PLUGINS/*/$pattern"
+        add_summary "$type_name: 0 -> $dest_dir (none found)"
+        return 0
+    fi
+
+    ensure_dir "$dest_dir"
+    for src in "$SRC_PLUGINS"/*/$pattern; do
+        [ "$kind_test" "$src" ] || continue
+        link_one "$src" "$dest_dir/$(basename "$src")"
+    done
+    add_summary "$type_name: $found -> $dest_dir"
 }
 
 # ---- main ------------------------------------------------------------------
@@ -245,9 +249,9 @@ info ""
 for t in $TYPES; do
     dest="$(dest_for "$TOOL" "$t")"
     case "$t" in
-        command) sync_commands "$dest" ;;
-        skill)   sync_skills   "$dest" ;;
-        rule)    sync_rules    "$dest" ;;
+        command) sync_type command "$dest" -f 'commands/*.md' ;;
+        skill)   sync_type skill   "$dest" -d 'skills/*' ;;
+        rule)    sync_type rule    "$dest" -e 'rules/*' ;;
     esac
 done
 
