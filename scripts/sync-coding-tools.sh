@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
-# sync-coding-tools.sh — mirror ai-coding/commands and ai-coding/skills (plus
-# marketplace metadata) from this dotfiles repo into the
-# home-dir locations used by Cursor and Claude Code.
+# sync-coding-tools.sh — mirror the commands and skills carried by the
+# ai-coding plugins (plus marketplace metadata) from this dotfiles repo into
+# the home-dir locations used by Cursor and Claude Code.
 #
 # Two modes:
 #   copy     (default) rsync, deterministic, source-of-truth is the dotfiles
@@ -11,11 +11,14 @@
 #                      ~/.dotfiles-backup/<UTC-timestamp>/ before replacement.
 #
 # Sources (in this repo, do not modify by hand here):
-#   ai-coding/commands/*.md                            slash commands
-#   ai-coding/skills/<name>/SKILL.md                   skills
-#   ai-coding/plugins/ai-coding/{commands,skills}      symlinks to the above
-#   ai-coding/{marketplace.json,.cursor-plugin,.claude-plugin}
-#                                                      plugin / marketplace metadata
+#   ai-coding/plugins/<plugin>/commands/*.md           slash commands
+#   ai-coding/plugins/<plugin>/skills/<name>/SKILL.md  skills
+#   .claude-plugin/marketplace.json + ai-coding/plugins/
+#                                                      marketplace metadata
+#
+# Commands and skills from every plugin are flattened into one destination
+# directory per tool; the marketplace is mirrored whole, since the repo root
+# is itself the marketplace root.
 #
 # Targets:
 #   cursor    ~/.cursor/commands
@@ -32,9 +35,12 @@ set -euo pipefail
 SCRIPT_PATH="${0:A}"
 REPO_ROOT="${SCRIPT_PATH:h:h}"
 
-SRC_COMMANDS="$REPO_ROOT/ai-coding/commands"
-SRC_SKILLS="$REPO_ROOT/ai-coding/skills"
-SRC_MARKETPLACE="$REPO_ROOT/ai-coding"
+SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
+SRC_MARKETPLACE="$REPO_ROOT"
+
+typeset -a SRC_COMMANDS SRC_SKILLS
+SRC_COMMANDS=("$SRC_PLUGINS"/*/commands/*.md(N))
+SRC_SKILLS=("$SRC_PLUGINS"/*/skills/*(N/))
 BACKUP_ROOT="$HOME/.dotfiles-backup"
 LOG_FILE="$HOME/.cache/dotfiles/sync.log"
 
@@ -117,8 +123,9 @@ for tool in ${(s:,:)TARGETS}; do
 done
 (( ${#TOOLS[@]} > 0 )) || die "no targets selected"
 
-[[ -d "$SRC_COMMANDS" ]] || die "commands source missing: $SRC_COMMANDS"
-[[ -d "$SRC_SKILLS"   ]] || die "skills source missing:   $SRC_SKILLS"
+[[ -d "$SRC_PLUGINS" ]] || die "plugin source missing: $SRC_PLUGINS"
+(( ${#SRC_COMMANDS[@]} )) || die "no commands found under $SRC_PLUGINS/*/commands/"
+(( ${#SRC_SKILLS[@]}   )) || die "no skills found under   $SRC_PLUGINS/*/skills/"
 
 # --- destinations --------------------------------------------------------
 
@@ -143,14 +150,6 @@ dest_plugin_dir() {
     cursor) print -- "$HOME/.cursor/plugins/local/ai-coding" ;;
     claude) print -- "$HOME/.claude/plugins/marketplaces/yliapis-dotfiles" ;;
     *) die "no plugin dir for tool '$1'" ;;
-  esac
-}
-
-plugin_meta_subdir() {
-  case "$1" in
-    cursor) print -- ".cursor-plugin" ;;
-    claude) print -- ".claude-plugin" ;;
-    *) die "no plugin meta subdir for tool '$1'" ;;
   esac
 }
 
@@ -190,29 +189,26 @@ run_rsync() {
 
 copy_sync_tool() {
   local tool="$1"
-  local cmds_dst skills_dst plugin_dst plugin_sub
+  local cmds_dst skills_dst plugin_dst
   cmds_dst="$(dest_commands_dir "$tool")"
   skills_dst="$(dest_skills_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
-  plugin_sub="$(plugin_meta_subdir "$tool")"
 
   print -- "==> $tool commands -> $cmds_dst"
   mkdir -p "$cmds_dst"
-  run_rsync "$SRC_COMMANDS"/*.md "$cmds_dst/"
+  run_rsync "${SRC_COMMANDS[@]}" "$cmds_dst/"
 
   print -- "==> $tool skills   -> $skills_dst"
   mkdir -p "$skills_dst"
-  run_rsync "$SRC_SKILLS"/ "$skills_dst"/
+  run_rsync "${SRC_SKILLS[@]}" "$skills_dst"/
 
   print -- "==> $tool plugin   -> $plugin_dst"
   if [[ -L "$plugin_dst" ]]; then
     (( DRY_RUN )) || rm -f "$plugin_dst"
   fi
-  mkdir -p "$plugin_dst/$plugin_sub"
-  run_rsync "$SRC_MARKETPLACE/marketplace.json" "$plugin_dst/marketplace.json"
-  if [[ -d "$SRC_MARKETPLACE/$plugin_sub" ]]; then
-    run_rsync "$SRC_MARKETPLACE/$plugin_sub"/ "$plugin_dst/$plugin_sub"/
-  fi
+  mkdir -p "$plugin_dst/.claude-plugin" "$plugin_dst/ai-coding"
+  run_rsync "$SRC_MARKETPLACE/.claude-plugin"/ "$plugin_dst/.claude-plugin"/
+  run_rsync "$SRC_PLUGINS" "$plugin_dst/ai-coding"/
 }
 
 # --- symlink-mode (with backup) ------------------------------------------
@@ -273,21 +269,20 @@ link_one() {
 
 symlink_sync_tool() {
   local tool="$1"
-  local cmds_dst skills_dst plugin_dst plugin_sub
+  local cmds_dst skills_dst plugin_dst
   cmds_dst="$(dest_commands_dir "$tool")"
   skills_dst="$(dest_skills_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
-  plugin_sub="$(plugin_meta_subdir "$tool")"
 
   print -- "==> $tool commands -> $cmds_dst  (symlink)"
   local f
-  for f in "$SRC_COMMANDS"/*.md(N); do
+  for f in "${SRC_COMMANDS[@]}"; do
     link_one "$f" "$cmds_dst/${f:t}"
   done
 
   print -- "==> $tool skills   -> $skills_dst  (symlink)"
   local d
-  for d in "$SRC_SKILLS"/*(N/); do
+  for d in "${SRC_SKILLS[@]}"; do
     link_one "$d" "$skills_dst/${d:t}"
   done
 
@@ -365,13 +360,13 @@ unlink_tool() {
 
   print -- "==> $tool commands <- $cmds_dst"
   local f
-  for f in "$SRC_COMMANDS"/*.md(N); do
+  for f in "${SRC_COMMANDS[@]}"; do
     unlink_one "$cmds_dst/${f:t}" "${f:t}" "$f"
   done
 
   print -- "==> $tool skills   <- $skills_dst"
   local d
-  for d in "$SRC_SKILLS"/*(N/); do
+  for d in "${SRC_SKILLS[@]}"; do
     unlink_one "$skills_dst/${d:t}" "${d:t}" "$d"
   done
 
