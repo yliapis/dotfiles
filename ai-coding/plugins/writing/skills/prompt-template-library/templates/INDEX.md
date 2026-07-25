@@ -2,11 +2,11 @@
 
 Catalog of seed skeletons used by the `prompt-template-library` skill when an agent is drafting a new prompt (typically via `/meta-prompt` or any equivalent flow). The skill picks one template per invocation and hands its body to the caller as the starting skeleton; the caller fills in the body and renders the final prompt.
 
-For the selection behavior (auto-selection algorithm, interactive mode, fallback rules, composition with `/meta-prompt`), see `ai-coding/plugins/ai-coding/skills/prompt-template-library/SKILL.md`. This file documents the library's data contract only.
+For the selection behavior (auto-selection algorithm, interactive mode, fallback rules, composition with `/meta-prompt`), see `ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md`. This file documents the library's data contract only.
 
 ## File-Level Convention
 
-Every template lives at `ai-coding/templates/` as a Markdown file whose filename stem matches its `name` frontmatter field in kebab-case. Files outside this directory are not part of the catalog.
+Every template lives at `templates/` as a Markdown file whose filename stem matches its `name` frontmatter field in kebab-case. Files outside this directory are not part of the catalog.
 
 Each template MUST carry YAML frontmatter with at least these three fields:
 
@@ -28,7 +28,7 @@ In auto mode the skill builds an `intent_terms` set from the caller's drafting c
 ## Adding a New Template
 
 1. Pick a short kebab-case name that captures the prompt's intent (e.g., `code-review`, `bugfix-investigation`, `schema-design`). Avoid generic names (`helper`, `utility`).
-2. Create `ai-coding/templates/` with a new Markdown file whose stem is the chosen name, carrying the required frontmatter:
+2. Create `templates/` with a new Markdown file whose stem is the chosen name, carrying the required frontmatter:
    ```yaml
    ---
    name: <name>
@@ -52,5 +52,5 @@ Update this list when adding or removing a template. The skill does not read thi
 ## What This Index Does Not Do
 
 - It does not define selection logic. That logic lives in `prompt-template-library/SKILL.md`.
-- It does not register templates. Adding a file to `ai-coding/templates/` is sufficient; updating the Catalog section above is for human readability only.
+- It does not register templates. Adding a file to `templates/` is sufficient; updating the Catalog section above is for human readability only.
 - It does not author or edit templates; that work is left to whoever is contributing the template.
