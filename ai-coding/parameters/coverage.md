@@ -5,7 +5,7 @@ to its canonical card (or its artifact-specific entry) and concern file.
 Spellings are exactly as they appear in each artifact.
 
 The same artifacts are mirrored in `ai-coding/plugins/ai-coding/` and in the
-repo-root `.cursor/commands/` and `.cursor/skills/`; this wiki tracks the
+repo-root `.cursor/{commands,skills}/` and `.claude/{commands,skills}/`; this wiki tracks the
 [`ai-coding/commands/`](../commands/) and [`ai-coding/skills/`](../skills/)
 sources.
 
