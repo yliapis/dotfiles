@@ -2,37 +2,36 @@
   "name": "yliapis-dotfiles",
   "owner": { "name": "yliapis" },
   "metadata": {
-    "description": "Personal AI coding tools shared across Cursor, Claude Code, OpenCode, and Codex.",
-    "pluginRoot": "./ai-coding/plugins"
+    "description": "Personal AI coding tools shared across Cursor, Claude Code, OpenCode, and Codex."
   },
   "plugins": [
     {
       "name": "design-suite",
-      "source": "./design-suite",
+      "source": "./ai-coding/plugins/design-suite",
       "version": "0.1.0",
       "description": "Author and orchestrate <trait>-design skills (design-skill, designer-controller, declarative/deterministic-design)."
     },
     {
       "name": "git-delivery",
-      "source": "./git-delivery",
+      "source": "./ai-coding/plugins/git-delivery",
       "version": "0.1.0",
       "description": "Tickets -> minimal diffs -> conventional commits -> merge/push."
     },
     {
       "name": "orchestration",
-      "source": "./orchestration",
+      "source": "./ai-coding/plugins/orchestration",
       "version": "0.1.0",
       "description": "Parallel agent swarms and isolated git-worktree task execution."
     },
     {
       "name": "session-state",
-      "source": "./session-state",
+      "source": "./ai-coding/plugins/session-state",
       "version": "0.1.0",
       "description": "Trajectory snapshots, file dumps, session save/shutdown/wrap-up."
     },
     {
       "name": "writing",
-      "source": "./writing",
+      "source": "./ai-coding/plugins/writing",
       "version": "0.1.0",
       "description": "De-slop prose, prompt template library, meta-prompt, critique."
     }
