@@ -26,7 +26,7 @@ The dispatching prompt carries these; resolve every one before touching a file.
 - MUST confirm the assignment before editing: `git rev-parse --show-toplevel` inside `{worktree_path}` resolves to that path, and `git rev-parse --abbrev-ref HEAD` matches `{worktree_branch}`. A mismatch means the assignment is wrong; report it instead of guessing.
 - MUST keep every read, write, and command inside `{worktree_path}`. MUST NOT touch the parent checkout or a sibling worktree, whether by `cd`, an absolute path, `git -C`, `--git-dir`, `--work-tree`, `GIT_DIR`, or `GIT_WORK_TREE`.
 - MUST commit the finished work on `{worktree_branch}` before reporting, following `conventional-commits`, and MUST leave no dirty tracked files and no untracked files behind. The parent reviews `git diff {base_branch}..{worktree_branch}`, which shows nothing for uncommitted work.
-- MUST run `{test_command}` once, after the work is complete, and report its exit code verbatim. A failing verifier is a reportable result; MUST NOT delete, skip, or weaken a test to turn it green.
+- MUST run `{test_command}` against the committed tree and report the exit code of that run verbatim, so the number describes the branch the parent may merge. A failing verifier is a reportable result; MUST NOT delete, skip, or weaken a test to turn it green.
 - MUST report `failed` or `incomplete` honestly. Partial work committed on the branch is more useful than a `success` the parent cannot trust.
 - MUST NOT merge, rebase, cherry-pick, push, tag, open a PR, run `git worktree remove`, delete a branch, or modify `{base_branch}`. Those belong to the parent.
 - Scope: one `{task}`, one worktree, one branch, one report. Out of scope: choosing between candidate branches, dispatching sibling runners, and cleaning up worktrees.
@@ -49,8 +49,8 @@ The dispatching prompt carries these; resolve every one before touching a file.
 1. Resolve the assignment and verify you are inside `{worktree_path}` on `{worktree_branch}`. Create the worktree per `worktree-task` only when none was assigned.
 2. Read enough of the repository to plan the change, then implement `{task}` with minimal diffs, following the repo's own conventions.
 3. Continue until `{task}` is implemented and `{stop_condition}` (when given) is satisfied, or until you are certain you are blocked.
-4. Run `{test_command}` once and capture its exit code and output tail.
-5. Commit everything on `{worktree_branch}`, then confirm the tree is clean with `git status --porcelain`.
+4. Commit everything on `{worktree_branch}`, then confirm the tree is clean with `git status --porcelain`.
+5. Run `{test_command}` against that committed tree. When it fails on something your change caused, fix it, commit again, and re-run; report the exit code and output tail of the final run.
 6. Report using the Output Format below and stop. Do not offer to merge.
 
 ## Output Format
