@@ -148,6 +148,8 @@ sources.
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `{num_agents}` (aliases `{n}`, `{num}`) | [`candidate_count`](concerns/replication.md#candidate_count) | replication |
+| `{topology}` | artifact-specific | [replication](concerns/replication.md#artifact-specific) |
+| `--preview-swarm-topology` | artifact-specific | [reporting](concerns/reporting.md#agent-swarm) |
 | `{parallel_agents}` (aliases `{p}`, `{parallel}`) | [`concurrency`](concerns/replication.md#concurrency) | replication |
 | `{model_mix}` | artifact-specific | [models](concerns/models.md#artifact-specific) |
 | `{num_partitions}` | [`partition_count`](concerns/replication.md#partition_count) | replication |
@@ -206,7 +208,7 @@ Knobs are unbraced `key=value` tokens.
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `{filename_format}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{granularity}` | artifact-specific | [reporting](concerns/reporting.md#trajectory-snapshot) |
 | `{coding_tool}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 
 ### [ticket-create](../plugins/ticket-operations/skills/ticket-create/SKILL.md)

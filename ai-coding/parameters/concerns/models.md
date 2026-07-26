@@ -35,7 +35,10 @@ bites when a fan-out mixes models.
   `broadcast` (one model to all, default) | `per-agent` (list of length
   `{num_agents}`) | `per-partition` (list of length `{num_partitions}`,
   broadcast across contiguous slices). Resolves into worktree-task's
-  `agent_model` at dispatch time; the lengths satisfy the child's checks
-  because dispatch sets worktree-task's `parallelism = num_agents` (and
-  `concurrency = parallel_agents`) — see
+  `agent_model` at dispatch time. The swarm resolves the assignment once over
+  its global slots, then hands each dispatch only the slice its slots need, so
+  the child's `len(agent_model) == parallelism` check holds whether the
+  topology dispatches once (`parallel`, `partitioned`:
+  `parallelism = num_agents`), once per wave (`staged`), or once per stage
+  (`pipeline`: a scalar, `parallelism = 1`) — see
   [propagation.md](../propagation.md).

@@ -84,9 +84,12 @@ Conventions used across cards and artifacts:
   [models.md](models.md#agent_model).
 - **Divisibility:** `partition_count` must divide `candidate_count` evenly
   where both are set.
-- **Flags** are bare tokens (`-i`, `--interactive-template`); supplying a flag
-  in `key=value` form is rejected. `key=value` parameters embedded in free
-  text (meta-prompt) are parsed and stripped before the remaining text is
+- **Flags** are bare tokens (`-i`, `--interactive-template`); supplying a
+  boolean flag in `key=value` form is rejected. One live flag carries a closed
+  enum instead of a boolean — agent-swarm's
+  [`--preview-swarm-topology[=<format>]`](reporting.md#agent-swarm), where the
+  bare token selects the enum's default. `key=value` parameters embedded in
+  free text (meta-prompt) are parsed and stripped before the remaining text is
   interpreted.
 - **Conditional requirements** are stated as "required when ..." (e.g.
   `{commit_message}` required when `{merge_strategy}` is `--squash`;
