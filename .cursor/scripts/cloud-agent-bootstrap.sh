@@ -10,18 +10,14 @@
 # on partially cached state.
 #
 # Intentionally slimmer than ./install.sh: no Homebrew, Brewfile, or ollama.
-# Cloud VMs are headless, and those installs only slow down boots. Installs
-# just what the repo's own tooling needs, then mirrors the ai-coding
-# commands + skills into the home locations via scripts/sync-coding-tools.sh.
-# SYNC_CLOUD_AGENT_BOOTSTRAP=1 (env var or provider secret) additionally
-# mirrors this script itself; see scripts/sync-coding-tools.sh --help.
+# Cloud VMs are headless, and those installs only slow down boots. This only
+# provisions the interpreters and tools the repo's own scripts need, leaving
+# the agent free to run them per task.
 
 set -euo pipefail
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-
-# zsh: every repo script is zsh; rsync: sync copy mode; shellcheck: lint for
-# a repo whose deliverables are shell scripts.
+# zsh runs every repo script, rsync backs the make sync targets, and the
+# linter covers a repo whose deliverables are shell scripts.
 packages=()
 command -v zsh >/dev/null 2>&1 || packages+=(zsh)
 command -v rsync >/dev/null 2>&1 || packages+=(rsync)
@@ -35,9 +31,5 @@ if ((${#packages[@]})); then
 else
   echo "[cloud-agent-bootstrap] required packages already present"
 fi
-
-# Doubles as a boot-time smoke test of the repo's core sync flow.
-echo "[cloud-agent-bootstrap] running scripts/sync-coding-tools.sh"
-"$REPO_ROOT/scripts/sync-coding-tools.sh"
 
 echo "[cloud-agent-bootstrap] done"
