@@ -111,7 +111,7 @@ Sizing picks how many members run; `{topology}` picks how they are arranged — 
 | Topology | Shape | Members fork from | Flow between members | Effective concurrency |
 |---|---|---|---|---|
 | `parallel` (default) | one wave of `{num_agents}` independent members | `{base_branch}` | none | `{parallel_agents}` |
-| `partitioned` | `{num_partitions}` independent groups of `{num_agents} / {num_partitions}` members | `{base_branch}` | none across groups; each group gets its own selection pass before the global one | `{parallel_agents}`, shared across groups |
+| `partitioned` | `{num_partitions}` groups of `{num_agents} / {num_partitions}` members; the grouping drives model assignment, report layout, and a per-group selection pass rather than scheduling | `{base_branch}` | none across groups; each group gets its own selection pass before the global one | `{parallel_agents}`, shared across groups |
 | `staged` | `{num_partitions}` sequential waves of `{num_agents} / {num_partitions}` members | `{base_branch}` | wave `j + 1` receives wave `j`'s member summaries as upstream context | `min({parallel_agents}, wave size)`; waves never overlap |
 | `pipeline` | a chain of `{num_agents}` single-member stages | stage `1` from `{base_branch}`; stage `i` from stage `i - 1`'s branch | stage `i` receives stage `i - 1`'s summary and builds on its branch | `1` |
 
@@ -127,18 +127,19 @@ Every topology resolves to one or more `worktree-task` invocations, and the skil
 |---|---|---|
 | `parallel` | 1 | `{parallelism} = {num_agents}`, `{concurrency} = {parallel_agents}` |
 | `partitioned` | 1 | `{parallelism} = {num_agents}`, `{concurrency} = {parallel_agents}`; `{num_partitions}` is forwarded only when `{model_mix} = per-partition`, since the grouping otherwise serves the swarm's own reporting and selection |
-| `staged` | one per wave, in wave order | `{parallelism} = {num_agents} / {num_partitions}`, `{concurrency} = min({parallel_agents}, wave size)`, `{base_branch}` unchanged, `{worktree_name} = <slug>-w<j>` |
+| `staged` | one per wave, in wave order | `{parallelism} = {num_agents} / {num_partitions}`, `{concurrency} = min({parallel_agents}, wave size)`, `{base_branch}` unchanged, `{worktree_name} = <slug>-w<j>`; `{num_partitions}` is never forwarded, because each wave's slots already carry their resolved models |
 | `pipeline` | one per stage, in stage order | `{parallelism} = 1`, `{concurrency} = 1`, `{base_branch}` = previous stage's branch, `{worktree_name} = <slug>-s<i>` |
 
 A wave or stage launches only after the previous one terminates. Under `pipeline`, a stage that ends non-`success` stops the chain: the stages never launched are recorded as `incomplete` and selection runs over the stages that did complete. Under `staged`, a wave in which every member ends non-`success` stops the run the same way. `{relaunch_on_hang_after}` and `{replacement_policy}` apply per member and resolve before its wave or stage counts as terminated.
 
-Branch names stay unique because every wave and stage carries its own `{worktree_name}`. The child's `-<i>` suffix is local to one invocation, so a global slot in wave `j` lands on `<slug>-w<j>-<local index>`; the swarm's report and events keep the global slot number.
+Branch names stay unique because every wave and stage carries its own `{worktree_name}`. Any `-<i>` suffix the child adds is local to that invocation, so a global slot in wave `j` lands on `<slug>-w<j>-<local index>`, and a single-member wave or stage keeps the bare name; the swarm's report and events keep the global slot number either way.
 
 ### Validation
 
 - `{topology}` MUST be one of `parallel`, `partitioned`, `staged`, `pipeline`.
 - `partitioned` and `staged` MUST carry an explicit `{num_partitions}` in `2..{num_agents}` that divides `{num_agents}` evenly.
-- `pipeline` resolves `{parallel_agents}` to `1` when the invocation leaves it out; an invocation that names `{parallel_agents}` with a value above `1` is a validation error rather than a silent serialization.
+- `pipeline` resolves `{parallel_agents}` to `1` when the invocation leaves it out; an invocation that names `{parallel_agents}` with a value above `1` is a validation error rather than a silent serialization. `staged` takes the same value without complaint: a cap wider than a wave simply never binds, the way `{parallel_agents} = {num_agents}` never binds under `parallel`, whereas a `pipeline` cap above `1` contradicts the topology itself.
+- `--preview-swarm-topology` accepts `mermaid`, `ascii`, or `both`; any other `<format>` value is a validation error.
 - `{model_mix} = per-partition` and the `partitioned` / `staged` topologies share the one `{num_partitions}`; there is no second partition count to reconcile.
 - A mode the topology skips does not carry its prerequisite: `{test_command}` and `{aggregator}` are required only for the modes that actually run.
 
@@ -159,12 +160,13 @@ Members in a `staged` wave after the first, and in every `pipeline` stage after 
 
 ## Topology Preview
 
-`--preview-swarm-topology` renders the resolved plan as a diagram so the caller sees the shape before paying for it. The preview reads resolved values only — slot count, per-slot model, group / wave / stage boundaries, base branches, and the resolved selection modes — so it renders after validation and cost projection and before the first worktree.
+`--preview-swarm-topology` renders the resolved plan as a diagram so the caller sees the shape before paying for it. The preview reads resolved values only — slot count, per-slot model, group / wave / stage boundaries, base branches, and the resolved selection modes — so it renders after validation and after the cost projection settles, and before the first worktree.
 
-- `mermaid` (default) emits one fenced ` ```mermaid ` block; `ascii` emits one fenced plain block; `both` emits the mermaid block followed by the ascii block.
-- The root node states the topology, `{num_agents}`, the resolved `{parallel_agents}`, and the grouping count when the topology has one (partitions, waves).
-- Every slot node carries its own resolved model; group nodes carry only their label, so a `per-agent` mix and the collapse rule below render the same way under every topology.
-- Above 12 members, collapse each run of identically-configured slots into one node labeled with its slot range and count (`slots 3-12 · sonnet ×10`).
+- `mermaid` (default) emits one fenced ` ```mermaid ` block; `ascii` emits one fenced plain block; `both` emits the mermaid block followed by the ascii block. Both formats carry the same labels and obey the same rules below.
+- The root node states the topology, `{num_agents}`, the concurrency actually in effect (the Topology Catalog's effective-concurrency column, so `min({parallel_agents}, wave size)` under `staged`), the grouping count when the topology has one, and `{base_branch}` when every member forks from it. Only `pipeline` puts a base branch on each node, because only there do they differ.
+- Every slot node carries its own resolved model, which keeps a `per-agent` mix readable and gives the collapse rule a uniform label to fold; group nodes carry only their own label.
+- Once a diagram would draw more than 12 slot nodes, fold each run of identically-configured adjacent slots into one node (one line, in `ascii`) labeled with its slot range and count (`slots 3-12 · sonnet ×10`). A run never crosses a group, wave, or stage boundary. When no run is longer than one slot — a `per-agent` mix, for instance — nothing folds and every slot is drawn.
+- When the `{cost_cap}` projection blocks the run, the preview waits for the user's answer and then renders the plan that will actually dispatch: the approved smaller swarm, or nothing at all if the user declines.
 - Skipped selection modes stay out of the diagram; the Aggregation section reports them.
 
 Templates, one per topology, with resolved values substituted into the labels:
@@ -173,7 +175,7 @@ Templates, one per topology, with resolved values substituted into the labels:
 
 ```mermaid
 flowchart TD
-  S["swarm · parallel · n=4 · concurrency=4"]
+  S["swarm · parallel · n=4 · concurrency=4<br/>base main"]
   S --> A1["slot 1 · sonnet"]
   S --> A2["slot 2 · sonnet"]
   S --> A3["slot 3 · sonnet"]
@@ -188,7 +190,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  S["swarm · partitioned · n=6 · concurrency=6 · partitions=3"]
+  S["swarm · partitioned · n=6 · concurrency=6 · partitions=3<br/>base main"]
   subgraph P1["partition 1"]
     A1["slot 1 · opus"]
     A2["slot 2 · opus"]
@@ -213,7 +215,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  S["swarm · staged · n=6 · concurrency=2 · waves=3"]
+  S["swarm · staged · n=6 · concurrency=2 · waves=3<br/>base main"]
   subgraph W1["wave 1"]
     A1["slot 1 · sonnet"]
     A2["slot 2 · sonnet"]
@@ -229,7 +231,9 @@ flowchart TD
   S --> W1
   W1 -. "upstream context" .-> W2
   W2 -. "upstream context" .-> W3
-  W3 --> SEL{{"selection · synthesize"}}
+  W1 --> SEL{{"selection · synthesize"}}
+  W2 --> SEL
+  W3 --> SEL
 ```
 
 `pipeline`, `{num_agents} = 3`:
