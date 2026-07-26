@@ -26,8 +26,8 @@
     {
       "name": "ticket-operations",
       "source": "./ai-coding/plugins/ticket-operations",
-      "version": "0.3.0",
-      "description": "Operate local Markdown tickets and Git delivery through two focused skills."
+      "version": "0.2.0",
+      "description": "Create, execute, update, and deliver local Markdown tickets with minimal diffs and conventional commits."
     },
     {
       "name": "writing",

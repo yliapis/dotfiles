@@ -53,7 +53,7 @@ and style dimensions that bias drafting. This is the meta-programming concern
   supplying the principles list and walkthrough the loop walks. Default:
   `.cursor/skills/declarative-design/SKILL.md`. Read at invocation time;
   round count, step names, and deliverable shape are sourced from it.
-- `{ticket_template}` (operating-tickets create) — path to the parameterized ticket
+- `{ticket_template}` (ticket-create) — path to the parameterized ticket
   template rendered once per ticket. Default: the skill's own
   `TICKET_TEMPLATE.md`. Read at invocation time (never inlined), like
   `{design_skill}`; a custom template may use any subset of the skill's

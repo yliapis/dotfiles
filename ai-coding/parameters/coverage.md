@@ -43,7 +43,7 @@ sources.
 | `{target}` | [`context`](concerns/intent.md#context) | intent |
 | `{trait_map}` | [`trait_map`](concerns/composition.md#trait_map) | composition |
 
-### [merge-commit-push](../plugins/ticket-operations/commands/merge-commit-push.md)
+### [merge-commit-push](../commands/merge-commit-push.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -209,51 +209,60 @@ Knobs are unbraced `key=value` tokens.
 | `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 | `{coding_tool}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 
-### [operating-tickets](../plugins/ticket-operations/skills/operating-tickets/SKILL.md)
+### [ticket-create](../plugins/ticket-operations/skills/ticket-create/SKILL.md)
 
-| Parameter | Motion | Canonical card | Concern |
-|---|---|---|---|
-| `{operation}` | router | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
-| `{source}` / `{analysis}` | create | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
-| `{ticket_template}` | create | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
-| `{granularity}` | create | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{min_severity}` | create | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
-| `{id_prefix}` | create | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{output_dir}` | create | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{on_existing}` | create | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{persistence}` | create compatibility | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
-| `{emit_worklist}` | create compatibility | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `-i` / `--interactive` | create | [`interactive`](concerns/interaction.md#interactive) | interaction |
-| `{target}` | execute, update | [`context`](concerns/intent.md#context) | intent |
-| `{select}` | execute | artifact-specific | [selection](concerns/selection.md) |
-| `{verify_command}` | execute | [`test_command`](concerns/constraints.md#test_command) | constraints |
-| `{commit_scope}` | execute | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{on_failure}` | execute | artifact-specific | [robustness](concerns/robustness.md) |
-| `{patch}` | update | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{projection}` | update | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{legacy}` / `{legacy_worklist}` / `{legacy_accept}` | execute, update | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{approve}` / `{operation_id}` / `{commit}` | update | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{mode}` | execute, update | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
-| `{recovery}` | execute, update | artifact-specific | [robustness](concerns/robustness.md) |
-| `{dry_run}` | all | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
+| Parameter | Canonical card | Concern |
+|---|---|---|
+| `{source}` / `{analysis}` | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
+| `{ticket_template}` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
+| `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{min_severity}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
+| `{id_prefix}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{output_dir}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{on_existing}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{persistence}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
+| `{emit_worklist}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
+| `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [operating-git](../plugins/ticket-operations/skills/operating-git/SKILL.md)
+### [ticket-execute](../plugins/ticket-operations/skills/ticket-execute/SKILL.md)
 
-| Parameter | Motion | Canonical card | Concern |
-|---|---|---|---|
-| `{operation}` | router | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
-| `{source_branch}` | integrate | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{target_branch}` | integrate | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{merge_strategy}` | integrate | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{remote}` | integrate | [`remote`](concerns/lifecycle.md#remote) | lifecycle |
-| `{commit_message}` | integrate | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{include_push}` | integrate | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| Parameter | Canonical card | Concern |
+|---|---|---|
+| `{target}` | [`context`](concerns/intent.md#context) | intent |
+| `{select}` | artifact-specific | [selection](concerns/selection.md) |
+| `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
+| `{verify_command}` | [`test_command`](concerns/constraints.md#test_command) | constraints |
+| `{commit_scope}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{on_failure}` | artifact-specific | [robustness](concerns/robustness.md) |
+| `{recovery}` | artifact-specific | [robustness](concerns/robustness.md) |
+| `{legacy_worklist}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
+
+### [ticket-update](../plugins/ticket-operations/skills/ticket-update/SKILL.md)
+
+| Parameter | Canonical card | Concern |
+|---|---|---|
+| `{target}` | [`context`](concerns/intent.md#context) | intent |
+| `{patch}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{projection}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{legacy}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{legacy_worklist}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{legacy_accept}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
+| `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
+| `{approve}` | artifact-specific | [interaction](concerns/interaction.md#artifact-specific) |
+| `{operation_id}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{commit}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{recovery}` | artifact-specific | [robustness](concerns/robustness.md) |
+| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 
 ### No parameter surface
 
-Two skills declare no parameters, knobs, or flags — they activate
+Four skills declare no parameters, knobs, or flags — they activate
 contextually (or are invoked manually) and are procedural rather than
 knob-driven:
 
+- [conventional-commits](../plugins/ticket-operations/skills/conventional-commits/SKILL.md)
+- [minimal-diffs](../plugins/ticket-operations/skills/minimal-diffs/SKILL.md)
 - [declarative-design](../skills/declarative-design/SKILL.md)
 - [deterministic-design](../skills/deterministic-design/SKILL.md)

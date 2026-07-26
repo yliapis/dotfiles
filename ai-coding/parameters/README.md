@@ -67,7 +67,7 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | `task` | [intent](concerns/intent.md) | — | worktree-task, agent-swarm (relayed) |
 | `context` | [intent](concerns/intent.md) | `target`, `domain` | critique, designer, designer-controller, ralph-design |
 | `artifact_path` | [io](concerns/io.md) | `save_path`, `output_path` | meta-prompt, save-session-state, ralph-design, design-skill, designer-controller |
-| `test_command` | [constraints](concerns/constraints.md) | `verify_command` | worktree-task, agent-swarm, operating-tickets (execute), address-worklist-commit-loop (relayed) |
+| `test_command` | [constraints](concerns/constraints.md) | `verify_command` | worktree-task, agent-swarm, ticket-execute, address-worklist-commit-loop (relayed) |
 | `stop_condition` | [constraints](concerns/constraints.md) | — | worktree-task, ralph-design |
 | `max_iterations` | [constraints](concerns/constraints.md) | — | ralph-design, design-skill, designer-controller |
 | `candidate_count` | [replication](concerns/replication.md) | `n`, `num_experiments`, `parallelism`, `num_agents`, `num`, `fan_out`, `fanout_default_n` | meta-prompt, critique, worktree-task, agent-swarm, designer-controller, ralph-design |
@@ -78,11 +78,11 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | `worktree_name` | [isolation](concerns/isolation.md) | `worktree` | worktree-task, ralph-design, meta-prompt |
 | `use_worktree` | [isolation](concerns/isolation.md) | — | ralph-design, design-skill, designer-controller |
 | `delete_worktree` | [isolation](concerns/isolation.md) | `delete_after_merge` | worktree-task, wrap-up |
-| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, ralph-design, design-skill, designer-controller, operating-tickets, address-worklist-commit-loop, save-session-state |
+| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, ralph-design, design-skill, designer-controller, ticket-create, ticket-execute, ticket-update, address-worklist-commit-loop, save-session-state |
 | `merge_mode` | [lifecycle](concerns/lifecycle.md) | — | worktree-task, agent-swarm (sets it) |
 | `remote` | [lifecycle](concerns/lifecycle.md) | — | merge-commit-push, wrap-up, soft-shutdown |
-| `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, operating-tickets (create) |
-| `approval_mode` | [interaction](concerns/interaction.md) | `mode` | operating-tickets (execute/update), address-worklist-commit-loop, ralph-design |
+| `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, ticket-create |
+| `approval_mode` | [interaction](concerns/interaction.md) | `mode` | ticket-execute, ticket-update, address-worklist-commit-loop, ralph-design |
 | `authoring_mode` | [interaction](concerns/interaction.md) | `mode` | design-skill, designer-controller |
 | `traits` | [composition](concerns/composition.md) | — | designer, designer-controller |
 | `trait_map` | [composition](concerns/composition.md) | — | designer, designer-controller |
