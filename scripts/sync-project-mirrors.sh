@@ -14,13 +14,12 @@
 # Every plugin's items are flattened into one directory per tool per type, so
 # a name may only be claimed by one plugin; collisions abort the run.
 #
-# Copy mode is the default because skill discovery is not one code path. A
-# plain directory scan resolves a symlinked skill directory; the fetcher-based
-# discovery used for plugin and repo-listing contexts resolves each symlink's
-# real path and drops the entry when it leaves the directory being scanned,
-# which every mirror link into ai-coding/plugins does. Real copies are picked up
-# unconditionally. Symlink mode remains available for a working copy where live
-# edits matter more than discovery.
+# Copy mode is the default because skill discovery is not one code path. A plain
+# directory scan stats a symlinked skill directory and accepts it; other
+# implementations require a resolved link to stay inside the directory being
+# scanned, and every mirror link points out of its mirror directory into
+# ai-coding/plugins. Real copies are accepted either way. Symlink mode remains
+# available for a working copy where live edits matter more than discovery.
 #
 # Deliberately POSIX sh using only cp/diff/ln: the cloud bootstrap that
 # installs zsh and rsync can fail, and mirrors must still be regenerable.
