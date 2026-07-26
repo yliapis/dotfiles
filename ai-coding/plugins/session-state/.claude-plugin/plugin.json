@@ -1,0 +1,8 @@
+{
+  "name": "session-state",
+  "version": "0.1.0",
+  "description": "Trajectory snapshots, file dumps, session save/shutdown/wrap-up.",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT"
+}

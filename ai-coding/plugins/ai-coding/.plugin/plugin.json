@@ -1,9 +1,0 @@
-{
-  "name": "ai-coding",
-  "version": "0.1.0",
-  "description": "Skills and commands for AI-assisted coding (conventional-commits, meta-prompt).",
-  "author": { "name": "yliapis" },
-  "repository": "https://github.com/yliapis/dotfiles",
-  "license": "MIT",
-  "keywords": ["ai", "coding", "skills", "commands"]
-}
