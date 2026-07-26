@@ -123,6 +123,10 @@ brew "mas"
 # Install manually from the Mac App Store: https://apps.apple.com/us/app/bandcamp/id706408639
 # mas "Bandcamp", id: 706408639
 
+# App Store build keeps the existing purchase; the `boom-3d` cask is the
+# separately-licensed direct-download build (sha256 :no_check).
+mas "Boom3D", id: 1233048948
+
 # via Cask
 
 cask_args appdir: "/Applications"
