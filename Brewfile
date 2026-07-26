@@ -99,7 +99,7 @@ brew "hyperfine"
 brew "go"
 brew "lua"
 brew "node"
-brew "hashicorp/tap/terraform"
+brew "hashicorp/tap/terraform", trusted: true
 
 # set system python3 as 3.12
 brew "python@3.12"
@@ -153,8 +153,8 @@ cask "tad"
 cask "vlc"
 
 # development tools
-brew "anomalyco/tap/opencode"
-brew "getagentseal/codeburn/codeburn"
+brew "anomalyco/tap/opencode", trusted: true
+brew "getagentseal/codeburn/codeburn", trusted: true
 # agent multiplexer for running multiple coding agents in one terminal
 brew "herdr"
 cask "claude-code"
