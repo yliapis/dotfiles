@@ -26,7 +26,12 @@ command -v shellcheck >/dev/null 2>&1 || packages+=(shellcheck)
 if ((${#packages[@]})); then
   echo "[cloud-agent-bootstrap] installing: ${packages[*]}"
   export DEBIAN_FRONTEND=noninteractive
-  sudo -E apt-get update
+  # Cloud VMs boot with a clock that can sit a day off real time, which makes
+  # apt reject every release file as "not valid yet" (or expired the other way)
+  # and abort the run before anything installs. The signatures are still
+  # verified; only the date window is skipped.
+  sudo -E apt-get -o Acquire::Check-Date=false \
+    -o Acquire::Check-Valid-Until=false update
   sudo -E apt-get install -y "${packages[@]}"
 else
   echo "[cloud-agent-bootstrap] required packages already present"
