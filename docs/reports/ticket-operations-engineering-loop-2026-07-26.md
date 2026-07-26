@@ -105,13 +105,27 @@ branches:
 
 No exercised defect remains open.
 
+## Plugin Grouping Validation
+
+Three independent read-only routing trials classified ticket creation,
+execution, and update requests into `ticket-operations`; generic edits,
+commits, merges, and pushes into `git-operations`; and tracker requests outside
+both. All three trials also agreed that ticket execution remains ticket-primary
+while composing `minimal-diffs` and `conventional-commits`, and that a later
+merge/push is a separate Git command.
+
+The six moved contracts retain their prior sections and parameter surfaces.
+Five are byte-identical to the validated versions; `ticket-execute` differs
+only by an explicit fail-fast dependency on the two Git skills.
+
 ## Structural Validation
 
 Final automated checks:
 
 ```text
-PASS json=12 plugins=5 skills=15 commands=9 mirrors=3 links=2
-PASS ticket-operations manifests, schemas, lifecycle vocabulary, and supersession
+PASS json=14 plugins=6 skills=15 commands=9 mirrors=3 links=2
+PASS ticket-operations=3 skills+1 command; git-operations=2 skills+1 command
+PASS ticket execution declares its git-operations dependency
 PASS ticket parameter coverage links resolve
 PASS live parameter cards contain no superseded ticket-breakdown references
 ```
@@ -129,7 +143,6 @@ validation both passed without writes.
 
 ## Result
 
-The merged plugin exposes one coherent local-ticket lifecycle, preserves the
-minimal-diff and Conventional Commit delivery primitives, keeps the old slash
-command as a fail-closed compatibility route, and removes the overlapping
-`ticket-breakdown` activation surface.
+The result is two self-explanatory plugin groups: `ticket-operations` owns the
+three local-ticket lifecycle skills and worklist compatibility command;
+`git-operations` owns the two Git quality skills and merge/push command.
