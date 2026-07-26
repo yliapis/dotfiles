@@ -35,7 +35,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 - [ ] Parameters are validated before dispatch: `{num_agents} >= 2`, `{parallel_agents} <= {num_agents}`, `{topology}` is one of the four catalog values, `{num_partitions}` is present and in `2..{num_agents}` when `{topology}` is `partitioned` or `staged`, `{model_mix}` shape matches `{num_agents}` / `{num_partitions}`, `{num_partitions}` divides `{num_agents}` evenly, and required parameters for each entry in `{selection_modes}` are present.
 - [ ] The dispatch shape matches the resolved `{topology}`: one `worktree-task` invocation for `parallel` and `partitioned`, one per wave for `staged`, one per stage for `pipeline` with each stage forking from its predecessor's branch.
 - [ ] Selection modes that the resolved `{topology}` cannot support report `skipped: <reason>` in the Aggregation section instead of running.
-- [ ] When `--preview-swarm-topology` is set, the `### Topology Preview` section renders the resolved topology (mermaid by default) after validation and before the first worktree, and the run then proceeds unchanged.
+- [ ] When `--preview-swarm-topology` is set and a plan survives validation and the `{cost_cap}` gate, the `### Topology Preview` section renders that plan (mermaid by default) before the first worktree, and the run then dispatches it unchanged.
 - [ ] Worktree creation, branch naming, agent dispatch, and per-worktree diff capture are delegated to `worktree-task`; this skill emits no `git worktree` calls.
 - [ ] When `{cost_cap}` is set, a cost projection is run before dispatch; if `projected > {cost_cap}`, the skill proposes a smaller `{num_agents}` and waits for user approval.
 - [ ] When `{relaunch_on_hang_after}` expires for a member, that member is force-aborted; replacement happens iff `{replacement_policy}` allows; replacements never recurse.
@@ -164,9 +164,9 @@ Members in a `staged` wave after the first, and in every `pipeline` stage after 
 
 - `mermaid` (default) emits one fenced ` ```mermaid ` block; `ascii` emits one fenced plain block; `both` emits the mermaid block followed by the ascii block. Both formats carry the same labels and obey the same rules below.
 - The root node states the topology, `{num_agents}`, the concurrency actually in effect (the Topology Catalog's effective-concurrency column, so `min({parallel_agents}, wave size)` under `staged`), the grouping count when the topology has one, and `{base_branch}` when every member forks from it. Only `pipeline` puts a base branch on each node, because only there do they differ.
-- Every slot node carries its own resolved model, which keeps a `per-agent` mix readable and gives the collapse rule a uniform label to fold; group nodes carry only their own label.
-- Once a diagram would draw more than 12 slot nodes, fold each run of identically-configured adjacent slots into one node (one line, in `ascii`) labeled with its slot range and count (`slots 3-12 · sonnet ×10`). A run never crosses a group, wave, or stage boundary. When no run is longer than one slot — a `per-agent` mix, for instance — nothing folds and every slot is drawn.
-- When the `{cost_cap}` projection blocks the run, the preview waits for the user's answer and then renders the plan that will actually dispatch: the approved smaller swarm, or nothing at all if the user declines.
+- Every slot node carries its own resolved model, which keeps a `per-agent` mix readable and gives the fold rule a uniform label to work on; group nodes carry only their own label.
+- When the unfolded diagram would draw more than 12 slot nodes, fold each run of identically-configured adjacent slots into one node (one line, in `ascii`) labeled with its slot range and count (`slots 3-12 · sonnet ×10`). A run never crosses a group, wave, or stage boundary. Runs of one never fold, so a `per-agent` mix or a swarm of single-member waves draws every slot: the threshold trims repetition rather than capping diagram size.
+- When the `{cost_cap}` projection blocks the run, its approval settles first (Workflow step 5). The preview then renders the plan that will actually dispatch — the approved smaller swarm — or is skipped entirely when the user declines and nothing dispatches.
 - Skipped selection modes stay out of the diagram; the Aggregation section reports them.
 
 Templates, one per topology, with resolved values substituted into the labels:
@@ -246,10 +246,10 @@ flowchart TD
   T3 --> SEL{{"selection · auto-best, manual"}}
 ```
 
-The `ascii` format carries the same labels as an indented tree: the root line as above; one line per group, wave, or stage; one line per slot beneath it; and a trailing line naming the resolved selection modes.
+The `ascii` format carries the same labels as an indented tree: the root line as above, joining with ` · ` the fields the mermaid root splits with `<br/>`; one line per group, wave, or stage; one line per slot beneath it; and a trailing line naming the resolved selection modes.
 
 ```
-swarm · staged · n=6 · concurrency=2 · waves=3
+swarm · staged · n=6 · concurrency=2 · waves=3 · base main
 ├── wave 1
 │   ├── slot 1 · sonnet
 │   └── slot 2 · sonnet
@@ -323,7 +323,7 @@ The skill emits structured events in a dedicated `### Events` section of the rep
 | Type | Payload fields | Emitted when |
 |---|---|---|
 | `swarm.gate_decided` | `verdict`, `triggers_fired`, `pattern` | After the Swarm Gate runs |
-| `swarm.topology_previewed` | `topology`, `format`, `slot_count` | After the preview renders (only when `--preview-swarm-topology` is set) |
+| `swarm.topology_previewed` | `topology`, `format`, `slot_count` (of the previewed plan, which is the approved size when the cost gate resized the swarm) | After the preview renders (only when `--preview-swarm-topology` is set) |
 | `swarm.dispatched` | `num_agents`, `parallel_agents`, `topology`, `model_mix`, `selection_modes` | After `worktree-task` is launched |
 | `swarm.stage_started` | `kind` (`wave` / `stage`), `index`, `slots`, `base_branch` | Before each wave or stage launches under `staged` / `pipeline` |
 | `member.started` | `slot`, `model`, `worktree_path` | When a member begins |
@@ -340,9 +340,9 @@ Events MUST appear in chronological order. Do NOT inline events outside the dedi
 1. **Swarm gate.** Walk the Swarm Gate table and any counter-triggers. If no trigger fires (or a counter-trigger applies), recommend a single agent and stop. Emit `swarm.gate_decided`.
 2. **Apply pattern (if `{pattern}` is set).** Populate defaults for `{num_agents}`, `{topology}`, `{model_mix}`, and `{selection_modes}` from the Pattern Catalog row. User-set parameters override.
 3. **Resolve `{selection_modes}`.** When the value is `auto`, include every mode whose prerequisites are met given the other parameters and whose rule the resolved `{topology}` supports. Every catalog mode outside the resolved list is a skipped mode: record each one with its reason (the missing prerequisite, or the topology rule that excludes it) so the Aggregation section can report it.
-4. **Validate parameters.** Confirm sizing, topology (catalog value, partition count where required, `{parallel_agents}` under `pipeline`), mix shape, partition divisibility, and selection-mode prerequisites. Fail fast on any mismatch (no filesystem side effects).
+4. **Validate parameters.** Confirm sizing, topology (catalog value, partition count where required, `{parallel_agents}` under `pipeline`), the `--preview-swarm-topology` format when the flag carries one, mix shape, partition divisibility, and selection-mode prerequisites. Fail fast on any mismatch (no filesystem side effects).
 5. **Cost projection (when `{cost_cap}` is set).** Compute projected cost against `{num_agents}` for tokens and against the topology's serial depth for wall clock. If `projected > {cost_cap}`, propose the largest `{num_agents}` that fits and wait for user approval.
-6. **Preview the topology (when `--preview-swarm-topology` is set).** Render the resolved topology per the Topology Preview section into the `### Topology Preview` section and emit `swarm.topology_previewed`. Continue to dispatch; the preview gates nothing.
+6. **Preview the topology (when `--preview-swarm-topology` is set).** Render the plan step 5 settled on into the `### Topology Preview` section per the Topology Preview section, and emit `swarm.topology_previewed`. Continue to dispatch that plan; the preview itself gates nothing, and it is skipped along with dispatch when the user declined a resized swarm in step 5.
 7. **Dispatch via `worktree-task`.** Follow the Dispatch shape table for the resolved `{topology}`: one invocation for `parallel` and `partitioned`, one per wave for `staged`, one per stage for `pipeline`. Every invocation carries the slice of the resolved `{agent_model}` assignment belonging to its slots, the `{task}` (verbatim, plus the `## Upstream Context` block for `staged` waves and `pipeline` stages after the first), `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched` once for the plan and `swarm.stage_started` before each wave or stage. Do not re-implement worktree mechanics.
 8. **Watchdog.** Track each member's last activity. Emit `member.started`, `member.progress`, `member.completed` events as they fire. When `{relaunch_on_hang_after}` expires for a member, force-abort it; respawn per `{replacement_policy}` and emit `member.replaced`. Under `staged` and `pipeline`, the next wave or stage waits for the current one to terminate, replacements included.
 9. **Floor check.** When all live members terminate, count `success`. If below `{min_successes}`, every selection mode reports `under-floor`; skip aggregation and emit `swarm.done` with `floor_met=false`.
