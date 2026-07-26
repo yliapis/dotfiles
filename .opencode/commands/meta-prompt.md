@@ -1,0 +1,1 @@
+../../ai-coding/plugins/writing/commands/meta-prompt.md
