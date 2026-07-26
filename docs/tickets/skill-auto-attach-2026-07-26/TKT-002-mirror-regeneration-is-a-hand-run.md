@@ -5,10 +5,10 @@ ticket_set: "sha256:8de3aaef2b9550a73e1c703c3e2e63d9ef162acaa040ecd60d55338481da
 id: "TKT-002"
 fingerprint: "sha256:9a4df599cfa3ac5832b7b266cd2915c541609cae6166b03d63473ecbd8772db8"
 title: "Mirror regeneration is a hand-run loop with no prune or drift check"
-status: "open"
+status: "done"
 status_reason: null
 owner: null
-revision: 1
+revision: 3
 type: "feat"
 severity: "major"
 priority: "P1"
@@ -55,11 +55,11 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 
-- [ ] One committed script regenerates all nine mirrors from `ai-coding/plugins/` and is reachable from a `make` target
-- [ ] The script prunes mirror entries whose source no longer exists
-- [ ] The script exits non-zero with an explanatory message when two plugins claim the same flattened name
-- [ ] A no-write check mode exits non-zero when any mirror has drifted from its source and is reachable from a `make` target
-- [ ] The script runs on a VM that has neither zsh nor rsync installed
+- [x] One committed script regenerates all nine mirrors from `ai-coding/plugins/` and is reachable from a `make` target
+- [x] The script prunes mirror entries whose source no longer exists
+- [x] The script exits non-zero with an explanatory message when two plugins claim the same flattened name
+- [x] A no-write check mode exits non-zero when any mirror has drifted from its source and is reachable from a `make` target
+- [x] The script runs on a VM that has neither zsh nor rsync installed
 
 ## Dependencies
 

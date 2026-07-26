@@ -17,22 +17,20 @@ needs them. Run `make help` for details on sync and other targets.
 
 Repo-root `.cursor/{commands,skills,agents}/`,
 `.claude/{commands,skills,agents}/`, and `.opencode/{commands,skills,agents}/`
-are flattened per-item symlink mirrors of
-`ai-coding/plugins/*/{commands,skills,agents}`. When adding, renaming, or
+are flattened per-item mirrors of
+`ai-coding/plugins/*/{commands,skills,agents}`. `ai-coding/plugins/` is the only
+place to edit; every mirror entry is generated. After adding, renaming, or
 removing a command, skill, or agent, regenerate all nine mirrors from the repo
 root:
 
 ```sh
-for tool in .cursor .claude .opencode; do
-  mkdir -p "$tool/commands" "$tool/skills" "$tool/agents"
-  for f in ai-coding/plugins/*/commands/*.md; do ln -sfn "../../$f" "$tool/commands/$(basename "$f")"; done
-  for d in ai-coding/plugins/*/skills/*/; do d="${d%/}"; ln -sfn "../../$d" "$tool/skills/$(basename "$d")"; done
-  for f in ai-coding/plugins/*/agents/*.md; do ln -sfn "../../$f" "$tool/agents/$(basename "$f")"; done
-done
+make mirrors        # regenerate, pruning entries whose source is gone
+make mirrors-check  # no-write drift check; non-zero when a mirror is stale
 ```
 
-Remove any leftover symlinks for deleted artifacts by hand
-(`find -L .cursor .claude .opencode -type l` lists broken ones).
+Both wrap `scripts/sync-project-mirrors.sh`, which needs only bash and
+coreutils. Two plugins claiming one flattened name abort the run instead of
+shadowing each other.
 
 Agent frontmatter stays inside the intersection all three tools accept:
 `name`, `description`, and `mode: subagent`. Cursor ignores Claude-only fields,

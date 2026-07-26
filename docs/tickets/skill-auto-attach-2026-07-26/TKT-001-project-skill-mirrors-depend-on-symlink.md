@@ -5,10 +5,10 @@ ticket_set: "sha256:8de3aaef2b9550a73e1c703c3e2e63d9ef162acaa040ecd60d55338481da
 id: "TKT-001"
 fingerprint: "sha256:b8484de418d21a7644e23a3d6cf477a877c2cba131d5a290275300be44f19c23"
 title: "Project skill mirrors depend on symlink resolution"
-status: "open"
+status: "done"
 status_reason: null
 owner: null
-revision: 1
+revision: 3
 type: "fix"
 severity: "critical"
 priority: "P0"
@@ -58,9 +58,9 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 
-- [ ] No entry under any of the nine repo-root mirrors is a symlink, and `find .cursor .claude .opencode -maxdepth 2 -type l` prints nothing
-- [ ] Each mirrored skill directory is byte-identical to its `ai-coding/plugins/*/skills/<name>` source
-- [ ] `ai-coding/plugins/` remains the only location a maintainer edits
+- [x] No entry under any of the nine repo-root mirrors is a symlink, and `find .cursor .claude .opencode -maxdepth 2 -type l` prints nothing
+- [x] Each mirrored skill directory is byte-identical to its `ai-coding/plugins/*/skills/<name>` source
+- [x] `ai-coding/plugins/` remains the only location a maintainer edits
 
 ## Dependencies
 

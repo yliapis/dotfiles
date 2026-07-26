@@ -25,7 +25,7 @@
 #
 # Targets:
 #   cursor    ~/.cursor/commands
-#             ~/.cursor/skills-cursor/<name>
+#             ~/.cursor/skills/<name>
 #             ~/.cursor/agents
 #             ~/.cursor/plugins/local/ai-coding
 #   claude    ~/.claude/commands
@@ -150,9 +150,14 @@ dest_commands_dir() {
   esac
 }
 
+# Cursor skills go to ~/.cursor/skills, never ~/.cursor/skills-cursor: the
+# shipped client registers skills-cursor as its own root with scope "builtin"
+# and source "builtin", so anything written there is presented as the client's
+# content rather than as the user's skills. ~/.cursor/skills is the root it
+# registers with scope "user", which is what a global sync of this repo wants.
 dest_skills_dir() {
   case "$1" in
-    cursor)   print -- "$HOME/.cursor/skills-cursor" ;;
+    cursor)   print -- "$HOME/.cursor/skills" ;;
     claude)   print -- "$HOME/.claude/skills" ;;
     opencode) print -- "$HOME/.config/opencode/skills" ;;
     *) die "no skills dir for tool '$1'" ;;
