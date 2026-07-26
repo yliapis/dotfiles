@@ -23,7 +23,7 @@
 #
 # Targets:
 #   cursor    ~/.cursor/commands
-#             ~/.cursor/skills-cursor/<name>
+#             ~/.cursor/skills/<name>
 #             ~/.cursor/plugins/local/ai-coding
 #   claude    ~/.claude/commands
 #             ~/.claude/skills/<name>
@@ -146,7 +146,7 @@ dest_commands_dir() {
 
 dest_skills_dir() {
   case "$1" in
-    cursor)   print -- "$HOME/.cursor/skills-cursor" ;;
+    cursor)   print -- "$HOME/.cursor/skills" ;;
     claude)   print -- "$HOME/.claude/skills" ;;
     opencode) print -- "$HOME/.config/opencode/skills" ;;
     *) die "no skills dir for tool '$1'" ;;
