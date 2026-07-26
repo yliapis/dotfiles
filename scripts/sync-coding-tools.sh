@@ -30,9 +30,6 @@
 #             ~/.claude/plugins/marketplaces/yliapis-dotfiles
 #   opencode  ~/.config/opencode/commands
 #             ~/.config/opencode/skills/<name>
-#             (no plugin mirror: OpenCode "plugins" are JS/TS hook modules,
-#             not command/skill bundles; it also reads ~/.claude/skills as a
-#             Claude-compatible path, so the claude mirror stays harmless)
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -156,8 +153,7 @@ dest_skills_dir() {
   esac
 }
 
-# Empty output means the tool has no plugin-marketplace concept to mirror
-# (OpenCode plugins are JS/TS hook modules, unrelated to these bundles).
+# Empty output means the tool has no plugin-marketplace concept to mirror.
 dest_plugin_dir() {
   case "$1" in
     cursor)   print -- "$HOME/.cursor/plugins/local/ai-coding" ;;
@@ -227,7 +223,7 @@ copy_sync_tool() {
   run_rsync "${SRC_SKILLS[@]}" "$skills_dst"/
 
   if [[ -z "$plugin_dst" ]]; then
-    print -- "==> $tool plugin   (skipped: no plugin-marketplace equivalent)"
+    print -- "==> $tool plugin   (skipped)"
     return 0
   fi
   print -- "==> $tool plugin   -> $plugin_dst"
@@ -315,7 +311,7 @@ symlink_sync_tool() {
   done
 
   if [[ -z "$plugin_dst" ]]; then
-    print -- "==> $tool plugin   (skipped: no plugin-marketplace equivalent)"
+    print -- "==> $tool plugin   (skipped)"
     return 0
   fi
   print -- "==> $tool plugin   -> $plugin_dst  (symlink)"
@@ -403,7 +399,7 @@ unlink_tool() {
   done
 
   if [[ -z "$plugin_dst" ]]; then
-    print -- "==> $tool plugin   (skipped: no plugin-marketplace equivalent)"
+    print -- "==> $tool plugin   (skipped)"
     return 0
   fi
   print -- "==> $tool plugin   <- $plugin_dst"
