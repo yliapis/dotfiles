@@ -13,7 +13,8 @@
 # Sources (in this repo, do not modify by hand here):
 #   ai-coding/plugins/<plugin>/commands/*.md           slash commands
 #   ai-coding/plugins/<plugin>/skills/<name>/SKILL.md  skills
-#   .claude-plugin/marketplace.json + ai-coding/plugins/
+#   .cursor-plugin/marketplace.json (Cursor),
+#   .claude-plugin/marketplace.json (Claude) + ai-coding/plugins/
 #                                                      marketplace metadata
 #
 # Commands and skills from every plugin are flattened into one destination
@@ -154,6 +155,14 @@ dest_plugin_dir() {
   esac
 }
 
+plugin_meta_subdir() {
+  case "$1" in
+    cursor) print -- ".cursor-plugin" ;;
+    claude) print -- ".claude-plugin" ;;
+    *) die "no plugin meta subdir for tool '$1'" ;;
+  esac
+}
+
 # --- audit log ------------------------------------------------------------
 
 start_epoch=$(date +%s)
@@ -170,8 +179,8 @@ trap 'append_log $?' EXIT
 
 # --- copy-mode (rsync) ----------------------------------------------------
 #
-# -aL: archive + dereference symlinks (the .cursor-plugin/.claude-plugin
-# marketplace.json entries are symlinks; we want real files at the dest).
+# -aL: archive + dereference symlinks so destinations always get real files,
+# even if a source entry is ever a symlink into the repo.
 # --itemize-changes: one summary line per change so dry-run output is useful.
 
 typeset -a RSYNC_BASE
@@ -190,10 +199,11 @@ run_rsync() {
 
 copy_sync_tool() {
   local tool="$1"
-  local cmds_dst skills_dst plugin_dst
+  local cmds_dst skills_dst plugin_dst meta_subdir
   cmds_dst="$(dest_commands_dir "$tool")"
   skills_dst="$(dest_skills_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
+  meta_subdir="$(plugin_meta_subdir "$tool")"
 
   print -- "==> $tool commands -> $cmds_dst"
   mkdir -p "$cmds_dst"
@@ -207,8 +217,8 @@ copy_sync_tool() {
   if [[ -L "$plugin_dst" ]]; then
     (( DRY_RUN )) || rm -f "$plugin_dst"
   fi
-  mkdir -p "$plugin_dst/.claude-plugin" "$plugin_dst/ai-coding"
-  run_rsync "$SRC_MARKETPLACE/.claude-plugin"/ "$plugin_dst/.claude-plugin"/
+  mkdir -p "$plugin_dst/$meta_subdir" "$plugin_dst/ai-coding"
+  run_rsync "$SRC_MARKETPLACE/$meta_subdir"/ "$plugin_dst/$meta_subdir"/
   run_rsync "$SRC_PLUGINS" "$plugin_dst/ai-coding"/
 }
 
