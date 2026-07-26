@@ -65,7 +65,7 @@ Compatibility parameters are intentionally narrow:
       destination, and the complete write set before the first filesystem
       mutation.
 - [ ] Account for every extracted source item exactly once as
-      `ticketed(<id>)`, `split-into(<ids>)`, `merged-into(<id>)`,
+      `ticketed(<id>)`, `split-into(<ids>)`, `merged-into(<ids>)`,
       `filtered(<reason>)`, or `already-done`.
 - [ ] Every ticket starts with the canonical ticket schema, `status: open`,
       `owner: null`, `status_reason: null`, and `revision: 1`.
@@ -101,16 +101,33 @@ Compatibility parameters are intentionally narrow:
 3. For a directory, recursively collect regular `*.md` files without following
    symlinks and sort identifiers by unsigned UTF-8 byte order.
 4. For chat, use the nearest unambiguous preceding matching block and identify
-   it as `chat:sha256:<first-12-hex>`. For inline input, use
-   `inline:sha256:<first-12-hex>`.
-5. Hash canonical JSON containing ordered `{identifier, normalized_text}`
-   records to obtain the source fingerprint.
+   it as `chat:sha256:<first-12-hex>` of the normalized text bytes. For inline
+   input, use `inline:sha256:<first-12-hex>` by the same rule.
+5. Obtain the source fingerprint by hashing this exact canonical JSON shape:
+
+   ```json
+   {
+     "records": [
+       {"identifier": "<identifier>", "normalized_text": "<text>"}
+     ],
+     "schema": "ticket-operations/source-snapshot",
+     "schema_version": 1
+   }
+   ```
+
+   Records remain in canonical source order.
 6. Derive `<source-slug>` from the basename or first five source words:
-   NFKD-normalize, remove combining marks and non-ASCII characters, lowercase,
-   join alphanumeric words with `-`, and use `source` when empty.
+   NFKD-normalize, remove combining marks, tokenize maximal ASCII
+   `[A-Za-z0-9]+` runs, lowercase, join with `-`, and use `source` when empty.
 
 Read the live source once. Extraction, evidence, identity, and rendering all use
 that captured snapshot.
+
+For every identity payload in this skill, canonical JSON means RFC 8259 JSON
+with object keys sorted by UTF-8 byte order at every depth, array order
+preserved, strings encoded as UTF-8 without ASCII escaping, no insignificant
+whitespace, and no trailing newline. Hash those exact bytes with SHA-256 and
+prefix lowercase hex with `sha256:`.
 
 ## Transformation
 
@@ -157,15 +174,25 @@ Apply in this order:
    Assign IDs in that order.
 
 Every source key receives exactly one accounting outcome. Counts are over source
-keys, not generated fragments.
+keys, not generated fragments. When a source key merges into a surviving
+candidate that later splits, its `merged-into(<ids>)` outcome contains every
+ordered final ID descending from that candidate; the surviving primary source
+key is `split-into(<ids>)`. Never collapse that merged source to an arbitrary
+single fragment.
+
+Serialize outcomes exactly as `ticketed(TKT-001)`,
+`split-into(TKT-001,TKT-002)`, `merged-into(TKT-001,TKT-002)`,
+`filtered(below-min-severity:<value>)`, or `already-done`, with final IDs in
+ticket order and no spaces inside parentheses.
 
 ## Field Derivation
 
 - `title` — source title or first sentence after marker removal and whitespace
   collapse. Preserve wording. Truncate beyond 72 code points at the last
   whitespace by code point 69 and append `...`.
-- `summary` — normalized source statement plus explicit `Why`/`Rationale`, with
-  no paraphrase.
+- `summary` — normalized source statement followed by each distinct explicit
+  `Why` or `Rationale` value in source order, joined with `; `. Do not
+  paraphrase.
 - `context` — containing headings and explicit context, or
   `No additional context was supplied.`
 - `evidence` — explicit evidence or the exact source statement, always with a
@@ -177,9 +204,18 @@ keys, not generated fragments.
 - `out_of_scope` — explicit value; fallback
   `Changes outside the listed scope and acceptance criteria.`
 - `type` — explicit valid Conventional Commits type, otherwise first matching
-  deterministic category in this order: `revert`, docs-only path, CI path,
-  build manifest, test wording/path, performance wording, style-only wording,
-  refactor wording, fix wording, creation verb, then `chore`.
+  rule: word `revert` -> `revert`; every concrete location is under `docs/` or
+  ends `.md|.rst|.adoc` -> `docs`; a location is under `.github/workflows/`,
+  `.circleci/`, or `ci/` -> `ci`; a location basename is `package.json`,
+  `Cargo.toml`, `go.mod`, `pyproject.toml`, `Makefile`, or ends `.lock` ->
+  `build`; a location contains `/test/` or `/tests/`, or its basename contains
+  `.test.`, `.spec.`, or `_test.`, or text contains `test|coverage` -> `test`;
+  text contains `performance|latency|throughput|optimize` -> `perf`;
+  text contains `formatting-only|style-only|whitespace|lint-only` -> `style`;
+  text contains `refactor|restructure|rename|move` -> `refactor`; text contains
+  `fix|bug|broken|error|failure|incorrect|regression` -> `fix`; the first word
+  is `add|create|implement|introduce|support` -> `feat`; otherwise `chore`.
+  Text words are lowercase maximal ASCII alphanumeric runs.
 - `priority` — `critical=P0`, `major=P1`, `minor=P2`, `nit=P3`,
   `unclassified=P2`.
 - `labels` — sorted unique lowercase ASCII slugs from explicit labels,
@@ -190,11 +226,19 @@ keys, not generated fragments.
 - `dependencies` — explicit same-set dependencies only. Resolve exact source
   key, final ID, or unique full title. Unresolved, self, or cyclic dependencies
   abort; never infer dependencies.
-- `open_questions` — fixed notes for each fallback or ambiguity; `_None._` when
-  empty.
+- `open_questions` — emit applicable notes in this exact order:
+  `Severity is unclassified; assign a severity before prioritization.`,
+  `Scope location is unspecified; identify the path, symbol, or module.`,
+  `Acceptance criteria were not supplied; review the generated fallback.`,
+  `Composite scope was ambiguous; the item was retained as one ticket.` Use
+  the first three exactly when their corresponding fallback is used. Use the
+  fourth only when source text contains ASCII case-insensitive whole phrase
+  `and also` but does not meet the explicit split rule. Use `_None._` when none
+  applies.
 
 Filenames are `<id>-<first-six-title-words>.md` using lowercase ASCII
-kebab-case and `ticket` when empty. A duplicate filename aborts.
+kebab-case. Words are maximal ASCII alphanumeric runs after NFKD folding and
+combining-mark removal. Use `ticket` when empty. A duplicate filename aborts.
 
 ## Ticket Schema and Lifecycle
 
@@ -248,24 +292,69 @@ but labels it `caller-supplied; not executed`.
 
 ## Identity
 
-Compute `fingerprint` as `sha256:<hex>` over canonical JSON containing the ID,
-all immutable and definition-owned fields, dependencies, and body text with
-acceptance markers normalized to unchecked. Exclude `ticket_set`, lifecycle
-fields, and extensions.
+Compute each `fingerprint` from this exact payload:
 
-Compute `ticket_set` as `sha256:<hex>` over:
+```json
+{
+  "body": "<exact rendered Markdown after frontmatter, with every acceptance marker normalized to [ ]>",
+  "dependencies": ["TKT-000"],
+  "estimate": "S",
+  "id": "TKT-001",
+  "labels": ["label"],
+  "priority": "P1",
+  "schema": "ticket-operations/ticket-definition",
+  "schema_version": 1,
+  "severity": "major",
+  "source": {
+    "fingerprint": "sha256:<hex>",
+    "identifier": "<source identifier>",
+    "kind": "file",
+    "refs": ["<source ref>"]
+  },
+  "title": "<title>",
+  "type": "fix"
+}
+```
 
-- literal contract revision `ticket-create/v1`;
-- canonical source records and source fingerprint;
-- exact template bytes;
-- semantic parameters (`granularity`, `min_severity`, `id_prefix`);
-- ordered ticket fingerprints; and
-- complete source-item accounting.
+`body` begins at the rendered H1 and ends with exactly one LF. Normalize only
+acceptance marker bytes; preserve every other body byte. Exclude `ticket_set`,
+the stored `fingerprint`, lifecycle fields, and extensions.
 
-Use sorted JSON object keys, specified array order, UTF-8, and no insignificant
-whitespace. Compute this value once at creation. Thereafter it is an opaque,
-stable lineage identifier: definition updates change affected ticket
-fingerprints and projections but never recompute `ticket_set`.
+Compute `ticket_set` from this exact payload:
+
+```json
+{
+  "accounting": [
+    {
+      "final_ids": ["TKT-001"],
+      "outcome": "ticketed(TKT-001)",
+      "source_key": "SRC-001",
+      "source_refs": ["<source ref>"]
+    }
+  ],
+  "contract_revision": "ticket-create/v1",
+  "parameters": {
+    "granularity": "split-composites",
+    "id_prefix": "TKT",
+    "min_severity": null
+  },
+  "source": {
+    "fingerprint": "sha256:<hex>",
+    "records": [
+      {"identifier": "<identifier>", "normalized_text": "<text>"}
+    ]
+  },
+  "template_sha256": "sha256:<hash of exact template bytes as read>",
+  "tickets": [
+    {"fingerprint": "sha256:<hex>", "id": "TKT-001"}
+  ]
+}
+```
+
+Use JSON `null` when `{min_severity}` is omitted. Accounting and tickets retain
+their documented order. Compute `ticket_set` once at creation. Thereafter it is
+an opaque, stable lineage identifier: definition updates change affected
+ticket fingerprints and projections but never recompute `ticket_set`.
 
 ## Template Contract
 
