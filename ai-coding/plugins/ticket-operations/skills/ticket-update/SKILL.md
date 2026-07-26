@@ -46,17 +46,19 @@ creation preimage that the set does not retain.
   file inside the worktree. Optional only for projection-only reconciliation,
   legacy inspection, or recovery. See `## Patch Contract`.
 - `{projection}`: `require` | `repair`; optional, default `require`.
-  `require` rejects any worklist drift. `repair` permits only the reconstructible
-  projection drift defined below.
+  `require` rejects worklist drift except a checked-marker proposal explicitly
+  inspected or imported through `{legacy}`. `repair` permits only the
+  reconstructible projection drift defined below.
 - `{legacy}`: `reject` | `inspect` | `discard` | `import`; optional, default
   `reject`.
   `inspect` reports eligible proposals without mutation. `import` converts only
   entries named by `{legacy_accept}` into native lifecycle transactions.
-- `{legacy_worklist}`: optional path to one unmanaged Markdown worklist. It is
-  required for `legacy=inspect|import` and remains read-only.
+- `{legacy_worklist}`: optional path to one unmanaged read-only Markdown
+  worklist for `legacy=inspect|import`. When omitted, those modes inspect
+  checked-marker drift in the managed `WORKLIST.md` itself.
 - `{legacy_accept}`: strict YAML or JSON list required for `legacy=import`.
   Each record supplies exact `id`, `expected_revision`,
-  `expected_fingerprint`, `expected_owner`, and one evidence reference per
+  `expected_fingerprint`, `expected_owner`, and one exact evidence record per
   acceptance criterion.
 - `{mode}`: `interactive` | `non-interactive`; optional, default
   `interactive`. Interactive mutation presents one complete plan and requires
@@ -161,6 +163,13 @@ coercions that violate the schema. From one captured snapshot:
    `Done-when`, path, fingerprint, status, and revision. Structurally validate
    and preserve Item Accounting as creation history.
 
+Before treating step 7 as fatal, classify legacy proposals. Under
+`legacy=inspect|discard|import`, permit only an exact `[ ] -> [x]` body-marker
+difference for an entry whose manifest record and every subfield still match
+the authoritative open ticket. Parse that difference as a proposal before
+ordinary projection enforcement. Any additional drift follows `{projection}`
+and cannot be hidden by legacy mode.
+
 With `{projection}=repair`, steps 1 through 6 still pass without exception.
 The worklist must retain a valid schema header, lineage and source fingerprint,
 an ordered unique ID/file backbone that maps one-to-one to the complete native
@@ -204,7 +213,7 @@ value:
 | `body` | Replace complete bodies for exact keys `summary`, `context_and_evidence`, `in_scope`, `out_of_scope`, or `open_questions`. Normalize UTF-8 text to NFC and LF with one final newline. |
 | `dependencies` | Supply complete `expected` and `replacement` ID arrays. Require exact IDs, reject duplicates, and render in canonical manifest rank. |
 | `acceptance_criteria` | Supply complete `expected` and `replacement` text arrays. Markers are not part of these strings. |
-| `acceptance_markers` | Supply equal-length complete `expected` and `replacement` boolean vectors plus indexed evidence for checks and indexed reasons for unchecks. Evidence is required for every `false -> true` index and every index when transitioning to `done`. |
+| `acceptance_markers` | Supply equal-length complete `expected` and `replacement` boolean vectors, an `evidence` record list, and an equal-length `uncheck_reasons` list of string or null. Evidence is required for every `false -> true` index and every index when transitioning to `done`; a nonempty reason is required exactly for `true -> false`. |
 | `transition` | Supply `to` and the final-state fields required below. Optional audit-only controls are `transition_note`, `reopen`, and `abandon_claim`. |
 | `extensions` | Apply an RFC 7396 merge patch. Absent keys survive and explicit `null` deletes. Extensions do not enter the fingerprint. |
 
@@ -212,6 +221,30 @@ Reject unknown operations, line-number patches, regular expressions, fuzzy
 title matching, partial list edits, and overlapping representations of the
 same field. Update the rendered H1 when `title` changes. Missing operations
 never mean deletion.
+
+Evidence records use this exact common schema; criterion indexes are
+one-based:
+
+```yaml
+- criterion_index: 1
+  criterion_text: "<exact current criterion text>"
+  ticket_fingerprint: "sha256:<current ticket fingerprint>"
+  observed_tree: "<full lowercase Git tree object id>"
+  kind: "commit"
+  ref: "<kind-specific reference>"
+  result: "<nonempty observed result>"
+```
+
+`observed_tree` MUST equal the full output of `git rev-parse HEAD^{tree}` and
+match the repository's object-ID length. For `kind: commit`, `ref` is a full
+commit SHA reachable from `HEAD` and no extra key is allowed. For
+`kind: artifact`, `ref` is a safe in-worktree file path and the record adds
+exactly `expected_sha256: "sha256:<64-hex>"`, which MUST match current bytes.
+For `kind: attestation`, `ref` is a durable reference and the record adds
+exactly `actor: "<nonempty identity>"`. Reject unknown keys, duplicate
+criterion indexes, zero-based/out-of-range indexes, text/fingerprint/tree
+mismatches, unavailable refs, and evidence for an index that neither becomes
+checked nor supports a `done` transition.
 
 Any change to a definition-owned frontmatter field, dependency, criterion
 text, or body byte recomputes that ticket's fingerprint using the
@@ -288,12 +321,13 @@ evidence. Unchecking requires an indexed reason but no completion evidence.
 ## Legacy Completion Proposals
 
 Neither a managed marker mismatch nor an unmanaged legacy worklist supplies
-lifecycle authority. For `inspect|import`, parse only exact
-`- [x] <id>: <title>` entries with one indented `Ticket:` path. Each path must
-resolve without symlinks to a ticket in the validated managed worklist; all
-links must resolve to this one set. Require exact native ID and current title.
-If `Fingerprint`, `Revision`, or `Status` subfields exist, require exact current
-values.
+lifecycle authority. The proposal source is the managed `WORKLIST.md` when
+`{legacy_worklist}` is omitted, otherwise the supplied unmanaged read-only
+file. For `inspect|import`, parse only exact `- [x] <id>: <title>` entries with
+one indented `Ticket:` path. Each path must resolve without symlinks to a ticket
+in the validated managed worklist; all links must resolve to this one set.
+Require exact native ID and current title. If `Fingerprint`, `Revision`, or
+`Status` subfields exist, require exact current values.
 
 Treat `[ ]` as no proposal. Never use it to reopen a ticket. Reject malformed
 or duplicate entries and status-like `[>]`, `[!]`, or `[-]` markers rather
@@ -314,7 +348,8 @@ finish at `done`, incrementing revision twice. Reject `blocked` and `cancelled`
 proposals. A checked box never bypasses the transition graph or evidence gate.
 
 Reject an imported ID that also appears in `{patch}`. `inspect` forbids patch,
-repair, legacy acceptance, and audit commit. `discard` requires
+repair, legacy acceptance, and audit commit but may inspect the narrowly
+classified managed-marker drift above. `discard` requires
 `projection=repair` and forbids patch and commit. Never modify an unmanaged
 legacy file.
 
@@ -416,10 +451,10 @@ revision, report `unchanged`; write no journal or file and create no commit.
 
 1. Validate parameters and resolve the target without following symlinks.
 2. Detect and validate any recovery journal.
-3. Snapshot and preflight the complete native set, projection, dependencies,
-   persistence, and required Git state.
-4. Parse the patch and optional legacy proposals; resolve exact selected IDs in
-   canonical rank.
+3. Snapshot and preflight schemas, lineage, tickets, dependencies, persistence,
+   Git state, and the exact class of every projection difference.
+4. Parse optional legacy proposals before enforcing projection policy; then
+   parse the patch and resolve exact selected IDs in canonical rank.
 5. Apply deterministic patch and lifecycle rules in memory. Recompute affected
    fingerprints, increment effective ticket revisions once, and reject cycles.
 6. Regenerate the manifest and worklist projection while preserving lineage

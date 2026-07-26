@@ -286,11 +286,16 @@ For each ticket at revision `r`:
    repository-native tests or end-to-end actions, then run `{verify_command}`
    when supplied. Map every criterion to a fresh command/action, exit/result,
    relevant output/artifact, implementation index-tree hash, and conclusion.
-   Store each result in the common evidence envelope: exact criterion index and
-   text, current fingerprint, full observed Git tree,
-   `kind: commit|artifact|attestation`, nonempty `ref`, and nonempty `result`.
-   Execution evidence is fresh and actually run, never caller-supplied.
-   Static inspection alone is
+   Store one record per criterion with exact keys
+   `criterion_index` (one-based), `criterion_text`, `ticket_fingerprint`,
+   `observed_tree` (the full staged index-tree object ID), `kind`, `ref`, and
+   `result`. For `kind: command`, `ref` is the exact command/action and the
+   record adds exactly integer `exit_code`. For `kind: artifact`, `ref` is a
+   safe local artifact path and the record adds exactly
+   `expected_sha256: "sha256:<64-hex>"`, verified against current bytes.
+   Reject unknown keys, duplicate/out-of-range indexes, stale fingerprints or
+   trees, and unavailable refs. Execution evidence is fresh and actually run,
+   never caller-supplied. Static inspection alone is
    insufficient for behavioral acceptance. Documentation and configuration
    criteria need a parser, renderer, link check, example run, or consuming
    command. An unproved criterion fails.
