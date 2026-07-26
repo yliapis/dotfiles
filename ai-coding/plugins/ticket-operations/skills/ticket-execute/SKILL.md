@@ -22,8 +22,9 @@ side effects, and deterministically select open tickets. Process one ticket at
 a time: claim it with compare-before-write lifecycle state, implement only its
 scope, prove every acceptance criterion with current runtime evidence, complete
 the lifecycle and worklist projection, and create exactly one Conventional
-Commit containing the implementation and ticket trace; include tracked
-lifecycle files or bind exact local lifecycle bytes through the journal.
+Commit containing the implementation and ticket trace. Include tracked
+lifecycle files in the commit; for local sets, bind exact lifecycle bytes in
+commit footers.
 
 ## Parameters
 
@@ -39,13 +40,11 @@ lifecycle files or bind exact local lifecycle bytes through the journal.
   optional, default `interactive`. `interactive` approves the plan and each
   final diff/commit; `non-interactive` approves the plan once;
   `force-approve-all` prompts nowhere.
-- `{owner}` — non-empty provisional-claim owner; optional, default
-  `ticket-execute:<git-user-email>`. Abort when no parameter or configured Git
-  email supplies an owner.
 - `{verify_command}` — optional additional shell command run from the worktree
   root for each attempted ticket. It supplements criterion-specific checks;
   ticket prose is never executed as a command. Export `TICKET_ID`,
-  `TICKET_FILE`, `TICKET_SET`, and `TICKET_BASE_REVISION` for this command.
+  `TICKET_TITLE`, `TICKET_SET`, `TICKET_FINGERPRINT`,
+  `TICKET_BASE_REVISION`, `TICKET_FILE`, and `WORKLIST_FILE` for this command.
 - `{commit_scope}` — optional Conventional Commit scope applied to every
   resulting commit. It MUST match `^[a-z0-9][a-z0-9._-]*$`; omit it when unset.
 - `{on_failure}` — `abort` | `continue`; optional, default `abort`. Both first
@@ -55,7 +54,7 @@ lifecycle files or bind exact local lifecycle bytes through the journal.
   It applies only to a valid interrupted `ticket-execute` journal in this
   worktree and never adopts an unjournaled claim.
 - `{legacy_worklist}` — `resolve-native-links` | `reject`; optional, default
-  `resolve-native-links`. Compatibility is read-only and never converts a
+  `reject`. Compatibility is read-only and never converts a
   checkbox into ticket lifecycle state.
 - `{dry_run}` — optional boolean, default `false`. Resolve, validate, select,
   and render the complete plan, but acquire no lock, write no journal or file,
@@ -80,12 +79,13 @@ Unknown parameters or invalid values abort before side effects.
       authoritative final ticket state.
 - [ ] Create exactly one Conventional Commit per successful ticket, containing
       implementation, identity trailers, and tracked lifecycle writeback or a
-      journal binding to exact local lifecycle bytes.
+      footer binding to exact local lifecycle bytes.
 - [ ] A failure or declined approval creates no commit and restores the exact
       pre-ticket tree/index, or stops without overwriting when safe restoration
       cannot be proved.
 - [ ] A rerun skips authoritative `done` tickets and creates no duplicate
-      commit regardless of legacy checkbox state.
+      commit regardless of legacy checkbox state or accidentally restored local
+      lifecycle bytes.
 - [ ] End each committed or safely rolled-back ticket with the validated
       tracked/local baseline shape and report its evidence and commit SHA.
 
@@ -218,32 +218,45 @@ conversion is ambiguous, stop before side effects.
 
 Claims are provisional working-tree transactions, not commits. In `tracked`
 mode their final files enter the commit; in `local` mode their exact final
-bytes remain local and are bound to the commit by the journal. After plan
-approval, acquire an OS-released exclusive set lock beneath this worktree's Git
-administrative directory and rerun preflight. Never steal a live lock.
+bytes remain local and are bound to the commit by state-hash footers. After
+plan approval, compute a set key from canonical JSON containing the worktree
+path, set-root path, and `ticket_set`. Acquire an OS-released exclusive lock at
+`$(git rev-parse --git-path ticket-execute)/<set-key>/lock` and rerun
+preflight. Record host, PID plus process-start identity, invocation ID, branch,
+and baseline `HEAD`; never steal a live or uncertain lock. Derive the claim
+owner as `ticket-execute:<first-12-hex>` of the set key, ticket ID, base
+revision, and baseline `HEAD`.
 
 For each ticket at revision `r`:
 
-1. Create and sync an atomic write-ahead journal at
-   `$GIT_DIR/ticket-execute/<set-hex>/<ticket-id>.json`. Record baseline `HEAD`,
-   persistence mode, exact ticket/worklist bytes and hashes, expected
-   revision/owner, phase, and index state. Before each later phase, atomically
-   add its planned before/after hashes, touched paths and preimages, and, before
-   staging, the commit message/tree. Locks and journals are never staged.
+1. Create and sync an atomic write-ahead journal beside the lock as
+   `<ticket-id>.json`. Record baseline `HEAD`, persistence mode, exact
+   ticket/worklist bytes and hashes, expected revision/derived owner,
+   dependency snapshot, phase, and index state. Before each later phase,
+   atomically add planned before/after hashes, touched paths and preimages,
+   acceptance evidence, and, before staging, the commit message and staged
+   tree. Update through a sibling temporary file, file and directory fsync, and
+   atomic rename. Distinguish `prepared`, each half of the claim pair,
+   `claimed`, `implementing`, `verified`, each half of the final pair,
+   `finalized`, `staged`, `committing`, and `committed`. Locks and journals are
+   never staged.
 2. **Claim CAS.** Require exact preflight bytes, `open`, null owner/reason,
    revision `r`, unchanged fingerprint, and all dependencies `done`. Prepare
    both images in memory. Compare again immediately before atomically replacing
-   the ticket with `in_progress`, `{owner}`, null reason, revision `r+1`, then
+   the ticket with `in_progress`, the derived owner, null reason, revision
+   `r+1`, then
    the worklist with `[>]`, `in_progress`, and `r+1`. Advance the write-ahead
    journal around each replacement so a torn pair is recognizable.
 3. **Implement.** Before editing a path, journal its baseline object/mode/hash
    or absence. Apply only the smallest coherent ticket change, following
    `minimal-diffs`. After every tool or command, inspect and register produced
    paths; unexplained or out-of-scope changes fail the ticket.
-4. **Verify.** Exercise changed behavior with the narrowest existing
+4. **Verify.** Stage only registered implementation paths, record the index-tree
+   hash, and exercise changed behavior with the narrowest existing
    repository-native tests or end-to-end actions, then run `{verify_command}`
    when supplied. Map every criterion to a fresh command/action, exit/result,
-   relevant output/artifact, and conclusion. Static inspection alone is
+   relevant output/artifact, implementation index-tree hash, and conclusion.
+   Static inspection alone is
    insufficient for behavioral acceptance. Documentation and configuration
    criteria need a parser, renderer, link check, example run, or consuming
    command. An unproved criterion fails.
@@ -251,7 +264,8 @@ For each ticket at revision `r`:
    owner, unchanged fingerprint and baseline `HEAD`, and dependencies still
    `done`. In memory, check every evidenced criterion, set `done`, null
    owner/reason, revision `r+2`, and project `[x]`, `done`, `r+2` to the
-   worklist. Validate and journal the complete prospective set without writing.
+   worklist. Validate and journal the complete prospective set without writing,
+   including its final staged-tree hash.
 6. Review the prospective complete diff and evidence. In `interactive` mode
    obtain per-ticket approval; decline triggers rollback. Then require the
    exact claim again, compare before each atomic replacement, replace ticket
@@ -265,8 +279,10 @@ For each ticket at revision `r`:
    `--allow-empty` so success still has exactly one traceable commit.
    Verify exactly one commit was added, its tree/message match approval, both
    final lifecycle images match the journal, and the tracked/local baseline
-   shape is restored. Only then remove the journal and release the lock (or
-   continue under it to the next ticket).
+   shape is restored. In local mode, require the commit's lifecycle-state hash
+   footers to match the exact final bytes before removing the journal. Only
+   then remove the journal and release the lock (or continue under it to the
+   next ticket).
 
 The committed ticket moves visibly from `r` to `r+2` because the transaction
 contains two valid compare-before-write lifecycle mutations. Restoring `r`
@@ -290,7 +306,10 @@ Ticket-Id: <id>
 Ticket-Set: <ticket_set>
 Ticket-Fingerprint: <fingerprint>
 Ticket-File: <workspace-relative path>
-Ticket-Revision: <r> -> <r+2>
+Ticket-Revision: <r>..<r+2>
+Ticket-Persistence: <tracked|local>
+Ticket-State-SHA256: sha256:<exact-final-ticket-bytes-hash>
+Worklist-State-SHA256: sha256:<exact-final-worklist-bytes-hash>
 ```
 
 Wrap body text at 72 characters and retain all identity trailers. Run Git hooks
@@ -338,6 +357,10 @@ never adopted.
 
 Ordinary reruns select current ticket frontmatter. `done` is reported
 `already-done` with no verifier, write, stage, or commit.
+Before executing an `open@r` local ticket, search commits reachable from `HEAD`
+for matching `Ticket-Id`, `Ticket-Set`, `Ticket-Fingerprint`, and
+`Ticket-Revision: <r>..<r+2`. A match means lifecycle state was restored
+inconsistently; abort instead of producing a duplicate commit.
 
 ## Workflow
 
@@ -364,7 +387,7 @@ Return these sections in order, omitting only empty optional sections:
 ### Run Summary
 
 Target and canonical worklist; ticket-set identity; selector/order; mode;
-owner; persistence; baseline/final `HEAD`; outcome (`completed`, `partial`,
+derived owner; persistence; baseline/final `HEAD`; outcome (`completed`, `partial`,
 `no-runnable`, `already-done`, `dry-run`, `declined`, `failed`, or
 `recovery-required`); and counts for selected, scheduled, committed,
 already-done, deferred, failed, and declined.
@@ -387,11 +410,17 @@ occurred.
 One row per selected ticket: ID, outcome, starting/final lifecycle revisions,
 commit SHA or `none`, final status, and one-line note.
 
-### Runtime Evidence
+### Acceptance Evidence
 
 For every committed ticket, map each criterion to the exact command/manual
 action, exit/result, relevant output tail or artifact path, and conclusion.
-Redact secrets from captured output.
+Include implementation and final staged-tree hashes. Redact secrets from
+captured output.
+
+### Commits
+
+List each full commit SHA, subject, ticket ID, revision range, persistence mode,
+and lifecycle-state hashes.
 
 ### Failures and Recovery
 
