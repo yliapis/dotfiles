@@ -151,7 +151,17 @@ Walk canonical documents and lines in order. Assign source keys `SRC-001`,
 Capture source refs as `<identifier>:<start-line>-<end-line>`. Unmatched prose
 is context, not a fabricated item. Normalize severity aliases:
 `blocker/high/medium/low` map to `critical/major/minor/nit`; absent or unknown
-severity is `unclassified`.
+severity is `unclassified`. Resolve severity from an explicit item field or
+label first, then the nearest containing heading whose complete trimmed,
+case-insensitive text is `Critical`, `Major`, `Minor`, or `Nit`.
+
+An item's source statement is its first physical item line after removing the
+list/checkbox/number marker and Markdown emphasis around a finding label.
+Recognize inline named fields only after a literal `; ` followed by one of the
+field names listed in extraction and `:`. Remove that delimiter and all
+recognized inline fields from the statement; parse their values as if they
+were indented fields. Collapse all statement whitespace to one ASCII space and
+trim it. A root source ref spans the item line through its last indented child.
 
 ### Merge, split, group, and filter
 
@@ -159,11 +169,18 @@ Apply in this order:
 
 1. Merge exact duplicates with equal case-folded, whitespace-collapsed concern
    and sorted explicit locations. Preserve first wording; concatenate distinct
-   evidence and refs in source order; keep the highest severity.
+   explicit evidence, acceptance criteria, and refs in source order; preserve
+   the primary's other fields; keep the highest severity.
 2. Under `split-composites` or `theme-grouped`, split only explicit independent
    child bullets, numbered child actions, or semicolon-separated action clauses
    that each carry their own location or acceptance criterion. Never split a
-   bare conjunction by semantic guess.
+   bare conjunction by semantic guess. A fragment takes its statement, title,
+   inline/child scope, and inline/child acceptance from that child or clause.
+   It inherits the merged candidate's severity, context, out-of-scope text,
+   dependencies, distinct explicit evidence, and complete ordered source-ref
+   union. Its evidence starts with its exact fragment statement, followed by
+   inherited distinct evidence in source order. When a fragment omits scope or
+   acceptance, inherit the primary candidate's value before using a fallback.
 3. Under `theme-grouped`, merge only candidates with equal normalized criterion
    and complete sorted location list. Sharing a file or severity is
    insufficient.
@@ -187,19 +204,24 @@ ticket order and no spaces inside parentheses.
 
 ## Field Derivation
 
-- `title` — source title or first sentence after marker removal and whitespace
-  collapse. Preserve wording. Truncate beyond 72 code points at the last
-  whitespace by code point 69 and append `...`.
+- `title` — for a critique finding, the exact criterion label; otherwise the
+  source statement through its first `.`, `?`, or `!` sentence boundary.
+  Preserve wording. Truncate beyond 72 code points at the last whitespace by
+  code point 69 and append `...`.
 - `summary` — normalized source statement followed by each distinct explicit
   `Why` or `Rationale` value in source order, joined with `; `. Do not
   paraphrase.
-- `context` — containing headings and explicit context, or
-  `No additional context was supplied.`
-- `evidence` — explicit evidence or the exact source statement, always with a
-  source ref.
-- `scope` — explicit finding location, `Where`, then backticked paths/symbols,
+- `context` — non-severity containing heading texts followed by explicit
+  `Context` values, each whitespace-collapsed and joined with `; ` in source
+  order; fallback `No additional context was supplied.`
+- `evidence` — each distinct explicit `Evidence` value with its originating
+  root source ref; when absent, the exact source statement with that ref.
+  Preserve source order.
+- `scope` — explicit finding location, then each `Where` value split on literal
+  commas, then backticked paths/symbols in the statement, trimmed and
   deduplicated in source order; fallback `Not specified in source.`
-- `acceptance_criteria` — explicit `Done-when`/acceptance text; fallback
+- `acceptance_criteria` — one value per explicit `Done-when` or acceptance
+  child in source order, whitespace-collapsed; fallback
   `Source requirement is satisfied: "<title>".`
 - `out_of_scope` — explicit value; fallback
   `Changes outside the listed scope and acceptance criteria.`
@@ -219,7 +241,9 @@ ticket order and no spaces inside parentheses.
 - `priority` — `critical=P0`, `major=P1`, `minor=P2`, `nit=P3`,
   `unclassified=P2`.
 - `labels` — sorted unique lowercase ASCII slugs from explicit labels,
-  criterion, first path segment, and source slug.
+  criterion, first path segment, and source slug. Form each slug from maximal
+  ASCII alphanumeric runs after NFKD folding and combining-mark removal,
+  joined with `-`; drop empty slugs.
 - `estimate` — explicit `XS|S|M|L|XL`, else `XS` without a concrete location,
   `S` for one location, `M` for two or three in one module, `L` for more or
   cross-module work, and `XL` only for an explicit architecture/migration.
@@ -375,6 +399,55 @@ Recognized tokens:
 - aliases: `{where}` for `{scope}`, `{done_when}` for
   `{acceptance_criteria}`.
 
+`{ticket_frontmatter}` renders exactly this shape and field order. Encode every
+string with JSON double-quoted string syntax (valid YAML); render arrays as
+`[]` when empty or one `  - <encoded-string>` line per value:
+
+```yaml
+---
+schema: "ticket-operations/ticket"
+schema_version: 1
+ticket_set: "sha256:<hex>"
+id: "TKT-001"
+fingerprint: "sha256:<hex>"
+title: "<title>"
+status: "open"
+status_reason: null
+owner: null
+revision: 1
+type: "fix"
+severity: "major"
+priority: "P1"
+estimate: "S"
+labels:
+  - "<label>"
+source:
+  kind: "inline"
+  identifier: "<identifier>"
+  fingerprint: "sha256:<hex>"
+  refs:
+    - "<source ref>"
+dependencies: []
+extensions: {}
+---
+```
+
+The token value has no trailing LF; the template supplies line endings around
+it. Render Markdown values as follows after collapsing internal line breaks and
+whitespace to one ASCII space:
+
+- `{evidence}`: one `- <evidence> (<source-ref>)` line per distinct evidence
+  value, preserving source order and its originating ref;
+- `{scope}`: one `- <scope-value>` line per value;
+- `{acceptance_criteria}`: one `- [ ] <criterion>` line per value;
+- `{dependencies}`: one `- <ticket-id>` line per ID, or `None.` when empty;
+- `{open_questions}`: one `- <fixed-note>` line per note, or `_None._`;
+- `{labels}`: labels joined with `, `; `{source_ref}`: the first source ref;
+- paragraph/scalar tokens: the normalized scalar value without added quoting.
+
+Do not otherwise escape or reflow Markdown-token punctuation. Render UTF-8 with
+LF line endings and exactly one final LF.
+
 Protect `{{name}}` as a literal brace escape before token discovery. Discover
 template token occurrences before substitution and never rescan inserted source
 text. Unknown tokens, missing values, malformed YAML, duplicate keys, invalid
@@ -386,29 +459,39 @@ Required body sections are `Summary`, `Context and Evidence`, `Scope` with
 
 ## WORKLIST.md Contract
 
-`WORKLIST.md` is a validated projection, never lifecycle authority. Its
-frontmatter contains:
+`WORKLIST.md` is a validated projection, never lifecycle authority. Render its
+frontmatter in this exact field order, using the ticket frontmatter's JSON
+string/list encoding rules:
 
 ```yaml
 ---
-schema: ticket-operations/worklist
+schema: "ticket-operations/worklist"
 schema_version: 1
-ticket_schema: ticket-operations/ticket
+ticket_schema: "ticket-operations/ticket"
 ticket_schema_version: 1
 ticket_set: "sha256:<hex>"
 source_fingerprint: "sha256:<hex>"
 ticket_count: 1
 tickets:
-  - id: TKT-001
-    file: ./TKT-001-example.md
+  - id: "TKT-001"
+    file: "./TKT-001-example.md"
     fingerprint: "sha256:<hex>"
-    status: open
+    status: "open"
     revision: 1
 ---
 ```
 
-Group entries under `Critical`, `Major`, `Minor`, `Nit`, and `Unclassified`,
-omitting empty groups. Entry shape and subfield order:
+After frontmatter, render one blank line and:
+
+```markdown
+# Worklist: <source-slug>
+
+Generated by ticket-create from `<source-identifier>`.
+```
+
+Group entries under `Critical`, `Major`, `Minor`, `Nit`, and `Unclassified` in
+that order, omitting empty groups. Put one blank line before and after each
+heading. Entry shape and subfield order:
 
 ```markdown
 - [ ] TKT-001: <title>
@@ -421,13 +504,29 @@ omitting empty groups. Entry shape and subfield order:
   - Revision: 1
 ```
 
+For `Where` and `Done-when`, join normalized values with `; `. `Why` is the
+summary through the first `.`, `?`, or `!` followed by whitespace or end of
+text, or the full summary when no boundary exists. Keep every subfield on one
+physical line and collapse whitespace; do not otherwise escape punctuation.
+
 Marker projection is `open=[ ]`, `in_progress=[>]`, `blocked=[!]`, `done=[x]`,
 and `cancelled=[-]`. The initial four subfields remain readable by
 `address-worklist-commit-loop`; its checkbox-only writeback is a legacy
 completion proposal, not authoritative lifecycle state.
 
-Append `## Item Accounting` with one row per source key and its source ref,
-title, outcome, and final IDs.
+Append this exact table, one row per source key in source order:
+
+```markdown
+## Item Accounting
+
+| Source key | Source refs | Title | Outcome | Final IDs |
+|---|---|---|---|---|
+| SRC-001 | <refs joined by ; > | <source statement> | ticketed(TKT-001) | TKT-001 |
+```
+
+Use `—` for an empty Final IDs cell. In table cells, collapse whitespace,
+replace each existing `\` with `\\`, then each `|` with `\|`. End
+`WORKLIST.md` with exactly one LF.
 
 ## Existing Sets and Publication
 
