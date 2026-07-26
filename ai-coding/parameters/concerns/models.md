@@ -11,8 +11,8 @@ bites when a fan-out mixes models.
 ### `agent_model`
 - **Aliases:** —
 - **Applies to:** command, skill → spawned agent
-- **Type:** a single model identifier, or a list of identifiers (worktree-task,
-  address-worklist-commit-loop only)
+- **Type:** a single model identifier, or a list of identifiers
+  (worktree-task only)
 - **Default:** the parent agent's model
 - **Meaning:** Model(s) assigned to spawned worker agents. A scalar broadcasts
   to every member; a list maps positionally.
@@ -23,7 +23,7 @@ bites when a fan-out mixes models.
   `fan_out >= 2`.
 - **Propagation:** scalar → broadcast; list → positional zip or per-partition
   broadcast. See [propagation.md](../propagation.md).
-- **Used by:** worktree-task, address-worklist-commit-loop, ralph-design, designer-controller
+- **Used by:** worktree-task, ralph-design, designer-controller
 
 ## Artifact-specific
 

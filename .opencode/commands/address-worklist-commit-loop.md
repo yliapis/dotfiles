@@ -1,1 +1,1 @@
-../../ai-coding/plugins/git-delivery/commands/address-worklist-commit-loop.md
+../../ai-coding/plugins/ticket-operations/commands/address-worklist-commit-loop.md

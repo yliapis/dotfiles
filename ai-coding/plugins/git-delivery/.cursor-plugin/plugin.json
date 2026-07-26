@@ -1,8 +1,0 @@
-{
-  "name": "git-delivery",
-  "version": "0.1.0",
-  "description": "Tickets -> minimal diffs -> conventional commits -> merge/push.",
-  "author": { "name": "yliapis" },
-  "repository": "https://github.com/yliapis/dotfiles",
-  "license": "MIT"
-}

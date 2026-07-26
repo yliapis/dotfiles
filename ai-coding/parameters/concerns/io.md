@@ -86,20 +86,19 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
   auto-detected — `cursor` when the session transcript lives under
   `~/.cursor/projects/`, `claude-code` when under `~/.claude/projects/`, else
   `agent`.
-- `{granularity}` (ticket-breakdown) — ticket splitting policy: closed enum
+- `{granularity}` (ticket-create) — ticket splitting policy: closed enum
   `one-to-one` | `split-composites` | `theme-grouped`. Default
   `split-composites`. An output-shape parameter like trajectory-snapshot's
   `{granularity}` above, but a different concept under the same spelling:
   there it sets detail level of one artifact, here it sets how extracted work
   items map to tickets (split composite items, merge same-theme items).
-- `{id_prefix}` (ticket-breakdown) — prefix for rendered ticket ids
+- `{id_prefix}` (ticket-create) — prefix for rendered ticket ids
   (`{id_prefix}-NNN`, zero-padded). Default `TKT`. Validation:
   `^[A-Z][A-Z0-9]{1,9}$`.
-- `{output_dir}` (ticket-breakdown) — directory the ticket files and
+- `{output_dir}` (ticket-create) — directory the ticket files and
   `WORKLIST.md` land in; a directory-valued sibling of the
   [`artifact_path`](#artifact_path) family. Default:
-  `.ai-coding-artifacts/tickets/<analysis-slug>/` resolved against the
-  workspace root. Rejected when `{persistence}` is `chat`. Collisions never
-  overwrite: an existing non-empty directory gets a `-2` (then `-3`, …)
-  suffix (see
+  `.ai-coding-artifacts/tickets/<source-slug>/` resolved against the workspace
+  root. `{on_existing}` controls deterministic reuse, failure, or a
+  ticket-set-hash suffix; numeric suffixes are forbidden (see
   [overwrite postures](lifecycle.md#overwrite-postures)).

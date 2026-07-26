@@ -85,8 +85,8 @@ validation must accept), with `n = {num_agents}`, `p = {parallel_agents}`:
 ## Invariants
 
 - **Isolation:** members never read, write, or run commands against the
-  calling worktree or any sibling (worktree-task, agent-swarm, meta-prompt,
-  address-worklist-commit-loop all restate this).
+  calling worktree or any sibling (worktree-task, agent-swarm, and meta-prompt
+  all restate this).
 - **Single merge:** at most one worktree branch is merged per invocation,
   regardless of how many members succeeded or how many selection modes
   converged.

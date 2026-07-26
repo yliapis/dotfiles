@@ -20,7 +20,9 @@ is already pinned down.
 - **Used by:** worktree-task (declared), agent-swarm (relayed, undeclared)
 
 ### `context`
-- **Aliases:** `target` (designer, designer-controller), `domain` (ralph-design — loose alias: names the domain being modeled rather than an existing artifact)
+- **Aliases:** `target` (designer, designer-controller, ticket-execute,
+  ticket-update), `domain` (ralph-design — loose alias: names the domain being
+  modeled rather than an existing artifact)
 - **Applies to:** command, skill
 - **Type:** file path | directory path | URL | inline text | free-form description (see [addressing forms](io.md#addressing-forms))
 - **Default:** required in all current uses
@@ -30,7 +32,9 @@ is already pinned down.
 - **Validation:** consumers record what was loaded and what was skipped or
   unreachable; critique surfaces unresolvable ambiguity in an Open Questions
   section instead of guessing.
-- **Used by:** critique (`{context}`), designer (`{target}`), designer-controller (`target`), ralph-design (`{domain}`)
+- **Used by:** critique (`{context}`), designer (`{target}`),
+  designer-controller (`target`), ralph-design (`{domain}`), ticket-execute
+  (`{target}`), ticket-update (`{target}`)
 
 ## Artifact-specific
 
@@ -39,12 +43,11 @@ is already pinned down.
   `key=value` tokens (`n=`, `k=`, `update-mode=`, `style(s)=`) and flags are
   parsed out of it and stripped before mode detection. Required (may be empty,
   which triggers HELP).
-- `{worklist}` (address-worklist-commit-loop) — the work-item source: a
-  markdown path, chat reference, MCP endpoint, or inline items. Required.
-- `{analysis}` (ticket-breakdown) — the work-item source to split into
-  tickets: a markdown file or directory path, chat reference, or inline items.
-  Kin to `{worklist}` but accepts directories and not MCP endpoints; the
-  emitted `WORKLIST.md` is itself a valid `{worklist}` source. Required.
+- `{worklist}` (address-worklist-commit-loop compatibility command) — a native
+  managed `WORKLIST.md` path routed to `ticket-execute`. Required.
+- `{source}` / `{analysis}` (ticket-create) — the work-item source to split
+  into tickets: a Markdown file or directory, chat reference, or inline items.
+  `{analysis}` is a compatibility alias; supplying both aborts. Required.
 - `trait_name` (design-skill) — kebab-case identifier for the trait skill being
   authored; becomes the directory name (`<trait_name>-design/`) and the
   trait-map row. Validation: `^[a-z][a-z0-9-]*$`. Required.

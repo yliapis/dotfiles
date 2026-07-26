@@ -8,7 +8,10 @@ lifecycle governs what escapes it.
 ## Cards
 
 ### `write_gate` (family)
-- **Aliases:** `update_mode` (meta-prompt), `persistence` (ralph-design, design-skill, designer-controller, ticket-breakdown), `dry_run` (address-worklist-commit-loop, ticket-breakdown), `mode` (save-session-state)
+- **Aliases:** `update_mode` (meta-prompt), `persistence` (ralph-design,
+  design-skill, designer-controller, ticket-create compatibility),
+  `dry_run` (ticket-create, ticket-execute, ticket-update,
+  address-worklist-commit-loop), `mode` (save-session-state)
 - **Applies to:** command, skill
 - **Meaning:** Whether the run mutates the filesystem or only shows what it
   would do. Four spellings with distinct enums, one concept — each artifact
@@ -24,15 +27,19 @@ lifecycle governs what escapes it.
   | ralph-design | `{persistence}` | `chat`, `codebase` (default) | `chat` keeps the working artifact in-conversation; `codebase` writes `artifact_path` each round (inside a worktree per `use_worktree`) |
   | design-skill | `persistence` | `chat`, `codebase` (default) | same semantics; the artifact is the deliverable |
   | designer-controller | `persistence` | `chat` (default), `codebase` | same semantics; note the default flips to `chat` |
-  | address-worklist-commit-loop | `{dry_run}` | `true`, `false` (default) | `true` emits the dispatch plan and exits — no worktrees, edits, verify runs, commits, or source mutation, even in `force-approve-all` |
+  | address-worklist-commit-loop | `{dry_run}` | `true`, `false` (default) | relays the no-write plan mode to ticket-execute |
   | save-session-state | `{mode}` | `write` (default), `preview` | `preview` emits the snapshot in chat and creates or replaces no file |
-  | ticket-breakdown | `{persistence}` + `{dry_run}` | `files` (default), `chat`; `dry_run` `true`, `false` (default) | `chat` renders every ticket inline and writes nothing; `{dry_run}=true` emits only the ticket plan table — no render, no writes — and takes precedence over `{persistence}` |
+  | ticket-create | `{dry_run}` | `true`, `false` (default) | validates and renders the complete set in memory, reports the plan, and writes no lock, staging directory, or artifact |
+  | ticket-execute | `{dry_run}` | `true`, `false` (default) | resolves and validates selection, then emits the plan without lock, journal, implementation, verification, staging, or commit |
+  | ticket-update | `{dry_run}` | `true`, `false` (default) | validates and renders the prospective transaction and plan digest without lock, journal, file mutation, staging, or commit |
 
 - **Validation:** the design skills reject `artifact_path` / `use_worktree`
   when `persistence=chat`; meta-prompt's `agent` mode requires a resolvable
-  save target; ticket-breakdown rejects an explicit `{output_dir}` or
-  `{emit_worklist}` when `{persistence}` is `chat`.
-- **Used by:** meta-prompt, ralph-design, design-skill, designer-controller, address-worklist-commit-loop, save-session-state, ticket-breakdown
+  save target; ticket-create accepts only compatibility
+  `{persistence}=files` and `{emit_worklist}=true`.
+- **Used by:** meta-prompt, ralph-design, design-skill, designer-controller,
+  address-worklist-commit-loop, save-session-state, ticket-create,
+  ticket-execute, ticket-update
 
 ### `merge_mode`
 - **Aliases:** —
@@ -78,9 +85,9 @@ live:
   collisions; it is distinct from the fan-out index suffix `-<i>` that
   numbers siblings on [`worktree_name`](isolation.md#worktree_name) and on
   meta-prompt's rewritten [`artifact_path`](io.md#artifact_path).
-  ticket-breakdown takes the same posture at two levels: an existing
-  non-empty `{output_dir}` gets the directory-name suffix, and same-named
-  ticket files within a run get the before-extension suffix.
+- **Deterministic managed-set reuse** — ticket-create never overwrites or adds
+  numeric suffixes. `{on_existing}=reuse` preserves a valid same-lineage set,
+  `error` aborts, and `new-set` uses the ticket-set hash suffix.
 
 ## Artifact-specific
 
@@ -94,18 +101,21 @@ live:
   when `{merge_strategy}` is `--squash`.
 - `{include_push}` (merge-commit-push) — push after a successful merge.
   Default: `true`.
-- `{commit_scope}` (address-worklist-commit-loop) — Conventional Commits scope
-  for per-item commit subjects. Default: derived per item (Where: subfield →
-  nearest heading slug → MCP module → source basename).
-- `{worklist_writeback}` (address-worklist-commit-loop) — how completed items
-  are marked done in the source: `auto` (default) | `always` | `never`.
+- `{commit_scope}` (ticket-execute, relayed by
+  address-worklist-commit-loop) — optional validated Conventional Commits scope
+  for per-ticket commits. Omitted means no scope.
 - `{save_trajectory}` (wrap-up) — whether the trajectory + learnings files are
   written. Default: `interactive` (prompt at end) when `-i` is set, `false`
   otherwise.
 - `force` (design-skill) — overwrite an existing `artifact_path` instead of
   aborting. Default: `false`; rejected with `persistence=chat`.
-- `{emit_worklist}` (ticket-breakdown) — whether the `WORKLIST.md` index is
-  written at the root of `{output_dir}` alongside the ticket files. Default:
-  `true`; setting it explicitly with `{persistence}` = `chat` aborts.
+- `{on_existing}` (ticket-create) — `reuse` (default) | `error` | `new-set`;
+  controls deterministic same-lineage reuse and collision behavior.
+- `{emit_worklist}` (ticket-create compatibility) — only explicit `true` is
+  accepted; native sets always include `WORKLIST.md`.
+- `{projection}` (ticket-update) — `require` (default) | `repair`; repair is
+  limited to fields deterministically projected from authoritative tickets.
+- `{commit}` (ticket-update) — `none` (default) | `audit`; audit creates one
+  local commit containing or hashing the managed-state transaction.
 - `{allow_unpushed}` (soft-shutdown) — tolerate unpushed commits on the
   current branch without blocking shutdown. Default: `false`.
