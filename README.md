@@ -22,14 +22,16 @@ command or skill. Two scripts fan those out:
 - [`scripts/sync-project-mirrors.sh`](scripts/sync-project-mirrors.sh)
   (`make mirrors`) regenerates the repo-root `.cursor/`, `.claude/`, and
   `.opencode/` mirrors that agent tools scan while this repo is the open
-  project. It writes real copies, because those tools do not follow symlinks
-  when indexing which skills to offer the agent — symlinked skills are
-  readable by path but never auto-attach. `make mirrors-check` fails when the
-  mirrors drift from the plugins.
+  project. It writes real copies rather than symlinks, because only some skill
+  discovery paths resolve a symlinked skill directory: the ones that enforce
+  containment drop any link whose real path leaves the directory being
+  scanned. `make mirrors-check` fails when the mirrors drift from the plugins.
 - [`scripts/sync-coding-tools.sh`](scripts/sync-coding-tools.sh) (`make sync`)
   mirrors the same sources into the home directories that make them available
   in every repo: `~/.cursor/skills`, `~/.claude/skills`,
   `~/.config/opencode/skills`, and the matching `commands` directories.
+  `~/.cursor/skills` is the user-scope root; `~/.cursor/skills-cursor` is
+  Cursor's own builtin-skill root and is not a sync destination.
 
 ## Cloud Agents
 

@@ -23,7 +23,8 @@
 #
 # Targets:
 #   cursor    ~/.cursor/commands
-#             ~/.cursor/skills/<name>
+#             ~/.cursor/skills/<name>      (user scope; ~/.cursor/skills-cursor
+#                                           is Cursor's own builtin-skill root)
 #             ~/.cursor/plugins/local/ai-coding
 #   claude    ~/.claude/commands
 #             ~/.claude/skills/<name>
