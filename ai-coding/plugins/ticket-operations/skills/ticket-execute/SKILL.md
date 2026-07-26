@@ -15,6 +15,10 @@ Use this skill only for local tickets created under the
 Ticket frontmatter is lifecycle authority. `WORKLIST.md` is a validated
 projection and selection surface; it never overrides a ticket.
 
+Execution composes the `minimal-diffs` and `conventional-commits` skills from
+the `git-operations` plugin. Require both before implementation; if either is
+unavailable, stop before claiming a ticket and report the missing plugin.
+
 ## Task
 
 Resolve `{target}` to one managed ticket set, validate the complete set before

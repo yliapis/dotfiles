@@ -11,6 +11,11 @@
       "description": "Author and orchestrate <trait>-design skills (design-skill, designer-controller, declarative/deterministic-design)."
     },
     {
+      "name": "git-operations",
+      "source": "./ai-coding/plugins/git-operations",
+      "description": "Minimal diffs, Conventional Commits, and safe merge/push workflows."
+    },
+    {
       "name": "orchestration",
       "source": "./ai-coding/plugins/orchestration",
       "description": "Parallel agent swarms and isolated git-worktree task execution."
@@ -23,7 +28,7 @@
     {
       "name": "ticket-operations",
       "source": "./ai-coding/plugins/ticket-operations",
-      "description": "Create, execute, update, and deliver local Markdown tickets with minimal diffs and conventional commits."
+      "description": "Create, execute, and update local Markdown tickets."
     },
     {
       "name": "writing",

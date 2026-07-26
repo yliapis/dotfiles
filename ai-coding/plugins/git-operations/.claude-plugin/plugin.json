@@ -1,0 +1,8 @@
+{
+  "name": "git-operations",
+  "version": "0.1.0",
+  "description": "Minimal diffs, Conventional Commits, and safe merge/push workflows.",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT"
+}

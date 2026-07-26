@@ -22,18 +22,21 @@ reconciling an existing set.
 
 ## Architecture Decision
 
-`git-delivery` was renamed and expanded into one `ticket-operations` plugin.
-Keeping the delivery primitives with the lifecycle skills avoids an undeclared
-cross-plugin dependency while preserving their broader use.
+`git-delivery` was split into two plugins whose membership follows the primary
+object being operated:
 
-| Skill | Owns | Explicitly does not own |
+| Plugin | Skills | Commands |
 |---|---|---|
-| `ticket-create` | deterministic source normalization, ticket rendering, set identity, initial worklist | implementation, lifecycle edits, trackers |
-| `ticket-execute` | runnable selection, implementation, runtime evidence, lifecycle completion, one commit per ticket | definition edits, fan-out, remotes |
-| `ticket-update` | explicit definition/lifecycle patches, projection repair, legacy completion proposals | implementation or acceptance execution |
+| `ticket-operations` | `ticket-create`, `ticket-execute`, `ticket-update` | `/address-worklist-commit-loop` compatibility route |
+| `git-operations` | `minimal-diffs`, `conventional-commits` | `/merge-commit-push` |
+
+`ticket-execute` composes both Git skills for implementation and commit
+quality, so executing tickets requires both plugins. Ticket lifecycle and
+worklist authority remain entirely inside `ticket-operations`; generic diff,
+commit, merge, and push behavior remains inside `git-operations`.
 
 Ticket frontmatter is authoritative. `WORKLIST.md` is a validated projection.
-All three skills share schema version 1, stable `ticket_set` lineage,
+All three ticket skills share schema version 1, stable `ticket_set` lineage,
 definition fingerprints, compare-before-write revisions, one mutation lock,
 and journaled recovery.
 

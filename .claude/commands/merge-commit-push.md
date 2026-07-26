@@ -1,1 +1,1 @@
-../../ai-coding/plugins/ticket-operations/commands/merge-commit-push.md
+../../ai-coding/plugins/git-operations/commands/merge-commit-push.md

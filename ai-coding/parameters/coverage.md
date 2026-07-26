@@ -43,7 +43,7 @@ sources.
 | `{target}` | [`context`](concerns/intent.md#context) | intent |
 | `{trait_map}` | [`trait_map`](concerns/composition.md#trait_map) | composition |
 
-### [merge-commit-push](../commands/merge-commit-push.md)
+### [merge-commit-push](../plugins/git-operations/commands/merge-commit-push.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -262,7 +262,7 @@ Four skills declare no parameters, knobs, or flags — they activate
 contextually (or are invoked manually) and are procedural rather than
 knob-driven:
 
-- [conventional-commits](../plugins/ticket-operations/skills/conventional-commits/SKILL.md)
-- [minimal-diffs](../plugins/ticket-operations/skills/minimal-diffs/SKILL.md)
+- [conventional-commits](../plugins/git-operations/skills/conventional-commits/SKILL.md)
+- [minimal-diffs](../plugins/git-operations/skills/minimal-diffs/SKILL.md)
 - [declarative-design](../skills/declarative-design/SKILL.md)
 - [deterministic-design](../skills/deterministic-design/SKILL.md)
