@@ -17,7 +17,13 @@ make help
 ## Cloud Agents
 
 Cloud coding agents boot via the provider-agnostic
-[`.cursor/scripts/cloud-agent-bootstrap.sh`](.cursor/scripts/cloud-agent-bootstrap.sh),
+[`scripts/cloud-agent-bootstrap.sh`](scripts/cloud-agent-bootstrap.sh),
 which installs `zsh`, `rsync`, and `shellcheck` so the repo's scripts and
-`make` targets are runnable on a fresh VM. Cursor is the wired-up provider
-today, via [`.cursor/environment.json`](.cursor/environment.json).
+`make` targets are runnable on a fresh VM. Two providers are wired up to it:
+
+- **Cursor** — the `install` hook in
+  [`.cursor/environment.json`](.cursor/environment.json).
+- **Claude Code** — the `SessionStart` hook in
+  [`.claude/hooks/session-start.sh`](.claude/hooks/session-start.sh),
+  registered in [`.claude/settings.json`](.claude/settings.json). It no-ops
+  unless `CLAUDE_CODE_REMOTE=true`, so local sessions stay untouched.

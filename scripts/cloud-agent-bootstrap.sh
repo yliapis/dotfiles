@@ -2,8 +2,9 @@
 # cloud-agent-bootstrap.sh — environment setup for cloud coding agents.
 #
 # Provider-agnostic: any agent provider that can run a setup command at VM
-# boot can call this script. Cursor is wired up today via the "install" hook
-# in .cursor/environment.json.
+# boot can call this script. Wired up today for Cursor via the "install" hook
+# in .cursor/environment.json, and for Claude Code via the SessionStart hook
+# in .claude/hooks/session-start.sh.
 #
 # Runs before the agent starts work, so it must stay idempotent and
 # non-interactive: providers may snapshot the result and re-run the script
@@ -26,8 +27,15 @@ command -v shellcheck >/dev/null 2>&1 || packages+=(shellcheck)
 if ((${#packages[@]})); then
   echo "[cloud-agent-bootstrap] installing: ${packages[*]}"
   export DEBIAN_FRONTEND=noninteractive
-  sudo -E apt-get update
-  sudo -E apt-get install -y "${packages[@]}"
+  # Providers differ: some hand the agent an unprivileged user with sudo,
+  # others run the setup step as root in a container with no sudo at all.
+  if [ "$(id -u)" -eq 0 ]; then
+    sudo_cmd=()
+  else
+    sudo_cmd=(sudo -E)
+  fi
+  "${sudo_cmd[@]}" apt-get update
+  "${sudo_cmd[@]}" apt-get install -y "${packages[@]}"
 else
   echo "[cloud-agent-bootstrap] required packages already present"
 fi
