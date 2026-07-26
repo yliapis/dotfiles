@@ -4,9 +4,9 @@ Per-artifact index, intended to cover every declared parameter: each is mapped
 to its canonical card (or its artifact-specific entry) and concern file.
 Spellings are exactly as they appear in each artifact.
 
-The same artifacts are mirrored in `ai-coding/plugins/ai-coding/` and in the
-repo-root `.cursor/{commands,skills}/` and `.claude/{commands,skills}/`; this wiki tracks the
-[`ai-coding/commands/`](../commands/) and [`ai-coding/skills/`](../skills/)
+The artifact sources live under `ai-coding/plugins/<plugin>/{commands,skills}/`
+and are flattened into the repo-root `.cursor/{commands,skills}/` and
+`.claude/{commands,skills}/` symlink directories; this wiki tracks the plugin
 sources.
 
 ## Commands
