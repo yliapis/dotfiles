@@ -18,7 +18,7 @@ endif
 
 SCRIPT := ./scripts/sync-coding-tools.sh
 
-.PHONY: help install refresh sync-help sync sync-cursor sync-claude symlink symlink-cursor symlink-claude dry-run status unlink clean
+.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode symlink symlink-cursor symlink-claude symlink-opencode dry-run status unlink clean
 
 install:        ## Run initial dotfiles install (./install.sh)
 	@./install.sh
@@ -47,6 +47,9 @@ sync-cursor:    ## Copy-sync only Cursor targets
 sync-claude:    ## Copy-sync only Claude targets
 	@$(SCRIPT) --targets claude
 
+sync-opencode:  ## Copy-sync only OpenCode targets
+	@$(SCRIPT) --targets opencode
+
 symlink:        ## Symlink-sync everything (edits in the repo go live)
 	@$(SCRIPT) --mode symlink
 
@@ -55,6 +58,9 @@ symlink-cursor: ## Symlink-sync only Cursor targets
 
 symlink-claude: ## Symlink-sync only Claude targets
 	@$(SCRIPT) --mode symlink --targets claude
+
+symlink-opencode: ## Symlink-sync only OpenCode targets
+	@$(SCRIPT) --mode symlink --targets opencode
 
 dry-run:        ## Show what `make sync` would do (no filesystem writes)
 	@$(SCRIPT) --dry-run
