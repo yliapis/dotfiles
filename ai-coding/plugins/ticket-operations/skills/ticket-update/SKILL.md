@@ -48,19 +48,23 @@ creation preimage that the set does not retain.
 - `{projection}`: `require` | `repair`; optional, default `require`.
   `require` rejects any worklist drift. `repair` permits only the reconstructible
   projection drift defined below.
-- `{approval}`: `prompt` | `approved`; optional, default `prompt`. `prompt`
-  presents one complete prospective diff and requires approval.
-  `approved` treats the invocation as approval. Legacy import always requires
-  `prompt`.
-- `{legacy}`: `reject` | `inspect` | `import`; optional, default `reject`.
+- `{legacy}`: `reject` | `inspect` | `discard` | `import`; optional, default
+  `reject`.
   `inspect` reports eligible proposals without mutation. `import` converts only
-  entries named by `{legacy_accept}` into ordinary native patches.
+  entries named by `{legacy_accept}` into native lifecycle transactions.
 - `{legacy_worklist}`: optional path to one unmanaged Markdown worklist. It is
   required for `legacy=inspect|import` and remains read-only.
 - `{legacy_accept}`: strict YAML or JSON list required for `legacy=import`.
   Each record supplies exact `id`, `expected_revision`,
   `expected_fingerprint`, `expected_owner`, and one evidence reference per
   acceptance criterion.
+- `{mode}`: `interactive` | `non-interactive`; optional, default
+  `interactive`. Interactive mutation presents one complete plan and requires
+  approval. Non-interactive mutation requires `{approve}`.
+- `{approve}`: exact `sha256:<64-hex>` plan digest from a prior dry run;
+  required only for non-interactive mutation.
+- `{operation_id}`: optional identifier matching
+  `^[A-Za-z0-9._-]{1,64}$`; otherwise derive the full request hash.
 - `{commit}`: `none` | `audit`; optional, default `none`. `audit` creates one
   local Conventional Commit for the whole transaction under the contract
   below. It never pushes.
@@ -114,8 +118,8 @@ before side effects.
   only non-set writes.
 - MUST NOT overwrite unknown concurrent state, steal a live or uncertain lock,
   adopt an unjournaled claim, or recover a `ticket-execute` transaction.
-- MUST preserve unknown `extensions` keys unless the patch supplies an explicit
-  complete replacement.
+- MUST preserve unknown `extensions` keys. Update them only through an explicit
+  RFC 7396 merge patch; `null` deletes the named key.
 - MUST apply only explicit replacements. Never paraphrase body text or infer
   scope, acceptance text, metadata, dependencies, or lifecycle evidence.
 - MUST stage only transaction-owned paths. Never use broad add, clean, reset,
@@ -149,8 +153,9 @@ coercions that violate the schema. From one captured snapshot:
    unchecked. Require equality with ticket frontmatter; compare the manifest
    copy as projection in step 7.
 6. Validate dependencies against the complete set and reject self-edges and
-   cycles. Only authoritative `done` satisfies a dependency; update does not
-   use satisfaction to infer status.
+   cycles. Only authoritative `done` satisfies a dependency. Every current
+   `in_progress` or `done` ticket MUST have all direct dependencies done;
+   update does not use satisfaction to infer status.
 7. Reconstruct every worklist-derived field from the tickets and compare the
    manifest and body, including group, marker, ID, title, `Where`, `Why`,
    `Done-when`, path, fingerprint, status, and revision. Structurally validate
@@ -178,29 +183,30 @@ empty index, and no unrelated worktree or submodule changes.
 
 ## Patch Contract
 
-The patch root has `version: 1`, the exact `ticket_set`, an optional
-`operation_id` matching `^[A-Za-z0-9._-]{1,64}$`, and a `tickets` list. Derive
-an absent operation ID from canonical JSON of the normalized patch, lineage,
-and all expected revisions and fingerprints, using sorted object keys,
-ticket entries normalized to manifest rank, specified order for semantic
+The patch root has `schema: ticket-operations/update`, `schema_version: 1`, the
+exact `ticket_set`, `expected_worklist_sha256`, and a `tickets` list. Derive an
+absent operation ID from canonical JSON of the normalized patch, lineage,
+worklist hash, and all expected revisions and fingerprints, using sorted object
+keys, ticket entries normalized to manifest rank, specified order for semantic
 arrays, UTF-8, and no insignificant whitespace. With no patch, derive it from
-the normalized reconciliation or legacy-import request and its expected
-hashes.
+the normalized reconciliation or legacy-import request and its expected hashes.
 
 Each ticket entry requires `id`, `expected_revision`, `expected_fingerprint`,
-and `expected_status`; it also requires top-level `expected_owner` when that
-status is `in_progress`. The caller cannot set `fingerprint` directly.
-Duplicate IDs abort. Omitted operations preserve their current value:
+`expected_status`, and a nonempty `rationale`; it also requires
+`expected_owner` (`null` except when the expected status is `in_progress`).
+The caller cannot set `fingerprint` directly. Duplicate IDs abort. Each entry
+contains at least one operation; omitted operations preserve their current
+value:
 
 | Operation | Semantics |
 |---|---|
-| `set` | Replace only `title`, `type`, `severity`, `priority`, `estimate`, or `labels`. Labels become sorted unique lowercase ASCII slugs. Priority must equal the version-1 severity mapping; derive it when severity changes and priority is absent. |
-| `body` | Replace complete bodies for exact keys `summary`, `context_and_evidence`, `scope_in`, `scope_out`, or `open_questions`. Normalize UTF-8 text to NFC and LF with one final newline. |
-| `dependencies` | Replace the complete dependency list in frontmatter and body. Require exact IDs, deduplicate by rejection, and order by canonical manifest rank. |
-| `acceptance_criteria` | Replace the complete ordered list of criterion text. Markers are not part of these strings. |
-| `acceptance_markers` | Supply equal-length complete `expected` and `set` boolean vectors plus an `evidence` map keyed by one-based criterion index. Evidence is required for every `false -> true` index and every index when transitioning to `done`. |
+| `definition` | Partially replace only `title`, `type`, `severity`, `estimate`, or `labels`. Derive `priority` from severity; direct priority replacement aborts. Labels become sorted unique lowercase ASCII slugs. |
+| `body` | Replace complete bodies for exact keys `summary`, `context_and_evidence`, `in_scope`, `out_of_scope`, or `open_questions`. Normalize UTF-8 text to NFC and LF with one final newline. |
+| `dependencies` | Supply complete `expected` and `replacement` ID arrays. Require exact IDs, reject duplicates, and render in canonical manifest rank. |
+| `acceptance_criteria` | Supply complete `expected` and `replacement` text arrays. Markers are not part of these strings. |
+| `acceptance_markers` | Supply equal-length complete `expected` and `replacement` boolean vectors plus indexed evidence for checks and indexed reasons for unchecks. Evidence is required for every `false -> true` index and every index when transitioning to `done`. |
 | `transition` | Supply `to` and the final-state fields required below. Optional audit-only controls are `transition_note`, `reopen`, and `abandon_claim`. |
-| `extensions` | Replace the complete mapping. Omission preserves unknown nested keys exactly. Extensions do not enter the fingerprint. |
+| `extensions` | Apply an RFC 7396 merge patch. Absent keys survive and explicit `null` deletes. Extensions do not enter the fingerprint. |
 
 Reject unknown operations, line-number patches, regular expressions, fuzzy
 title matching, partial list edits, and overlapping representations of the
@@ -247,54 +253,70 @@ values. Reopen, abandonment, owner reassignment, and same-status reason
 replacement require a nonempty `transition_note`; this note goes to the
 journal, report, and audit commit, not `status_reason`.
 
+Every current and prospective `in_progress` or `done` ticket requires all
+direct dependencies to be authoritatively `done`. Entering either status
+requires dependencies to be done in both the baseline and final snapshots; a
+different ticket entry in the same update cannot satisfy that gate.
+
 For an `in_progress` ticket, require top-level `expected_owner` to match.
 Marker-only updates, lifecycle transitions, or explicit owner reassignment may
 proceed when no live `ticket-execute` journal exists. Any definition, body,
 dependency, acceptance text, or extension edit must also set
 `abandon_claim: true` and transition to `open`; it resets markers.
 
-Any non-lifecycle edit to `done` or `cancelled` must reopen the ticket to
-`open` in the same entry. Reopening either terminal state resets all markers.
+Any fingerprint-changing edit to `done` or `cancelled` must set `reopen: true`
+and transition to `open` in the same entry. Extension-only changes may retain a
+terminal status. Every transition to `open` resets all markers.
 A same-status operation may only reassign an `in_progress` owner or replace a
 `blocked` or `cancelled` reason. Other same-status requests are no-ops or
 invalid field combinations. Any automatic reset from a definition edit,
 abandonment, or reopen conflicts with `acceptance_markers` in the same entry.
 
-Checking a criterion is an explicit lifecycle assertion. Require a supplied
-reference tied to that exact criterion text, such as a command-result artifact,
-review record, or commit. The skill records and labels it
-`caller-supplied; not verified`. Transitioning to `done` requires references
-for every criterion in that request, even for markers already checked, and
-therefore requires an `acceptance_markers` operation whose final vector is all
-checked. The skill never obtains, executes, or endorses this evidence.
-Unchecking needs no evidence.
+Checking a criterion is an explicit lifecycle assertion. Each evidence record
+contains the exact criterion index and text, current ticket fingerprint, full
+observed Git tree, `kind: commit|artifact|attestation`, nonempty `ref`, and
+nonempty `result`. A commit ref is a full reachable SHA; an artifact is a safe
+local path plus expected SHA-256; an attestation names an actor and durable
+reference. The skill validates identity, shape, and local availability, then
+labels the record `caller-supplied; not executed`.
+
+Transitioning to `done` requires evidence for every criterion, including
+markers already checked, and an `acceptance_markers` operation whose final
+vector is all checked. The skill never obtains, executes, or endorses this
+evidence. Unchecking requires an indexed reason but no completion evidence.
 
 ## Legacy Completion Proposals
 
-An unmanaged legacy worklist never supplies lifecycle authority. For
-`inspect|import`, parse only exact `- [x] <id>: <title>` entries with one
-indented `Ticket:` path. Each path must resolve without symlinks to a ticket in
-the validated managed worklist; all links must resolve to this one set. Require
-the exact native ID and current title. If legacy `Fingerprint`, `Revision`, or
-`Status` subfields exist, require exact current values.
+Neither a managed marker mismatch nor an unmanaged legacy worklist supplies
+lifecycle authority. For `inspect|import`, parse only exact
+`- [x] <id>: <title>` entries with one indented `Ticket:` path. Each path must
+resolve without symlinks to a ticket in the validated managed worklist; all
+links must resolve to this one set. Require exact native ID and current title.
+If `Fingerprint`, `Revision`, or `Status` subfields exist, require exact current
+values.
 
 Treat `[ ]` as no proposal. Never use it to reopen a ticket. Reject malformed
 or duplicate entries and status-like `[>]`, `[!]`, or `[-]` markers rather
 than interpreting them.
 
-`legacy=import` requires `{approval}=prompt` and an exact `{legacy_accept}`
-record for each imported ID. A checked entry whose native ticket is `done` is
-`already-reflected`. Only a current `in_progress` ticket can become `done`, and
-only when its accepted record matches revision, fingerprint, and owner and
-supplies every criterion's evidence reference. `open`, `blocked`, and
-`cancelled` proposals remain unimported; a checked box never bypasses the
-native transition graph.
+`legacy=inspect` reports only. `legacy=discard` is patchless projection repair:
+restore each managed marker from authoritative ticket state. `legacy=import`
+requires interactive, digest-bound approval and an exact `{legacy_accept}`
+record for each ID. It also requires a reachable legacy commit whose diff
+contains the marker flip and a non-projection change, with matching
+`Worklist-Item-Id` and `Worklist-Source` trailers. Supply the complete evidence
+record for every criterion.
 
-Convert each eligible accepted proposal to the same `in_progress -> done`
-patch and process it through normal CAS, revision, journal, and projection
-rules. Reject an ID that also appears in `{patch}`. `legacy=inspect` rejects a
-patch, projection repair, legacy acceptance, or audit commit and performs no
-mutation. Never modify the legacy file.
+A checked entry whose ticket is `done` is `already-reflected`. For
+`in_progress`, import one evidence-backed edge to `done` and increment revision
+once. For `open`, journal two legal edges through a derived temporary owner and
+finish at `done`, incrementing revision twice. Reject `blocked` and `cancelled`
+proposals. A checked box never bypasses the transition graph or evidence gate.
+
+Reject an imported ID that also appears in `{patch}`. `inspect` forbids patch,
+repair, legacy acceptance, and audit commit. `discard` requires
+`projection=repair` and forbids patch and commit. Never modify an unmanaged
+legacy file.
 
 ## Projection and Transaction
 
@@ -302,20 +324,25 @@ Render all prospective tickets and the complete worklist in memory. Preserve
 unaffected ticket bytes. The worklist keeps its lineage, source fingerprint,
 rank, filenames, and Item Accounting, while its manifest and body project the
 prospective authoritative tickets. Validate the entire prospective set,
-fingerprints, graph, and exact projection before approval.
+fingerprints, graph, and exact projection before approval. Hash canonical JSON
+of the request, baseline hashes, and prospective hashes as the plan digest.
+Interactive mode approves that exact digest; non-interactive mutation requires
+the same value in `{approve}`.
 
-After approval, derive a set key from canonical JSON containing the real
+Before ordinary projection validation, detect unresolved `ticket-execute` and
+`ticket-update` journals and direct recovery to their owning skill. After
+approval, derive a set key from canonical JSON containing the real
 worktree path, set-root path, and `ticket_set`. Acquire the same OS-released
-exclusive lock used by ticket execution at
+per-set mutation lock used by ticket execution at
 `$(git rev-parse --git-path ticket-execute)/<set-key>/lock`. Never steal a live
-or uncertain lock. Reject any live or unresolved `ticket-execute` journal.
-Re-read every managed byte and rerun preflight under the lock.
+or uncertain lock. Re-read every managed byte and repeat schema, graph, CAS,
+`HEAD`, index, and plan-digest checks under the lock.
 
 Before writing, atomically create and fsync a write-ahead journal under
-`$(git rev-parse --git-path ticket-update)/<set-key>/<operation-id>.json`.
-Record canonical patch hash, approval, baseline `HEAD` and index, persistence,
-all expected revisions, exact preimages and prospective images with hashes,
-evidence references, write order, and commit plan. Advance phases through
+`$(git rev-parse --git-path ticket-update)/<set-key>/<operation-id>.journal.json`.
+Record request hash, approval digest, evidence, baseline `HEAD` and index,
+persistence and modes, all expected revisions, exact preimages and prospective
+images with hashes, write order, and commit plan. Advance phases through
 `prepared`, each file replacement, `files-written`, `staged`, `committing`,
 and `completed` via sibling temporary file, fsync, and atomic rename.
 
@@ -376,9 +403,11 @@ Check for a journal before ordinary projection and dirty-tree validation:
 After final validation, convert the journal to an immutable completion receipt
 containing patch, preimage, final-state, and optional commit hashes. A rerun
 with the same operation ID and canonical patch hash returns `already-applied`
-only when every current hash matches the receipt. Reusing an operation ID with
-different input aborts. Without a matching receipt, stale expected revisions
-abort rather than guessing that another update was this operation.
+only when every current hash and optional commit still match the receipt.
+Reusing an operation ID with different input aborts. A matching receipt whose
+current state later diverged reports `previously-applied; current state
+differs` and fails normal CAS. Without a matching receipt, stale expected
+revisions abort rather than guessing that another update was this operation.
 
 If all requested values and the projection already match at the expected
 revision, report `unchanged`; write no journal or file and create no commit.
@@ -411,7 +440,8 @@ Return these sections in order, omitting empty optional sections:
 ### Run Summary
 
 Target and canonical worklist; opaque ticket-set identity; operation ID;
-projection, legacy, approval, persistence, commit, and recovery modes; outcome
+projection, legacy, interaction, persistence, commit, and recovery modes;
+approval digest; outcome
 (`updated`, `reconciled`, `updated-and-reconciled`, `unchanged`,
 `already-applied`, `inspected`, `dry-run`, `declined`, or
 `recovery-required`); and selected/changed/repaired counts.
@@ -433,7 +463,13 @@ when applicable.
 
 One row per checked legacy entry: native link, current state, eligibility,
 explicit acceptance, and disposition. Label every evidence reference
-`caller-supplied; not verified`.
+`caller-supplied; not executed`.
+
+### Lifecycle Evidence
+
+For each marker check or completion transition, list criterion, fingerprint,
+observed tree, evidence kind/ref/result, validation disposition, and the
+`caller-supplied; not executed` label.
 
 ### Transaction
 
@@ -444,6 +480,11 @@ before/after hashes; rollback or recovery state; final full-set validation.
 
 Commit SHA and subject, staged managed paths or local state hashes, and
 revision ranges; or `none`.
+
+### Recovery
+
+When applicable, report phase, recognized hashes, action, result, retained
+journal/receipt, and safe next operation.
 
 ### Handoff
 

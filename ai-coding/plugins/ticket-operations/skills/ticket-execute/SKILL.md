@@ -154,7 +154,8 @@ read-only snapshot:
    `Why`, `Done-when`, ticket path, fingerprint, status, and revision. Preserve
    and structurally validate Item Accounting.
 7. Dependencies are unique existing same-set IDs, never self, and the complete
-   graph is acyclic. Only authoritative `done` satisfies a dependency.
+   graph is acyclic. Only authoritative `done` satisfies a dependency; every
+   current `in_progress` or `done` ticket has all direct dependencies done.
 8. `HEAD`, branch, identity, index, worktree, submodules, and Git-operation
    state satisfy the Guardrails.
 
@@ -220,7 +221,8 @@ Claims are provisional working-tree transactions, not commits. In `tracked`
 mode their final files enter the commit; in `local` mode their exact final
 bytes remain local and are bound to the commit by state-hash footers. After
 plan approval, compute a set key from canonical JSON containing the worktree
-path, set-root path, and `ticket_set`. Acquire an OS-released exclusive lock at
+path, set-root path, and `ticket_set`. Acquire the shared per-set mutation lock
+used by `ticket-execute` and `ticket-update` at
 `$(git rev-parse --git-path ticket-execute)/<set-key>/lock` and rerun
 preflight. Record host, PID plus process-start identity, invocation ID, branch,
 and baseline `HEAD`; never steal a live or uncertain lock. Derive the claim
@@ -256,6 +258,10 @@ For each ticket at revision `r`:
    repository-native tests or end-to-end actions, then run `{verify_command}`
    when supplied. Map every criterion to a fresh command/action, exit/result,
    relevant output/artifact, implementation index-tree hash, and conclusion.
+   Store each result in the common evidence envelope: exact criterion index and
+   text, current fingerprint, full observed Git tree,
+   `kind: commit|artifact|attestation`, nonempty `ref`, and nonempty `result`.
+   Execution evidence is fresh and actually run, never caller-supplied.
    Static inspection alone is
    insufficient for behavioral acceptance. Documentation and configuration
    criteria need a parser, renderer, link check, example run, or consuming
@@ -334,7 +340,9 @@ After proven rollback, `abort` stops and `continue` revalidates before the next
 independent ticket. A failed ticket remains `open@r`, produces no commit, and
 cannot satisfy a dependent.
 
-On startup, handle a valid interrupted journal according to `{recovery}`:
+On startup, detect unresolved `ticket-update` journals before normal projection
+validation; stop and direct recovery to `ticket-update`. Handle a valid
+interrupted execution journal according to `{recovery}`:
 
 - `abort` reports phase, owner, baseline, and safe choices without mutation.
 - `rollback` requires `HEAD` still at the journal baseline, acquires the lock,

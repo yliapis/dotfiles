@@ -73,8 +73,8 @@ Compatibility parameters are intentionally narrow:
 - [ ] `WORKLIST.md` validates as the projection of every rendered ticket and
       keeps the legacy `Where`, `Why`, `Done-when`, and `Ticket` fields.
 - [ ] Identical definitions yield byte-identical new artifacts. A matching
-      existing managed set preserves lifecycle changes rather than resetting
-      them.
+      existing managed set preserves explicit lifecycle and definition updates
+      rather than resetting them.
 - [ ] Zero extracted items reports `_No work items found._` and writes nothing.
 - [ ] The skill performs no implementation, tracker, branch, worktree, staging,
       commit, merge, push, or pull-request operation.
@@ -204,9 +204,9 @@ Ticket frontmatter is authoritative. Required fields, in order:
 |---|---|---|
 | `schema` | `ticket-operations/ticket` | immutable |
 | `schema_version` | `1` | immutable |
-| `ticket_set` | full set fingerprint | immutable |
+| `ticket_set` | creation fingerprint and stable lineage | immutable |
 | `id` | assigned ID | immutable |
-| `fingerprint` | definition fingerprint | immutable |
+| `fingerprint` | definition fingerprint | derived definition identity |
 | `title` | derived title | definition |
 | `status` | `open` | lifecycle |
 | `status_reason` | `null` | lifecycle |
@@ -222,7 +222,10 @@ Ticket frontmatter is authoritative. Required fields, in order:
 | `extensions` | empty mapping; preserve unknown nested keys | extension |
 
 Body section text is definition-owned. Acceptance checkbox markers are
-lifecycle-owned; their text is definition-owned.
+lifecycle-owned; their text is definition-owned. Callers cannot assign
+`fingerprint`: `ticket-update` recomputes it after an explicit definition
+change, while `ticket-execute` preserves it. Extensions change only through an
+explicit merge patch and remain excluded from the fingerprint.
 
 Allowed statuses are `open`, `in_progress`, `blocked`, `done`, and `cancelled`.
 Creation defines this transition graph for downstream skills:
@@ -236,6 +239,12 @@ Creation defines this transition graph for downstream skills:
 exactly for `blocked` and `cancelled`. Every native lifecycle or definition
 mutation compares an expected revision and increments it by exactly one.
 Projection-only repair does not increment it.
+
+Every `in_progress` or `done` ticket requires all direct dependencies to be
+authoritatively `done`. Checking acceptance requires evidence bound to the
+exact criterion text and current fingerprint. `ticket-execute` produces and
+runs fresh evidence; `ticket-update` may adopt explicit caller-supplied evidence
+but labels it `caller-supplied; not executed`.
 
 ## Identity
 
@@ -254,7 +263,9 @@ Compute `ticket_set` as `sha256:<hex>` over:
 - complete source-item accounting.
 
 Use sorted JSON object keys, specified array order, UTF-8, and no insignificant
-whitespace.
+whitespace. Compute this value once at creation. Thereafter it is an opaque,
+stable lineage identifier: definition updates change affected ticket
+fingerprints and projections but never recompute `ticket_set`.
 
 ## Template Contract
 
@@ -337,9 +348,14 @@ Inspect the complete expected set before writing:
 - `{on_existing}=error`: any existing destination aborts.
 - `{on_existing}=reuse`: require a managed set with matching `ticket_set`;
   validate schemas, expected files, immutable fields, fingerprints, and
-  definition text while normalizing lifecycle fields and acceptance markers.
+  projection. Compare definitions while normalizing lifecycle fields and
+  acceptance markers.
   Return `unchanged` when exact or `existing-preserved` when only lifecycle
-  state differs. Worklist-only drift or definition drift aborts without repair.
+  state differs. When current definitions differ but the set is internally
+  self-consistent, has unchanged lineage/membership/provenance, and every
+  current fingerprint and projection validates, return `existing-diverged`
+  without writing. Worklist-only drift or inconsistent definition drift aborts
+  without repair. Never try to reproduce `ticket_set` from current definitions.
 - `{on_existing}=new-set`: use
   `<output-dir>-<first-12-ticket-set-hex>`. Reuse an identical managed target;
   otherwise abort on collision. Never append a numeric suffix.
@@ -360,8 +376,8 @@ remove only invocation-owned lock, staging, and empty parent paths.
 6. Compute fingerprints; render all tickets and `WORKLIST.md` in memory.
 7. Validate schemas, sections, tokens, references, dependency graph,
    projection, filenames, and accounting.
-8. Apply existing-set policy. Return for `unchanged` or
-   `existing-preserved`.
+8. Apply existing-set policy. Return for `unchanged`, `existing-preserved`, or
+   `existing-diverged`.
 9. Render the plan. Stop for `{dry_run}` or declined interactive approval.
 10. Publish atomically and byte-compare every final file with validated memory.
 11. Report without implying that ticket work was implemented.
@@ -374,7 +390,7 @@ Return these sections in order:
 
 Source identifier/kind/fingerprint; template; ticket-set fingerprint; resolved
 parameters; outcome (`created`, `unchanged`, `existing-preserved`, `dry-run`,
-`declined`, or `no-items`); and all accounting counts.
+`existing-diverged`, `declined`, or `no-items`); and all accounting counts.
 
 ### Ticket Plan
 
