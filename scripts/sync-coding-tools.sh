@@ -24,6 +24,8 @@
 #   cursor    ~/.cursor/commands
 #             ~/.cursor/skills-cursor/<name>
 #             ~/.cursor/plugins/local/ai-coding
+#             ~/.cursor/scripts/cloud-agent-bootstrap.sh
+#                 (opt-in via SYNC_CLOUD_AGENT_BOOTSTRAP=1)
 #   claude    ~/.claude/commands
 #             ~/.claude/skills/<name>
 #             ~/.claude/plugins/marketplaces/yliapis-dotfiles
@@ -37,6 +39,7 @@ REPO_ROOT="${SCRIPT_PATH:h:h}"
 
 SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
 SRC_MARKETPLACE="$REPO_ROOT"
+SRC_CLOUD_BOOTSTRAP="$REPO_ROOT/.cursor/scripts/cloud-agent-bootstrap.sh"
 
 typeset -a SRC_COMMANDS SRC_SKILLS
 SRC_COMMANDS=("$SRC_PLUGINS"/*/commands/*.md(N))
@@ -50,6 +53,9 @@ VERBOSE=0
 UNLINK=0
 MODE="copy"
 TARGETS="cursor,claude"
+# Opt-in: also mirror the Cursor Cloud Agents bootstrap script into
+# ~/.cursor/scripts/ (cursor target only). Unlink always cleans it up.
+SYNC_CLOUD_AGENT_BOOTSTRAP="${SYNC_CLOUD_AGENT_BOOTSTRAP:-0}"
 
 usage() {
   cat <<EOF
@@ -75,6 +81,13 @@ Options:
                         exists. Honors --dry-run, --targets, --verbose.
   -v, --verbose         Print every action; pass -v through to rsync.
   -h, --help            Show this help and exit.
+
+Environment:
+  SYNC_CLOUD_AGENT_BOOTSTRAP=1
+               Also mirror .cursor/scripts/cloud-agent-bootstrap.sh (the
+               Cursor Cloud Agents setup script) into ~/.cursor/scripts/
+               (cursor target only). --unlink removes it regardless of the
+               variable, since it only ever removes repo-derived artifacts.
 
 Exit status:
   0  success
@@ -127,6 +140,9 @@ done
 [[ -d "$SRC_PLUGINS" ]] || die "plugin source missing: $SRC_PLUGINS"
 (( ${#SRC_COMMANDS[@]} )) || die "no commands found under $SRC_PLUGINS/*/commands/"
 (( ${#SRC_SKILLS[@]}   )) || die "no skills found under   $SRC_PLUGINS/*/skills/"
+if [[ "$SYNC_CLOUD_AGENT_BOOTSTRAP" == "1" && ! -f "$SRC_CLOUD_BOOTSTRAP" ]]; then
+  die "cloud bootstrap source missing: $SRC_CLOUD_BOOTSTRAP"
+fi
 
 # --- destinations --------------------------------------------------------
 
@@ -151,6 +167,15 @@ dest_plugin_dir() {
     cursor) print -- "$HOME/.cursor/plugins/local/ai-coding" ;;
     claude) print -- "$HOME/.claude/plugins/marketplaces/yliapis-dotfiles" ;;
     *) die "no plugin dir for tool '$1'" ;;
+  esac
+}
+
+# The cloud bootstrap is Cursor-specific; other tools have no destination
+# (empty output) and callers skip it.
+dest_cloud_bootstrap() {
+  case "$1" in
+    cursor) print -- "$HOME/.cursor/scripts/${SRC_CLOUD_BOOTSTRAP:t}" ;;
+    *) print -- "" ;;
   esac
 }
 
@@ -210,6 +235,16 @@ copy_sync_tool() {
   mkdir -p "$plugin_dst/.claude-plugin" "$plugin_dst/ai-coding"
   run_rsync "$SRC_MARKETPLACE/.claude-plugin"/ "$plugin_dst/.claude-plugin"/
   run_rsync "$SRC_PLUGINS" "$plugin_dst/ai-coding"/
+
+  if [[ "$SYNC_CLOUD_AGENT_BOOTSTRAP" == "1" ]]; then
+    local bootstrap_dst
+    bootstrap_dst="$(dest_cloud_bootstrap "$tool")"
+    if [[ -n "$bootstrap_dst" ]]; then
+      print -- "==> $tool cloud bootstrap -> $bootstrap_dst"
+      mkdir -p "${bootstrap_dst:h}"
+      run_rsync "$SRC_CLOUD_BOOTSTRAP" "$bootstrap_dst"
+    fi
+  fi
 }
 
 # --- symlink-mode (with backup) ------------------------------------------
@@ -305,6 +340,15 @@ symlink_sync_tool() {
     action "link    $plugin_dst -> $SRC_MARKETPLACE"
     (( DRY_RUN )) || ln -sfn -- "$SRC_MARKETPLACE" "$plugin_dst"
   fi
+
+  if [[ "$SYNC_CLOUD_AGENT_BOOTSTRAP" == "1" ]]; then
+    local bootstrap_dst
+    bootstrap_dst="$(dest_cloud_bootstrap "$tool")"
+    if [[ -n "$bootstrap_dst" ]]; then
+      print -- "==> $tool cloud bootstrap -> $bootstrap_dst  (symlink)"
+      link_one "$SRC_CLOUD_BOOTSTRAP" "$bootstrap_dst"
+    fi
+  fi
 }
 
 # --- unlink (reverse of sync) --------------------------------------------
@@ -378,6 +422,15 @@ unlink_tool() {
       action "unlink  $plugin_dst"
       (( DRY_RUN )) || rm -- "$plugin_dst"
     fi
+  fi
+
+  # Always attempt bootstrap cleanup: unlink_one only removes symlinks into
+  # this repo or byte-identical copies, so this is a no-op when never synced.
+  local bootstrap_dst
+  bootstrap_dst="$(dest_cloud_bootstrap "$tool")"
+  if [[ -n "$bootstrap_dst" ]]; then
+    print -- "==> $tool cloud bootstrap <- $bootstrap_dst"
+    unlink_one "$bootstrap_dst" "${SRC_CLOUD_BOOTSTRAP:t}" "$SRC_CLOUD_BOOTSTRAP"
   fi
 }
 
