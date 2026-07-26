@@ -1,5 +1,5 @@
 #!/usr/bin/env zsh
-# sync-coding-tools.sh — mirror the commands and skills carried by the
+# sync-coding-tools.sh — mirror the commands, skills, and agents carried by the
 # ai-coding plugins (plus marketplace metadata) from this dotfiles repo into
 # the home-dir locations used by Cursor, Claude Code, and OpenCode.
 #
@@ -13,23 +13,28 @@
 # Sources (in this repo, do not modify by hand here):
 #   ai-coding/plugins/<plugin>/commands/*.md           slash commands
 #   ai-coding/plugins/<plugin>/skills/<name>/SKILL.md  skills
+#   ai-coding/plugins/<plugin>/agents/*.md             subagent definitions
 #   .cursor-plugin/marketplace.json (Cursor),
 #   .claude-plugin/marketplace.json (Claude) + ai-coding/plugins/
 #                                                      marketplace metadata
 #
-# Commands and skills from every plugin are flattened into one destination
-# directory per tool; the marketplace is mirrored whole, since the repo root
-# is itself the marketplace root.
+# Commands, skills, and agents from every plugin are flattened into one
+# destination directory per tool; the marketplace is mirrored whole, since the
+# repo root is itself the marketplace root. Agents are optional: plugin sets
+# that carry none are synced without them.
 #
 # Targets:
 #   cursor    ~/.cursor/commands
 #             ~/.cursor/skills-cursor/<name>
+#             ~/.cursor/agents
 #             ~/.cursor/plugins/local/ai-coding
 #   claude    ~/.claude/commands
 #             ~/.claude/skills/<name>
+#             ~/.claude/agents
 #             ~/.claude/plugins/marketplaces/yliapis-dotfiles
 #   opencode  ~/.config/opencode/commands
 #             ~/.config/opencode/skills/<name>
+#             ~/.config/opencode/agents
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -41,9 +46,10 @@ REPO_ROOT="${SCRIPT_PATH:h:h}"
 SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
 SRC_MARKETPLACE="$REPO_ROOT"
 
-typeset -a SRC_COMMANDS SRC_SKILLS
+typeset -a SRC_COMMANDS SRC_SKILLS SRC_AGENTS
 SRC_COMMANDS=("$SRC_PLUGINS"/*/commands/*.md(N))
 SRC_SKILLS=("$SRC_PLUGINS"/*/skills/*(N/))
+SRC_AGENTS=("$SRC_PLUGINS"/*/agents/*.md(N))
 
 BACKUP_ROOT="$HOME/.dotfiles-backup"
 LOG_FILE="$HOME/.cache/dotfiles/sync.log"
@@ -58,8 +64,8 @@ usage() {
   cat <<EOF
 Usage: ${SCRIPT_PATH:t} [options]
 
-Mirror ai-coding commands and skills from this dotfiles repo into the home
-locations used by Cursor, Claude Code, and OpenCode. Idempotent; safe to
+Mirror ai-coding commands, skills, and agents from this dotfiles repo into the
+home locations used by Cursor, Claude Code, and OpenCode. Idempotent; safe to
 re-run.
 
 Modes:
@@ -153,6 +159,15 @@ dest_skills_dir() {
   esac
 }
 
+dest_agents_dir() {
+  case "$1" in
+    cursor)   print -- "$HOME/.cursor/agents" ;;
+    claude)   print -- "$HOME/.claude/agents" ;;
+    opencode) print -- "$HOME/.config/opencode/agents" ;;
+    *) die "no agents dir for tool '$1'" ;;
+  esac
+}
+
 # Empty output means the tool has no plugin-marketplace concept to mirror.
 dest_plugin_dir() {
   case "$1" in
@@ -208,9 +223,10 @@ run_rsync() {
 
 copy_sync_tool() {
   local tool="$1"
-  local cmds_dst skills_dst plugin_dst meta_subdir
+  local cmds_dst skills_dst agents_dst plugin_dst meta_subdir
   cmds_dst="$(dest_commands_dir "$tool")"
   skills_dst="$(dest_skills_dir "$tool")"
+  agents_dst="$(dest_agents_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
   meta_subdir="$(plugin_meta_subdir "$tool")"
 
@@ -221,6 +237,14 @@ copy_sync_tool() {
   print -- "==> $tool skills   -> $skills_dst"
   mkdir -p "$skills_dst"
   run_rsync "${SRC_SKILLS[@]}" "$skills_dst"/
+
+  if (( ${#SRC_AGENTS[@]} )); then
+    print -- "==> $tool agents   -> $agents_dst"
+    mkdir -p "$agents_dst"
+    run_rsync "${SRC_AGENTS[@]}" "$agents_dst/"
+  else
+    print -- "==> $tool agents   (skipped: none found)"
+  fi
 
   if [[ -z "$plugin_dst" ]]; then
     print -- "==> $tool plugin   (skipped)"
@@ -293,9 +317,10 @@ link_one() {
 
 symlink_sync_tool() {
   local tool="$1"
-  local cmds_dst skills_dst plugin_dst
+  local cmds_dst skills_dst agents_dst plugin_dst
   cmds_dst="$(dest_commands_dir "$tool")"
   skills_dst="$(dest_skills_dir "$tool")"
+  agents_dst="$(dest_agents_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
 
   print -- "==> $tool commands -> $cmds_dst  (symlink)"
@@ -309,6 +334,16 @@ symlink_sync_tool() {
   for d in "${SRC_SKILLS[@]}"; do
     link_one "$d" "$skills_dst/${d:t}"
   done
+
+  if (( ${#SRC_AGENTS[@]} )); then
+    print -- "==> $tool agents   -> $agents_dst  (symlink)"
+    local a
+    for a in "${SRC_AGENTS[@]}"; do
+      link_one "$a" "$agents_dst/${a:t}"
+    done
+  else
+    print -- "==> $tool agents   (skipped: none found)"
+  fi
 
   if [[ -z "$plugin_dst" ]]; then
     print -- "==> $tool plugin   (skipped)"
@@ -381,9 +416,10 @@ unlink_one() {
 
 unlink_tool() {
   local tool="$1"
-  local cmds_dst skills_dst plugin_dst
+  local cmds_dst skills_dst agents_dst plugin_dst
   cmds_dst="$(dest_commands_dir "$tool")"
   skills_dst="$(dest_skills_dir "$tool")"
+  agents_dst="$(dest_agents_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
 
   print -- "==> $tool commands <- $cmds_dst"
@@ -397,6 +433,16 @@ unlink_tool() {
   for d in "${SRC_SKILLS[@]}"; do
     unlink_one "$skills_dst/${d:t}" "${d:t}" "$d"
   done
+
+  if (( ${#SRC_AGENTS[@]} )); then
+    print -- "==> $tool agents   <- $agents_dst"
+    local a
+    for a in "${SRC_AGENTS[@]}"; do
+      unlink_one "$agents_dst/${a:t}" "${a:t}" "$a"
+    done
+  else
+    print -- "==> $tool agents   (skipped: none found)"
+  fi
 
   if [[ -z "$plugin_dst" ]]; then
     print -- "==> $tool plugin   (skipped)"
