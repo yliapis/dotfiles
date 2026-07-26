@@ -69,7 +69,7 @@ EOF
 }
 
 die() { printf '%s: error: %s\n' "$PROG" "$*" >&2; exit 2; }
-log() { [ "$VERBOSE" -eq 1 ] && printf '%s\n' "$*" || true; }
+log() { if [ "$VERBOSE" -eq 1 ]; then printf '%s\n' "$*"; fi; }
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -243,7 +243,7 @@ printf '%s: created=%d updated=%d pruned=%d in_sync=%d\n' \
 
 if [ "$MODE" = "check" ]; then
   if [ "$drifted" -gt 0 ]; then
-    printf '%s: %d mirror entries drifted from ai-coding/plugins/; run `make mirrors`\n' \
+    printf "%s: %d mirror entries drifted from ai-coding/plugins/; run 'make mirrors'\n" \
       "$PROG" "$drifted" >&2
     exit 1
   fi
