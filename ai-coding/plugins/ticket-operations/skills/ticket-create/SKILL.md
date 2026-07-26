@@ -524,9 +524,9 @@ Append this exact table, one row per source key in source order:
 | SRC-001 | <refs joined by ; > | <source statement> | ticketed(TKT-001) | TKT-001 |
 ```
 
-Use `—` for an empty Final IDs cell. In table cells, collapse whitespace,
-replace each existing `\` with `\\`, then each `|` with `\|`. End
-`WORKLIST.md` with exactly one LF.
+Join nonempty Final IDs with literal `, ` and use `—` when empty. In table
+cells, collapse whitespace, replace each existing `\` with `\\`, then each `|`
+with `\|`. End `WORKLIST.md` with exactly one LF.
 
 ## Existing Sets and Publication
 
