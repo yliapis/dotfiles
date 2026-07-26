@@ -3,10 +3,11 @@
 What a run shows its reader, independent of what the run does. Most artifacts
 fix their Output Format section instead of parameterizing it; the two knobs
 below are the exceptions — one sets how much detail a rendered snapshot
-carries, the other adds a diagram of the plan a swarm is about to dispatch.
-[future.md](../future.md) held this concern open until a second artifact
-shipped an output-shape knob; agent-swarm's `--preview-swarm-topology` is that
-second knob. The two parameters share no concept, so this file has no cards.
+carries, the other shapes the diagram of the plan a swarm is about to
+dispatch. [future.md](../future.md) held this concern open until a second
+artifact shipped an output-shape knob; agent-swarm's
+`{preview_swarm_topology}` is that second knob. The two parameters share no
+concept, so this file has no cards.
 
 ## trajectory-snapshot
 
@@ -22,12 +23,15 @@ second knob. The two parameters share no concept, so this file has no cards.
 
 ## agent-swarm
 
-- `--preview-swarm-topology[=<format>]` — flag; renders the resolved
-  [`{topology}`](replication.md#artifact-specific) as a diagram in the reply's
-  `### Topology Preview` section before the first worktree is created.
-  `<format>` is `mermaid` (default — one fenced mermaid block), `ascii`, or
-  `both`; the bare flag means `mermaid`. Render-only: the preview reads
-  resolved values (slot count, per-slot model, group / wave / stage
-  boundaries, base branches, selection modes), never gates dispatch, and never
-  substitutes for the `{cost_cap}` projection. Setting it also emits a
-  `swarm.topology_previewed` event.
+- `{preview_swarm_topology}` — how the resolved
+  [`{topology}`](replication.md#artifact-specific) is drawn in the reply's
+  `### Topology Preview` section before the first worktree is created:
+  `mermaid` (default — one fenced mermaid block) | `ascii` | `both`. Format
+  only. Whether a diagram appears at all belongs to
+  [`{mode}`](interaction.md#approval_mode), which draws under `preview`,
+  `interactive`, and `plan` and draws nothing under `default`; suppressing the
+  visualization is therefore a mode choice, not a format value. The diagram
+  reads resolved values (slot count, per-slot model, group / wave / stage
+  boundaries, base branches, selection modes), never pauses the run on its own,
+  and never substitutes for the `{cost_cap}` projection. Each render emits a
+  `swarm.topology_previewed` event, so a `plan` loop emits one per round.

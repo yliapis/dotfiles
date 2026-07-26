@@ -36,10 +36,10 @@ Reporting ([reporting](concerns/reporting.md)):
 
 - `verbosity`, `require_diff`, `include_terminal_log`, `output_format` —
   report-shape knobs. Two are live today: trajectory-snapshot's
-  `{granularity}` and agent-swarm's `--preview-swarm-topology`; every other
+  `{granularity}` and agent-swarm's `{preview_swarm_topology}`; every other
   artifact fixes its Output Format section instead of parameterizing it. The
   earlier decision here deferred a reporting concern file until a second
-  artifact shipped an output-shape knob. `--preview-swarm-topology` met that
+  artifact shipped an output-shape knob. `{preview_swarm_topology}` met that
   trigger, so [concerns/reporting.md](concerns/reporting.md) now owns both
   parameters.
 

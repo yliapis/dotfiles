@@ -149,7 +149,9 @@ sources.
 |---|---|---|
 | `{num_agents}` (aliases `{n}`, `{num}`) | [`candidate_count`](concerns/replication.md#candidate_count) | replication |
 | `{topology}` | artifact-specific | [replication](concerns/replication.md#artifact-specific) |
-| `--preview-swarm-topology` | artifact-specific | [reporting](concerns/reporting.md#agent-swarm) |
+| `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
+| `{preview_swarm_topology}` | artifact-specific | [reporting](concerns/reporting.md#agent-swarm) |
+| `{max_iterations}` | [`max_iterations`](concerns/constraints.md#max_iterations) | constraints |
 | `{parallel_agents}` (aliases `{p}`, `{parallel}`) | [`concurrency`](concerns/replication.md#concurrency) | replication |
 | `{model_mix}` | artifact-specific | [models](concerns/models.md#artifact-specific) |
 | `{num_partitions}` | [`partition_count`](concerns/replication.md#partition_count) | replication |

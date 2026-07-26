@@ -46,7 +46,7 @@ Everything below is grounded in today's artifacts. The full design space
 ## Worked example: agent-swarm dispatching worktree-task
 
 agent-swarm is the policy layer; worktree-task owns worktree mechanics.
-At dispatch (agent-swarm Workflow step 7), swarm parameters resolve into
+At dispatch (agent-swarm Workflow step 8), swarm parameters resolve into
 worktree-task parameters. The rows below describe the default `parallel`
 topology, which dispatches the whole swarm in one invocation; `staged` and
 `pipeline` dispatch one invocation per wave or stage and are covered in the
@@ -73,9 +73,12 @@ the caller's shorter per-partition list.
 
 The swarm keeps for itself (never forwarded): `{selection_modes}`,
 `{aggregator}`, `{min_successes}`, `{relaunch_on_hang_after}`,
-`{replacement_policy}`, `{cost_cap}`, `{pattern}`, `{topology}`,
-`--preview-swarm-topology`. Member lifecycle results bubble up as events
-(`member.started`, `member.completed`, ...) and feed the selection modes.
+`{replacement_policy}`, `{cost_cap}`, `{pattern}`, `{topology}`, `{mode}`,
+`{preview_swarm_topology}`, `{max_iterations}`. Member lifecycle results
+bubble up as events (`member.started`, `member.completed`, ...) and feed the
+selection modes. `{mode}` in particular stops at the swarm: members are never
+interactive, and the `{merge_mode} = interactive` the child receives is a
+different knob.
 
 ### Contract cases
 
