@@ -15,7 +15,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 ## Parameters
 
 - `{num_agents}` (aliases: `{n}`, `{num}`) — total agents to spawn; required; integer `>= 2`. A "swarm" of `1` is a single agent; refuse and recommend a direct `worktree-task` invocation instead.
-- `{topology}` — how the `{num_agents}` members are arranged: `parallel` (one wave of independent members), `partitioned` (independent groups), `staged` (sequential waves, each informed by the previous one), or `pipeline` (a chain of single-member stages, each forking from its predecessor's branch); optional, default: `parallel`. See the Topology Catalog for per-topology dispatch, validation, and selection rules.
+- `{topology}` — how the `{num_agents}` members are arranged: `parallel` (one wave of independent members), `partitioned` (groups that share a model slice and get their own selection pass), `staged` (sequential waves, each informed by the previous one), or `pipeline` (a chain of single-member stages, each forking from its predecessor's branch); optional, default: `parallel`. See the Topology Catalog for per-topology dispatch, validation, and selection rules.
 - `--preview-swarm-topology[=<format>]` — flag; when present, render the resolved topology as a diagram in the `### Topology Preview` section before the first worktree is created. `<format>` is `mermaid` (default — one fenced ` ```mermaid ` block), `ascii`, or `both`; the bare flag means `mermaid`. Render-only: it never gates dispatch and never changes the plan.
 - `{parallel_agents}` (aliases: `{p}`, `{parallel}`) — concurrency cap on members running simultaneously; optional, default: `{num_agents}` (full parallelism). MUST be an integer in `1..{num_agents}`. Maps to worktree-task's `{concurrency}` at dispatch; the total member count `{num_agents}` maps to its `{parallelism}`. Under `{topology} = staged` the cap applies within a wave; under `{topology} = pipeline` it resolves to `1`, and an invocation that names it with a value above `1` is a validation error.
 - `{model_mix}` — model-assignment shape: `broadcast` (one model to all), `per-agent` (list of length `{num_agents}`), or `per-partition` (list of length `{num_partitions}` broadcast across contiguous slices); optional, default: `broadcast` with the parent agent's model.
@@ -325,7 +325,7 @@ The skill emits structured events in a dedicated `### Events` section of the rep
 | `swarm.gate_decided` | `verdict`, `triggers_fired`, `pattern` | After the Swarm Gate runs |
 | `swarm.topology_previewed` | `topology`, `format`, `slot_count` (of the previewed plan, which is the approved size when the cost gate resized the swarm) | After the preview renders (only when `--preview-swarm-topology` is set) |
 | `swarm.dispatched` | `num_agents`, `parallel_agents`, `topology`, `model_mix`, `selection_modes` | After `worktree-task` is launched |
-| `swarm.stage_started` | `kind` (`wave` / `stage`), `index`, `slots`, `base_branch` | Before each wave or stage launches under `staged` / `pipeline` |
+| `swarm.stage_started` | `kind` (`wave` / `stage`), `index`, `slots` (the global slot range it owns), `base_branch` | Before each wave or stage launches under `staged` / `pipeline` |
 | `member.started` | `slot`, `model`, `worktree_path` | When a member begins |
 | `member.progress` | `slot`, `last_activity_ms` | Heartbeat (per `worktree-task`'s reporting cadence) |
 | `member.completed` | `slot`, `status`, `test_exit`, `diff_lines` | When a member terminates (success / failed / incomplete) |
