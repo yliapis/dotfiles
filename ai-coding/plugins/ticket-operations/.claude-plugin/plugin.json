@@ -1,0 +1,8 @@
+{
+  "name": "ticket-operations",
+  "version": "0.3.0",
+  "description": "Create, execute, and update local Markdown tickets.",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT"
+}

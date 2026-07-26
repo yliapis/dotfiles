@@ -14,14 +14,14 @@ commands against the calling worktree or any sibling.
 - **Applies to:** command, skill
 - **Type:** branch name
 - **Default:** current branch via `git rev-parse --abbrev-ref HEAD`
-  (worktree-task, address-worklist-commit-loop, ralph-design); `main`
+  (worktree-task, ralph-design); `main`
   (wrap-up, soft-shutdown)
 - **Meaning:** The branch worktrees are forked from and merged back into. The
   default split follows the artifact's role: fan-out artifacts fork from where
   you are; session-hygiene commands reconcile against `main`.
 - **Propagation:** broadcast — every member forks from the same branch, and
   per-member diffs are rendered against it.
-- **Used by:** worktree-task, address-worklist-commit-loop, ralph-design, wrap-up, soft-shutdown
+- **Used by:** worktree-task, ralph-design, wrap-up, soft-shutdown
 
 ### `worktree_name`
 - **Aliases:** `worktree` (meta-prompt)
@@ -29,13 +29,13 @@ commands against the calling worktree or any sibling.
 - **Type:** filesystem-safe kebab-case name for the worktree directory and its
   branch
 - **Default:** kebab-case slug derived from the intent parameter (`task`,
-  `worklist`, `domain`); ralph-design prefixes `ralph-design/`; meta-prompt
+  `domain`); ralph-design prefixes `ralph-design/`; meta-prompt
   defaults to empty (write into the current tree, no worktree)
 - **Meaning:** Base name for the worktree directory and branch. When fanning
   out, a 1-based index suffix (`-1`, `-2`, ...) is appended per member.
 - **Propagation:** rewrite — each member gets the suffixed variant. See
   [propagation.md](../propagation.md).
-- **Used by:** worktree-task, address-worklist-commit-loop, ralph-design, meta-prompt
+- **Used by:** worktree-task, ralph-design, meta-prompt
 
 ### `use_worktree`
 - **Aliases:** —

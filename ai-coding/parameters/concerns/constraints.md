@@ -8,23 +8,24 @@ also defines the validation vocabulary the other concern files reference.
 ## Cards
 
 ### `test_command`
-- **Aliases:** `verify_command` (address-worklist-commit-loop)
+- **Aliases:** `verify_command` (ticket-execute and the
+  address-worklist-commit-loop compatibility command)
 - **Applies to:** command, skill → spawned agent
 - **Type:** shell command; exit code `0` = pass, anything else = fail
 - **Default:** unset (no programmatic gate)
 - **Meaning:** A per-candidate verifier run inside the candidate's workspace
   after the agent reports done (worktree-task, agent-swarm) or after each
-  item's edits are staged but before the commit (address-worklist-commit-loop,
-  where a failure suppresses the commit, hard-resets the tree, and triggers
+  ticket's implementation is staged but before completion/commit
+  (ticket-execute, where failure invokes journal-guarded rollback and
   `{on_failure}`).
 - **Validation:** agent-swarm requires it when any of `auto-best`, `vote`,
   `hybrid`, `tournament` is in `{selection_modes}`.
-  address-worklist-commit-loop exports `WORKLIST_ITEM_*` variables into its
-  environment.
+  ticket-execute exports `TICKET_*` and `WORKLIST_FILE` variables.
 - **Propagation:** broadcast to every member; per-member exit codes bubble back
   into the report and gate merge eligibility. See
   [propagation.md](../propagation.md).
-- **Used by:** worktree-task, agent-swarm, address-worklist-commit-loop
+- **Used by:** worktree-task, agent-swarm, ticket-execute,
+  address-worklist-commit-loop (relayed)
 
 ### `stop_condition`
 - **Aliases:** —
@@ -61,10 +62,10 @@ also defines the validation vocabulary the other concern files reference.
   Every finding must name the specific criterion it relates to; the model must
   not substitute its own preferences. Expected to generalize to other
   analysis-style artifacts — see [future.md](../future.md).
-- `{max_items}` (address-worklist-commit-loop) — hard cap on total items
-  addressed across all agents; items beyond the cap are reported as
-  `deferred (cap-hit)`. Default: unlimited.
-- `{min_severity}` (ticket-breakdown) — lowest severity that still gets a
+- `{max_items}` (address-worklist-commit-loop compatibility command) — limits
+  the native IDs routed to `ticket-execute`; `1` means `select=next`, larger
+  values select that many IDs, and omission means `select=all`.
+- `{min_severity}` (ticket-create) — lowest severity that still gets a
   ticket, over `critical > major > minor > nit`; items below the threshold
   are reported as `filtered`, never silently dropped, and severity-less
   (`unclassified`) items are always retained. Default: include all.

@@ -1,10 +1,8 @@
 # Robustness
 
-What happens when things hang, fail repeatedly, or overspend. Only the two
-loop-shaped artifacts declare robustness parameters today — agent-swarm
-(member-level hang recovery and cost control) and address-worklist-commit-loop
-(per-item failure policy and a circuit breaker). No parameter spans two
-artifacts yet, so this file has no cards.
+What happens when work hangs, fails, or is interrupted. Agent-swarm owns member
+replacement and cost control; ticket execution owns per-ticket rollback;
+ticket execution and update share journal recovery semantics.
 
 ## agent-swarm
 
@@ -23,13 +21,17 @@ artifacts yet, so this file has no cards.
   the projection exceeds the cap, the skill proposes a smaller
   `{num_agents}` and waits for user approval — it never silently shrinks.
 
-## address-worklist-commit-loop
+## ticket-execute
 
-- `{on_failure}` — policy when an item's implementation, `{verify_command}`,
-  or commit creation fails: `abort` | `skip` | `retry-once-then-skip` |
-  `mark-blocked`. Default depends on `{mode}`: `abort` for `interactive`,
-  `retry-once-then-skip` for `non-interactive` and `force-approve-all`.
-- `{max_consecutive_failures}` — per-agent circuit breaker. When an agent
-  records this many consecutive non-`committed` items, it halts its slice
-  regardless of `{on_failure}` and the slice is reported as `circuit-broken`.
-  The counter resets on each successful commit. Default: unbounded.
+- `{on_failure}` — after guarded rollback, `abort` (default) stops or
+  `continue` revalidates the set and considers only independent runnable
+  tickets. The compatibility command relays this parameter.
+- `{recovery}` — `abort` (default) reports an interrupted execution journal,
+  `resume` continues only a recognized transaction state, and `rollback`
+  restores exact journaled preimages while `HEAD` permits.
+
+## ticket-update
+
+- `{recovery}` — the same `abort` | `resume` | `rollback` surface, scoped to a
+  valid ticket-update journal. Resume never consumes another revision or
+  approval; rollback never rewrites a committed transaction.
