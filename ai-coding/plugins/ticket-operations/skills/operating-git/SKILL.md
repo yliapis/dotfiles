@@ -45,7 +45,7 @@ the implementation minimal and create the ticket commit.
 - [ ] Every merge/push validates clean state, branch existence, strategy, and
       remote preconditions before changing Git state.
 - [ ] Return the selected contract's report prefixed with
-      `Git operation: <change|commit|integrate>`.
+      `Git operation: <review|change|commit|integrate>`.
 
 ## Guardrails
 
