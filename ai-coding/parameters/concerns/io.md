@@ -64,7 +64,8 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
   family, but in an addressing form the vocabulary above does not cover — the
   path is rendered by substituting `{coding_tool}` and `{datetime_timestamp}`
   tokens, then resolved against the workspace root. Default:
-  `{coding_tool}-snapshot-{datetime_timestamp}.md`; when `{granularity}` is
+  `{coding_tool}-snapshot-{datetime_timestamp}.md`; when
+  [`{granularity}`](reporting.md#trajectory-snapshot) is
   `native`, the `.md` extension is swapped for the native transcript's
   extension. Collisions never overwrite: a `-2` (then `-3`, …) suffix is
   appended before the extension — a third suffix semantics, distinct from the
@@ -72,15 +73,6 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
   meta-prompt's rewritten [`artifact_path`](#artifact_path), and a third
   overwrite posture (see
   [lifecycle.md](lifecycle.md#overwrite-postures)).
-- `{granularity}` (trajectory-snapshot) — snapshot detail level: closed enum
-  `verbatim` | `condensed` | `summary` | `native`. Default `summary`. The only
-  live output-shape parameter (see [future.md](../future.md) — Reporting).
-  `native` requires a locatable native transcript (no lossy reconstruction;
-  the run aborts without one). Security-relevant split: the rendered
-  granularities (`verbatim`, `condensed`, `summary`) redact secrets to
-  `<redacted>`; `native` copies the tool's session transcript byte-identically
-  and intentionally applies no redaction, so sensitive transcript bytes are
-  preserved.
 - `{coding_tool}` (trajectory-snapshot) — tool slug substituted into
   `{filename_format}` and used to locate the native transcript. Default:
   auto-detected — `cursor` when the session transcript lives under
@@ -88,10 +80,11 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
   `agent`.
 - `{granularity}` (ticket-create) — ticket splitting policy: closed enum
   `one-to-one` | `split-composites` | `theme-grouped`. Default
-  `split-composites`. An output-shape parameter like trajectory-snapshot's
-  `{granularity}` above, but a different concept under the same spelling:
-  there it sets detail level of one artifact, here it sets how extracted work
-  items map to tickets (split composite items, merge same-theme items).
+  `split-composites`. A different concept from trajectory-snapshot's
+  [`{granularity}`](reporting.md#trajectory-snapshot) under the same spelling:
+  there it sets the detail level of one rendered artifact, here it sets how
+  extracted work items map to tickets (split composite items, merge same-theme
+  items), so it stays an io concern.
 - `{id_prefix}` (ticket-create) — prefix for rendered ticket ids
   (`{id_prefix}-NNN`, zero-padded). Default `TKT`. Validation:
   `^[A-Z][A-Z0-9]{1,9}$`.

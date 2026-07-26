@@ -101,6 +101,7 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | [concerns/lifecycle.md](concerns/lifecycle.md) | What persists at the end of a run: write gating, merging, pushing, write-back. |
 | [concerns/robustness.md](concerns/robustness.md) | What happens when members hang, fail, or overspend. |
 | [concerns/interaction.md](concerns/interaction.md) | When the user is asked: interactive flags, approval cadence, authoring motion. |
+| [concerns/reporting.md](concerns/reporting.md) | What the run shows the reader: detail level, plan diagrams, other output-shape knobs. |
 | [concerns/composition.md](concerns/composition.md) | How artifacts select and shape other skills: traits, registries, presets, styles. |
 
 ## Other pages
