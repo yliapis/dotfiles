@@ -17,8 +17,8 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 - `{num_agents}` (aliases: `{n}`, `{num}`) — total agents to spawn; required; integer `>= 2`. A "swarm" of `1` is a single agent; refuse and recommend a direct `worktree-task` invocation instead.
 - `{topology}` — how the `{num_agents}` members are arranged: `parallel` (one wave of independent members), `partitioned` (groups that share a model slice and get their own selection pass), `staged` (sequential waves, each informed by the previous one), or `pipeline` (a chain of single-member stages, each forking from its predecessor's branch); optional, default: `parallel`. See the Topology Catalog for per-topology dispatch, validation, and selection rules.
 - `{mode}` — how far the user is involved in settling the design: `default` (state the plan in text and dispatch), `preview` (also draw the topology), `interactive` (also take one go/no-go before dispatch), or `plan` (iterate on the design with the user until they verify it). Optional; resolved from context per Interaction Modes, falling back to `default`. Distinct from the `{merge_mode} = interactive` this skill hands to `worktree-task`: that one governs the child's merge prompt, this one governs whether the swarm asks the user anything.
-- `{preview_swarm_topology}` — how the topology is drawn when the resolved `{mode}` draws it: `mermaid` (default — one fenced ` ```mermaid ` block), `ascii`, or `both`. Format only; `{mode}` alone decides whether a diagram appears, so suppressing the visualization is `{mode} = default` rather than a value here.
-- `{max_iterations}` — hard cap on `plan` rounds; optional, default `10`. MUST be an integer `>= 1`, and MUST NOT be set unless `{mode} = plan`. Hitting the cap halts with `plan-cap-hit` and dispatches nothing.
+- `{preview_swarm_topology}` — how the topology is drawn when the resolved `{mode}` draws it: `mermaid` (default — one fenced ` ```mermaid ` block), `ascii`, or `both`. Format only; `{mode}` alone decides whether a diagram appears, so suppressing the visualization is `{mode} = default` rather than a value here. Naming it without naming `{mode}` resolves `{mode} = preview`, since asking for a format is asking for a drawing; naming it alongside `{mode} = default` is a validation error.
+- `{max_iterations}` — hard cap on `plan` rounds; optional, default `10`, integer `>= 1`. Naming it without naming `{mode}` resolves `{mode} = plan`, since asking for a round cap is asking for the loop; naming it alongside any other mode is a validation error. Reaching the cap halts with `plan-cap-hit` and dispatches nothing.
 - `{parallel_agents}` (aliases: `{p}`, `{parallel}`) — concurrency cap on members running simultaneously; optional, default: `{num_agents}` (full parallelism). MUST be an integer in `1..{num_agents}`. Maps to worktree-task's `{concurrency}` at dispatch; the total member count `{num_agents}` maps to its `{parallelism}`. Under `{topology} = staged` the cap applies within a wave; under `{topology} = pipeline` it resolves to `1`, and an invocation that names it with a value above `1` is a validation error.
 - `{model_mix}` — model-assignment shape: `broadcast` (one model to all), `per-agent` (list of length `{num_agents}`), or `per-partition` (list of length `{num_partitions}` broadcast across contiguous slices); optional, default: `broadcast` with the parent agent's model.
 - `{num_partitions}` — contiguous grouping of member slots, serving both per-partition model assignment and the `partitioned` / `staged` topologies from one value; optional with default `{num_agents}` when only `{model_mix} = per-partition` needs it, required with no default when `{topology}` is `partitioned` or `staged` (then MUST be an integer in `2..{num_agents}`). MUST divide `{num_agents}` evenly.
@@ -37,7 +37,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 - [ ] Parameters are validated before dispatch: `{num_agents} >= 2`, `{parallel_agents} <= {num_agents}`, `{topology}` is one of the four catalog values, `{num_partitions}` is present and in `2..{num_agents}` when `{topology}` is `partitioned` or `staged`, `{model_mix}` shape matches `{num_agents}` / `{num_partitions}`, `{num_partitions}` divides `{num_agents}` evenly, and required parameters for each entry in `{selection_modes}` are present.
 - [ ] The dispatch shape matches the resolved `{topology}`: one `worktree-task` invocation for `parallel` and `partitioned`, one per wave for `staged`, one per stage for `pipeline` with each stage forking from its predecessor's branch.
 - [ ] Selection modes that the resolved `{topology}` cannot support report `skipped: <reason>` in the Aggregation section instead of running.
-- [ ] The resolved `{mode}`, whether it came from the invocation or from context, and the cue that decided it are recorded in the Swarm Plan before any worktree is created.
+- [ ] The resolved `{mode}`, its source, and — when context decided it — the cue that fired are recorded in the Swarm Plan before any worktree is created.
 - [ ] The resolved `{mode}` gets the behavior its row in Interaction Modes specifies: `default` draws nothing and asks nothing, `preview` draws and dispatches, `interactive` draws and takes one go/no-go, `plan` iterates until the user verifies the design.
 - [ ] Under `interactive` and `plan`, the plan the user answers for is the one that dispatches, and a decline or a `plan-cap-hit` creates no worktree at all.
 - [ ] Worktree creation, branch naming, agent dispatch, and per-worktree diff capture are delegated to `worktree-task`; this skill emits no `git worktree` calls.
@@ -45,7 +45,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 - [ ] When `{relaunch_on_hang_after}` expires for a member, that member is force-aborted; replacement happens iff `{replacement_policy}` allows; replacements never recurse.
 - [ ] When `successes < {min_successes}` after the run terminates (including replacements), every selection mode reports `under-floor`; no winner is auto-selected.
 - [ ] Every entry in the resolved `{selection_modes}` either runs over the surviving members or reports `skipped: <reason>`, and each produces its own outcome block in the Aggregation section.
-- [ ] Structured JSON Lines events are emitted in the dedicated `### Events` section of the reply, in chronological order, covering the swarm-gate verdict, dispatch, member lifecycle, replacements, per-mode selection results, and run completion.
+- [ ] Structured JSON Lines events are emitted in the dedicated `### Events` section of every reply, in chronological order, covering the swarm-gate verdict, the resolved mode, any design the user settled, dispatch, member lifecycle, replacements, per-mode selection results, and run completion.
 - [ ] At most one worktree branch is merged back per invocation, regardless of how many selection modes converged on the same winner.
 
 ## Guardrails
@@ -63,7 +63,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 - MUST NOT silently shrink `{num_agents}` to fit `{cost_cap}`; surface the proposed size and wait for the user's approval.
 - MUST NOT recursively spawn swarms; every member runs as a single agent.
 - MUST NOT merge more than one worktree branch per invocation, even when several selection modes converge on it.
-- MUST emit events in chronological order in the dedicated `### Events` section; MUST NOT inline events outside that section.
+- MUST emit events in chronological order in the dedicated `### Events` section of every reply, including the replies that pause for the user; MUST NOT inline events outside that section, and MUST NOT hold an event back for a later reply.
 - Scope: orchestration policy (gate, sizing, topology, mix, interaction depth, dispatch shape, watchdog, aggregation, events). Out of scope: low-level worktree mechanics (delegated to `worktree-task`), pushing branches, opening PRs, cross-repo coordination, persistent scheduling.
 
 ## Swarm Gate
@@ -94,30 +94,38 @@ The gate decides whether to swarm; `{mode}` decides how much of the design the u
 | `default` | no | no | A settled request. The text plan is the whole story and the swarm runs. |
 | `preview` | yes | no | A run the caller wants on the record. The diagram lands in the report and the swarm runs anyway. |
 | `interactive` | yes | one go/no-go before the first worktree | A user in the loop who wants to see the shape before paying for it. |
-| `plan` | yes, once per round | every round, until the user verifies the design | Designing the swarm itself, when the shape is the open question. |
+| `plan` | yes, once per round | every round, until the design is verified, declined, or out of rounds | Designing the swarm itself, when the shape is the open question. |
 
 ### Resolving the mode
 
-An invocation that names `{mode}` wins outright. Otherwise read the context against these cues, in order, and take the first that matches:
+An invocation that names `{mode}` wins outright; an unknown value is rejected there and then, before anything else resolves. Otherwise walk these cues in order and take the first that matches:
 
 | Cue | Resolved `{mode}` |
 |---|---|
+| The invocation names `{max_iterations}` | `plan` |
+| The invocation names `{preview_swarm_topology}` | `preview` |
 | The user asks to design, plan, or think through the swarm's shape, or asks what shape it should be | `plan` |
-| A user is in the loop settling a swarm that would dispatch this turn, or asks to approve it first | `interactive` |
-| The caller asks to see, show, or record the shape without offering to change it | `preview` |
-| Nothing above matches — another agent dispatches it, the parameters arrive already settled, or no user is in the loop | `default` |
+| The user asks to approve, confirm, or check the swarm before it runs, or says not to run it yet | `interactive` |
+| The user asks to see, show, or record the shape, without asking to approve it | `preview` |
+| Nothing above matches — the request is settled, another agent dispatches it, or no user is in the loop | `default` |
 
-Record the resolved value, whether it came from the invocation or from a cue, and which cue fired. An ambiguous context is not a reason to ask: it resolves to `default`.
+A user merely being present is not a cue: an ordinary "run a swarm on X" from a person is a settled request and resolves to `default`. Record the resolved value, its source, and — when a cue decided it — which cue fired. An ambiguous context is not a reason to ask; it resolves to `default`.
 
 ### The `plan` loop
 
-Each round renders the current design and hands the user something to react to. A round is:
+`plan` is the one mode that owns resolution rather than inheriting it, because the parameters are what the user came to settle. A round is:
 
-1. Resolve and validate the current parameters, run the cost projection when `{cost_cap}` is set, and render the topology per Topology Preview.
-2. Report the design in the Output Format's pre-dispatch sections, ending with `### Plan Revision`: what changed since the previous round, and the open decisions worth the user's attention.
-3. Take the user's answer. A revision restarts the round with the changed parameters. Verification ends the loop and dispatches the design exactly as last rendered. A decline ends the run.
+1. Re-resolve every parameter the invocation did not name, from the current values rather than the previous round's — a default the user never typed never sticks. Re-run steps 3 through 6 of the Workflow, so the pattern, the selection modes, the validation, and the cost projection all follow the current design.
+2. Render the topology per Topology Preview.
+3. Report the design in the Output Format's pre-dispatch sections, ending with `### Plan Revision`: what changed since the previous round, and the open decisions worth the user's attention.
+4. Take the user's answer, and check verification before the cap. A revision opens the next round. Verification ends the loop and dispatches the design exactly as last rendered. A decline ends the run.
 
-The loop ends in one of three terminal states, and only the first dispatches: `verified`, `declined`, or `plan-cap-hit` when the round count reaches `{max_iterations}`. Rounds are numbered from `1`, and a round that changes no parameter still counts against the cap. No worktree exists until the loop ends in `verified`, so revisions cost only the rendering.
+Two rules keep the loop usable for a design that is not finished yet:
+
+- **Missing required parameters become proposals.** A `plan` round may propose a value for a parameter the invocation left open, including `{num_agents}`, drawing it from the Sizing Heuristics and the Pattern Catalog. Proposals are labeled as such in `### Plan Revision` and are worth nothing until the user verifies the design; the loop never treats one as given.
+- **A revision that fails validation costs a round, not the run.** Report the rule that failed in `### Plan Revision`, keep the last valid design on the table, and ask again. Only a pre-loop validation failure, before round 1, aborts outright.
+
+The loop ends in one of three terminal states, and only the first dispatches: `verified`, `declined`, or `plan-cap-hit`, which fires when a round ends unverified and the completed round count equals `{max_iterations}`. Rounds are numbered from `1`, a round that changes no parameter still counts, and `{max_iterations} = 1` therefore means one answerable round. No worktree exists until the loop ends in `verified`, so revisions cost only the rendering.
 
 ## Pattern Catalog
 
@@ -179,8 +187,9 @@ Branch names stay unique because every wave and stage carries its own `{worktree
 - `{topology}` MUST be one of `parallel`, `partitioned`, `staged`, `pipeline`.
 - `partitioned` and `staged` MUST carry an explicit `{num_partitions}` in `2..{num_agents}` that divides `{num_agents}` evenly.
 - `pipeline` resolves `{parallel_agents}` to `1` when the invocation leaves it out; an invocation that names `{parallel_agents}` with a value above `1` is a validation error rather than a silent serialization. `staged` takes the same value without complaint: a cap wider than a wave simply never binds, the way `{parallel_agents} = {num_agents}` never binds under `parallel`, whereas a `pipeline` cap above `1` contradicts the topology itself.
-- `{mode}` MUST be one of `default`, `preview`, `interactive`, `plan`, and `{preview_swarm_topology}` MUST be one of `mermaid`, `ascii`, `both`; any other value is a validation error.
-- `{max_iterations}` MUST be an integer `>= 1`, and naming it outside `{mode} = plan` is a validation error rather than an ignored knob.
+- `{mode}` MUST be one of `default`, `preview`, `interactive`, `plan` — checked at resolution (Workflow step 2), before any event announces it — and `{preview_swarm_topology}` MUST be one of `mermaid`, `ascii`, `both`.
+- A knob only one mode uses MUST NOT be named alongside a mode that ignores it: `{max_iterations}` outside `{mode} = plan`, or `{preview_swarm_topology}` alongside `{mode} = default`, is a validation error rather than a silently inert value. Naming either without naming `{mode}` resolves the mode instead (see Resolving the mode).
+- `{max_iterations}` MUST be an integer `>= 1`.
 - `{model_mix} = per-partition` and the `partitioned` / `staged` topologies share the one `{num_partitions}`; there is no second partition count to reconcile.
 - A mode the topology skips does not carry its prerequisite: `{test_command}` and `{aggregator}` are required only for the modes that actually run.
 
@@ -207,7 +216,7 @@ Every mode except `default` draws the resolved plan as a diagram, so the caller 
 - The root node states the topology, `{num_agents}`, the concurrency actually in effect (the Topology Catalog's effective-concurrency column, so `min({parallel_agents}, wave size)` under `staged`), the grouping count when the topology has one, and `{base_branch}` when every member forks from it. Only `pipeline` puts a base branch on each node, because only there do they differ.
 - Every slot node carries its own resolved model, which keeps a `per-agent` mix readable and gives the fold rule a uniform label to work on; group nodes carry only their own label.
 - When the unfolded diagram would draw more than 12 slot nodes, fold each run of identically-configured adjacent slots into one node (one line, in `ascii`) labeled with its slot range and count (`slots 3-12 · sonnet ×10`). A run never crosses a group, wave, or stage boundary. Runs of one never fold, so a `per-agent` mix or a swarm of single-member waves draws every slot: the threshold trims repetition rather than capping diagram size.
-- When the `{cost_cap}` projection blocks the run, its approval settles first (Workflow step 6). The diagram then shows the plan that will actually dispatch — the approved smaller swarm — or is skipped entirely when the user declines the resize and nothing dispatches. Under `interactive` and `plan`, that one diagram carries the mode's own question too, so the user never answers two prompts back to back.
+- When the `{cost_cap}` projection blocks the run, its approval settles first (Workflow step 6), so the diagram always shows the post-resize plan — the one that will actually dispatch — or is skipped entirely when the user declines the resize and nothing dispatches. The resize question and the mode's own question stay separate answers, because a resize approval is not approval of the shape. Under `plan`, the projection re-runs every round but asks again only when the current design newly exceeds the cap.
 - Skipped selection modes stay out of the diagram; the Aggregation section reports them.
 
 Templates, one per topology, with resolved values substituted into the labels:
@@ -287,7 +296,7 @@ flowchart TD
   T3 --> SEL{{"selection · auto-best, manual"}}
 ```
 
-The `ascii` format carries the same labels as an indented tree: the root line as above, joining with ` · ` the fields the mermaid root splits with `<br/>`; one line per group, wave, or stage; one line per slot beneath it; and a trailing line naming the resolved selection modes.
+The `ascii` format carries the same labels as an indented tree: the root line as above, joining with ` · ` the fields the mermaid root splits with `<br/>`; one line per group, wave, or stage, with one line per slot beneath it; and a trailing line naming the resolved selection modes. Under `parallel`, which has no grouping, the slot lines hang directly off the root. Where the topology carries something between groups — the upstream context a `staged` wave hands the next, the branch a `pipeline` stage hands its successor — one line names it at the boundary, as `↓ upstream context` does below.
 
 ```
 swarm · staged · n=6 · concurrency=2 · waves=3 · base main
@@ -364,9 +373,9 @@ The skill emits structured events in a dedicated `### Events` section of the rep
 | Type | Payload fields | Emitted when |
 |---|---|---|
 | `swarm.gate_decided` | `verdict`, `triggers_fired`, `pattern` | After the Swarm Gate runs |
-| `swarm.mode_resolved` | `mode`, `source` (`invocation` / `context`), `cue` | After `{mode}` resolves, before any other resolution |
-| `swarm.topology_previewed` | `topology`, `format`, `slot_count` (of the drawn plan, which is the approved size when the cost gate resized the swarm), `round` (`plan` only) | Each time a diagram renders, so once per `plan` round |
-| `swarm.plan_confirmed` | `mode`, `rounds`, `decision` (`approved` / `verified` / `declined` / `plan-cap-hit`) | After the user settles the design under `interactive` or `plan` |
+| `swarm.mode_resolved` | `mode`, `source` (`invocation` / `context`), `cue` (the cue that fired, or `null` when the invocation named the mode) | After `{mode}` resolves and passes its enum check, before any other resolution |
+| `swarm.topology_previewed` | `topology`, `format`, `slot_count` (of the drawn plan, which is the approved size when the cost gate resized the swarm), `round` (`plan` only) | Once per drawn plan — `both` emits one event, not one per block, and a closing reply that restates an already-drawn diagram emits none |
+| `swarm.design_settled` | `mode`, `rounds` (always `1` under `interactive`), `decision` (`approved` / `declined` under `interactive`; `verified` / `declined` / `plan-cap-hit` under `plan`) | When the user settles the design under `interactive` or `plan`, however it ends |
 | `swarm.dispatched` | `num_agents`, `parallel_agents`, `topology`, `model_mix`, `selection_modes` | After `worktree-task` is launched |
 | `swarm.stage_started` | `kind` (`wave` / `stage`), `index`, `slots` (the global slot range it owns), `base_branch` | Before each wave or stage launches under `staged` / `pipeline` |
 | `member.started` | `slot`, `model`, `worktree_path` | When a member begins |
@@ -376,17 +385,17 @@ The skill emits structured events in a dedicated `### Events` section of the rep
 | `selection.completed` | `mode`, `result`, `rationale` | Once per resolved entry in `{selection_modes}` |
 | `swarm.done` | `successes`, `failures`, `replacements`, `wall_clock_s`, `floor_met` | At end of run |
 
-Events MUST appear in chronological order. Do NOT inline events outside the dedicated section.
+Events MUST appear in chronological order. Do NOT inline events outside the dedicated section. A run that spans several replies closes each one with its own `### Events` section carrying the events that fired since the previous reply, so no event is ever held back waiting for a reply that may never come.
 
 ## Workflow
 
 1. **Swarm gate.** Walk the Swarm Gate table and any counter-triggers. If no trigger fires (or a counter-trigger applies), recommend a single agent and stop. Emit `swarm.gate_decided`.
-2. **Resolve `{mode}`.** Take the invocation's value, or read the context against the Interaction Modes cues and fall back to `default`. Emit `swarm.mode_resolved` with the cue that decided it.
+2. **Resolve `{mode}`.** Take the invocation's value, rejecting an unknown one here rather than three steps later, or walk the Interaction Modes cues and fall back to `default`. Emit `swarm.mode_resolved`.
 3. **Apply pattern (if `{pattern}` is set).** Populate defaults for `{num_agents}`, `{topology}`, `{model_mix}`, and `{selection_modes}` from the Pattern Catalog row. User-set parameters override.
 4. **Resolve `{selection_modes}`.** When the value is `auto`, include every mode whose prerequisites are met given the other parameters and whose rule the resolved `{topology}` supports. Every catalog mode outside the resolved list is a skipped mode: record each one with its reason (the missing prerequisite, or the topology rule that excludes it) so the Aggregation section can report it.
 5. **Validate parameters.** Confirm sizing, topology (catalog value, partition count where required, `{parallel_agents}` under `pipeline`), the `{mode}` and `{preview_swarm_topology}` values, `{max_iterations}` and its `plan`-only gating, mix shape, partition divisibility, and selection-mode prerequisites. Fail fast on any mismatch (no filesystem side effects).
 6. **Cost projection (when `{cost_cap}` is set).** Compute projected cost against `{num_agents}` for tokens and against the topology's serial depth for wall clock. If `projected > {cost_cap}`, propose the largest `{num_agents}` that fits and wait for user approval.
-7. **Draw and settle the design, per the resolved `{mode}`.** `default` skips this step entirely. Otherwise render the plan step 6 settled on into the `### Topology Preview` section and emit `swarm.topology_previewed`. Then: `preview` continues to dispatch; `interactive` takes one go/no-go and emits `swarm.plan_confirmed`; `plan` runs the loop from Interaction Modes, re-entering steps 5 through 7 for every revision and emitting `swarm.plan_confirmed` with the round count when it ends. A `declined` or `plan-cap-hit` outcome stops here with no worktree and no `swarm.dispatched`.
+7. **Draw and settle the design, per the resolved `{mode}`.** `default` skips this step entirely. Otherwise render the plan step 6 settled on into the `### Topology Preview` section and emit `swarm.topology_previewed`. Then: `preview` continues to dispatch; `interactive` takes one go/no-go and emits `swarm.design_settled`; `plan` runs the loop from Interaction Modes, re-entering steps 3 through 7 for every revision so the pattern, selection modes, validation, and cost projection all track the current design, and emitting `swarm.design_settled` with the round count when it ends. A `declined` or `plan-cap-hit` outcome stops here with no worktree and no `swarm.dispatched`; the closing reply restates the last rendered diagram without drawing a new one.
 8. **Dispatch via `worktree-task`.** Follow the Dispatch shape table for the resolved `{topology}`: one invocation for `parallel` and `partitioned`, one per wave for `staged`, one per stage for `pipeline`. Every invocation carries the slice of the resolved `{agent_model}` assignment belonging to its slots, the `{task}` (verbatim, plus the `## Upstream Context` block for `staged` waves and `pipeline` stages after the first), `{test_command}` (when set), and `{merge_mode} = interactive`. Emit `swarm.dispatched` once for the plan and `swarm.stage_started` before each wave or stage. Do not re-implement worktree mechanics.
 9. **Watchdog.** Track each member's last activity. Emit `member.started`, `member.progress`, `member.completed` events as they fire. When `{relaunch_on_hang_after}` expires for a member, force-abort it; respawn per `{replacement_policy}` and emit `member.replaced`. Under `staged` and `pipeline`, the next wave or stage waits for the current one to terminate, replacements included.
 10. **Floor check.** When all live members terminate, count `success`. If below `{min_successes}`, every selection mode reports `under-floor`; skip aggregation and emit `swarm.done` with `floor_met=false`.
@@ -397,7 +406,9 @@ Events MUST appear in chronological order. Do NOT inline events outside the dedi
 
 Reply with the following named sections, in this order. Omit sections whose body is legitimately empty.
 
-A mode that pauses splits the report across replies. Each reply that asks the user something carries the pre-dispatch sections only, ending at `### Topology Preview` under `interactive` or at `### Plan Revision` under `plan`; the reply that follows the user's answer resumes the order. A run that ends `declined` or `plan-cap-hit` closes with the pre-dispatch sections plus `### Events`, and never renders the sections that describe members.
+A mode that pauses splits the report across replies. Each reply that asks the user something carries the pre-dispatch sections — through `### Topology Preview` under `interactive`, through `### Plan Revision` under `plan` — and then its own `### Events` section; the reply that follows the user's answer resumes the order. Every reply ends with `### Events` carrying whatever fired since the previous one, so a paused or abandoned run never strands an event.
+
+A run that stops before dispatch — `declined`, `plan-cap-hit`, or a validation failure — closes with the pre-dispatch sections it reached plus `### Events`, and renders none of `### Per-Member Report`, `### Aggregation`, `### Recommendation`, or `### Handoff`, which all describe a run that happened.
 
 ### Swarm Decision
 
@@ -408,9 +419,13 @@ A mode that pauses splits the report across replies. Each reply that asks the us
 
 If `Verdict = single-agent`, stop here.
 
+### Validation Error
+
+Present this section in place of every section below it when validation fails before dispatch. Name the rule that failed, the values that violated it, and the smallest change that would satisfy it. No worktree exists, so there is nothing to clean up. A `plan` round that fails validation reports it under `### Plan Revision` instead and asks again.
+
 ### Swarm Plan
 
-- `mode`: resolved value, whether it came from the invocation or a context cue, and which cue fired. Add the round number and `{max_iterations}` under `plan`.
+- `mode`: resolved value and its source, plus the cue that fired when context decided it. Add the round number and `{max_iterations}` under `plan`.
 - `num_agents` / `parallel_agents`: e.g., `8 (parallel: 4)`.
 - `topology`: value plus the resolved layout — partitions, waves, or stages with their base branches.
 - `model_mix`: shape and resolved per-slot assignment.
@@ -429,9 +444,9 @@ Present this section whenever the resolved `{mode}` draws the topology — every
 Present this section only under `{mode} = plan`, once per round, after the diagram:
 
 - `Round`: `<n>` of `{max_iterations}`.
-- `Changed`: what moved since the previous round, or `initial design` on round 1.
+- `Changed`: what moved since the previous round, or `initial design` on round 1. Name any value the round proposed rather than took from the invocation, and any revision that failed validation, with the rule it broke.
 - `Open decisions`: the design choices worth the user's attention now, each with the parameter it would change.
-- `Next`: ask the user to verify the design as drawn, revise it, or stop.
+- `Next`: ask the user to verify the design as drawn, revise it, or stop — verifying dispatches it, stopping ends the run as `declined`.
 
 ### Per-Member Report
 
