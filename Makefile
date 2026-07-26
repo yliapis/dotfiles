@@ -1,12 +1,18 @@
 # Makefile — thin convenience wrapper so `make install`, `make refresh`,
-# `make sync`, `make sync-cursor`, `make symlink`, `make dry-run`,
-# `make status`, `make unlink`, `make clean`, `make sync-help`, and `make help`
-# (default) all work without the user having to remember the flag set.
+# `make sync`, `make sync-cursor`, `make symlink`, `make mirrors`,
+# `make mirrors-check`, `make dry-run`, `make status`, `make unlink`,
+# `make clean`, `make sync-help`, and `make help` (default) all work without
+# the user having to remember the flag set.
 #
-# The script (scripts/sync-coding-tools.sh) is the single source of truth for both
-# copy-mode (rsync) and symlink-mode logic, the audit log, and the
-# --unlink reverse operation. This Makefile only translates target names
-# to the equivalent `./scripts/sync-coding-tools.sh ...` invocations.
+# Two scripts do the work, and this Makefile only translates target names into
+# their invocations:
+#
+#   scripts/sync-coding-tools.sh    home-dir sync: the single source of truth
+#                                   for copy-mode (rsync) and symlink-mode
+#                                   logic, the audit log, and --unlink.
+#   scripts/sync-project-mirrors.sh repo-root project mirrors: regenerates
+#                                   {.cursor,.claude,.opencode}/{commands,
+#                                   skills,agents} from ai-coding/plugins/.
 
 # GNU Make ignores $SHELL from the environment and defaults to /bin/sh.
 # Honor the user's login shell when make's SHELL was not set on the command line.
@@ -17,8 +23,9 @@ endif
 .DEFAULT_GOAL := help
 
 SCRIPT := ./scripts/sync-coding-tools.sh
+MIRROR_SCRIPT := ./scripts/sync-project-mirrors.sh
 
-.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode symlink symlink-cursor symlink-claude symlink-opencode dry-run status unlink clean
+.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode symlink symlink-cursor symlink-claude symlink-opencode dry-run status unlink clean mirrors mirrors-check
 
 install:        ## Run initial dotfiles install (./install.sh)
 	@./install.sh
@@ -49,6 +56,12 @@ sync-claude:    ## Copy-sync only Claude targets
 
 sync-opencode:  ## Copy-sync only OpenCode targets
 	@$(SCRIPT) --targets opencode
+
+mirrors:        ## Regenerate the repo-root project mirrors from ai-coding/plugins
+	@$(MIRROR_SCRIPT)
+
+mirrors-check:  ## Fail if a project mirror drifted from its source (no writes)
+	@$(MIRROR_SCRIPT) --check
 
 symlink:        ## Symlink-sync everything (edits in the repo go live)
 	@$(SCRIPT) --mode symlink
