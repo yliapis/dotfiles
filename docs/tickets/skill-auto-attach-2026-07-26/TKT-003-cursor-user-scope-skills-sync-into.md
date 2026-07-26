@@ -5,10 +5,10 @@ ticket_set: "sha256:8de3aaef2b9550a73e1c703c3e2e63d9ef162acaa040ecd60d55338481da
 id: "TKT-003"
 fingerprint: "sha256:ea32bbb8ee7eb15c2457ca03c11289b3520eb9f92a5ca0a16f93d5c7190504c9"
 title: "Cursor user-scope skills sync into the builtin skill root"
-status: "open"
+status: "done"
 status_reason: null
 owner: null
-revision: 1
+revision: 3
 type: "fix"
 severity: "major"
 priority: "P1"
@@ -52,8 +52,8 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 
-- [ ] A cursor-target sync writes each skill to `~/.cursor/skills/<name>/SKILL.md`
-- [ ] The script records why `~/.cursor/skills-cursor` is not a destination so the value is not reverted later
+- [x] A cursor-target sync writes each skill to `~/.cursor/skills/<name>/SKILL.md`
+- [x] The script records why `~/.cursor/skills-cursor` is not a destination so the value is not reverted later
 
 ## Dependencies
 
