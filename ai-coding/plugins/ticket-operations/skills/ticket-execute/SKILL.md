@@ -229,6 +229,34 @@ and baseline `HEAD`; never steal a live or uncertain lock. Derive the claim
 owner as `ticket-execute:<first-12-hex>` of the set key, ticket ID, base
 revision, and baseline `HEAD`.
 
+Use the canonical JSON serialization defined by `ticket-create`. The set key is
+the 64 lowercase hex SHA-256 (without `sha256:`) of this exact payload:
+
+```json
+{
+  "schema": "ticket-operations/mutation-lock",
+  "schema_version": 1,
+  "set_root": "<workspace-relative POSIX ticket-set directory>",
+  "ticket_set": "sha256:<hex>",
+  "worktree": "<normalized physical absolute worktree path>"
+}
+```
+
+Resolve the physical worktree path without following a symlinked target or set
+path. The claim owner suffix is the first 12 lowercase hex characters of the
+SHA-256 of:
+
+```json
+{
+  "base_revision": 1,
+  "baseline_head": "<full commit SHA>",
+  "schema": "ticket-execute/claim-owner",
+  "schema_version": 1,
+  "set_key": "<64 lowercase hex>",
+  "ticket_id": "TKT-001"
+}
+```
+
 For each ticket at revision `r`:
 
 1. Create and sync an atomic write-ahead journal beside the lock as
