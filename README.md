@@ -16,9 +16,10 @@ make help
 
 ## Cloud Agents
 
-Cursor Cloud Agents are configured via [`.cursor/environment.json`](.cursor/environment.json),
-which runs [`.cursor/scripts/cloud-agent-bootstrap.sh`](.cursor/scripts/cloud-agent-bootstrap.sh)
-at VM boot: it installs `zsh`, `rsync`, and `shellcheck`, then syncs the
-ai-coding commands + skills into the home locations. Set
+Cloud coding agents boot via the provider-agnostic
+[`.cursor/scripts/cloud-agent-bootstrap.sh`](.cursor/scripts/cloud-agent-bootstrap.sh),
+which installs `zsh`, `rsync`, and `shellcheck`, then syncs the ai-coding
+commands + skills into the home locations. Cursor is the wired-up provider
+today, via [`.cursor/environment.json`](.cursor/environment.json). Set
 `SYNC_CLOUD_AGENT_BOOTSTRAP=1` when syncing (e.g. `make sync`) to also mirror
 the bootstrap script itself into `~/.cursor/scripts/`.

@@ -53,8 +53,8 @@ VERBOSE=0
 UNLINK=0
 MODE="copy"
 TARGETS="cursor,claude"
-# Opt-in: also mirror the Cursor Cloud Agents bootstrap script into
-# ~/.cursor/scripts/ (cursor target only). Unlink always cleans it up.
+# Opt-in: also mirror the cloud-agent bootstrap script into the home
+# locations (see usage below).
 SYNC_CLOUD_AGENT_BOOTSTRAP="${SYNC_CLOUD_AGENT_BOOTSTRAP:-0}"
 
 usage() {
@@ -85,9 +85,10 @@ Options:
 Environment:
   SYNC_CLOUD_AGENT_BOOTSTRAP=1
                Also mirror .cursor/scripts/cloud-agent-bootstrap.sh (the
-               Cursor Cloud Agents setup script) into ~/.cursor/scripts/
-               (cursor target only). --unlink removes it regardless of the
-               variable, since it only ever removes repo-derived artifacts.
+               cloud-agent environment setup script) into ~/.cursor/scripts/
+               (currently the only destination). --unlink removes it
+               regardless of the variable, since it only ever removes
+               repo-derived artifacts.
 
 Exit status:
   0  success
@@ -170,8 +171,8 @@ dest_plugin_dir() {
   esac
 }
 
-# The cloud bootstrap is Cursor-specific; other tools have no destination
-# (empty output) and callers skip it.
+# Empty output means the tool has no bootstrap destination and callers skip
+# it; add cases here as other providers grow a home-dir location for it.
 dest_cloud_bootstrap() {
   case "$1" in
     cursor) print -- "$HOME/.cursor/scripts/${SRC_CLOUD_BOOTSTRAP:t}" ;;

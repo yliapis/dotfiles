@@ -1,18 +1,20 @@
 #!/usr/bin/env bash
-# cloud-agent-bootstrap.sh — environment setup for Cursor Cloud Agents.
+# cloud-agent-bootstrap.sh — environment setup for cloud coding agents.
 #
-# Referenced by .cursor/environment.json ("install"), so Cursor runs it on
-# every cloud VM boot before the agent starts work. It must stay idempotent
-# and non-interactive: the result is snapshotted for faster future boots and
-# the script may re-run on partially cached state.
+# Provider-agnostic: any agent provider that can run a setup command at VM
+# boot can call this script. Cursor is wired up today via the "install" hook
+# in .cursor/environment.json.
+#
+# Runs before the agent starts work, so it must stay idempotent and
+# non-interactive: providers may snapshot the result and re-run the script
+# on partially cached state.
 #
 # Intentionally slimmer than ./install.sh: no Homebrew, Brewfile, or ollama.
-# The cloud VM is headless and those installs only slow down boots. This
-# installs just what the repo's own tooling needs, then mirrors the ai-coding
+# Cloud VMs are headless, and those installs only slow down boots. Installs
+# just what the repo's own tooling needs, then mirrors the ai-coding
 # commands + skills into the home locations via scripts/sync-coding-tools.sh.
-#
-# Set SYNC_CLOUD_AGENT_BOOTSTRAP=1 (e.g. as a Cloud Agents secret) to also
-# mirror this script into ~/.cursor/scripts/ during the sync step.
+# SYNC_CLOUD_AGENT_BOOTSTRAP=1 (env var or provider secret) additionally
+# mirrors this script itself; see scripts/sync-coding-tools.sh --help.
 
 set -euo pipefail
 
@@ -34,8 +36,7 @@ else
   echo "[cloud-agent-bootstrap] required packages already present"
 fi
 
-# Mirror ai-coding commands + skills into ~/.cursor and ~/.claude. Also acts
-# as a boot-time smoke test of the repo's core sync flow.
+# Doubles as a boot-time smoke test of the repo's core sync flow.
 echo "[cloud-agent-bootstrap] running scripts/sync-coding-tools.sh"
 "$REPO_ROOT/scripts/sync-coding-tools.sh"
 
