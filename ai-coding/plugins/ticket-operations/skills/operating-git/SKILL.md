@@ -1,6 +1,6 @@
 ---
 name: operating-git
-description: "Operate Git and Git-bound code changes: keep edits minimal, create Conventional Commits, and safely merge or push branches. Use when the user's primary request is a code change, commit, branch integration, or push. Do not use as the primary skill for creating, executing, or updating tickets; ticket execution composes this skill under operating-tickets."
+description: "Operate Git and Git-bound code changes: review diffs or commit messages, keep edits minimal, create Conventional Commits, and safely merge or push branches. Use when the user's primary request is a code change, Git review, commit, branch integration, or push. Do not use as the primary skill for creating, executing, or updating tickets; ticket execution composes this skill under operating-tickets."
 license: MIT
 ---
 
@@ -12,6 +12,7 @@ Route one Git-oriented request to the smallest applicable motion:
 
 | Motion | Use when | Canonical contract |
 |---|---|---|
+| `review` | Checking a proposed diff or commit message without changing files or Git state | [DIFFS.md](./DIFFS.md) and/or [COMMITS.md](./COMMITS.md), read-only |
 | `change` | Editing, fixing, refactoring, or adding code/files | [DIFFS.md](./DIFFS.md) |
 | `commit` | Staging and committing an existing or requested change | [DIFFS.md](./DIFFS.md) and [COMMITS.md](./COMMITS.md) |
 | `integrate` | Merging a branch and optionally pushing the result | [MERGE_PUSH.md](./MERGE_PUSH.md); also [COMMITS.md](./COMMITS.md) for squash commits |
@@ -22,8 +23,8 @@ the implementation minimal and create the ticket commit.
 
 ## Parameters
 
-- `{operation}` — `change` | `commit` | `integrate`; optional when the request
-  clearly selects one motion.
+- `{operation}` — `review` | `change` | `commit` | `integrate`; optional when
+  the request clearly selects one motion.
 - The integrate motion accepts `{source_branch}`, `{target_branch}`,
   `{merge_strategy}`, `{remote}`, `{commit_message}`, and `{include_push}` as
   defined in [MERGE_PUSH.md](./MERGE_PUSH.md).
@@ -34,6 +35,8 @@ the implementation minimal and create the ticket commit.
 
 - [ ] Select and report exactly one primary motion before side effects.
 - [ ] Read every canonical contract named by that motion in full.
+- [ ] The review motion reports findings only and leaves files, index, refs,
+      worktrees, and remotes unchanged.
 - [ ] Every edit is the smallest coherent change that satisfies the request and
       excludes unrelated cleanup.
 - [ ] Every created commit follows Conventional Commits, accurately describes
@@ -51,6 +54,7 @@ the implementation minimal and create the ticket commit.
 - MUST NOT broaden a requested diff with drive-by formatting, refactoring,
   comments, logging, or defensive code.
 - MUST NOT stage unrelated files or hide a dirty tree.
+- MUST NOT mutate any file or Git state in the review motion.
 - MUST NOT amend, rebase, squash, force-push, or rewrite history unless the
   user explicitly requests an operation whose canonical contract permits it.
 - MUST NOT infer ticket completion, update ticket status, or repair a ticket
@@ -62,13 +66,15 @@ the implementation minimal and create the ticket commit.
 1. **Classify.** Resolve `{operation}` from the explicit value or the primary
    Git object/action. Ask one focused question only when motion choice changes
    side effects materially.
-2. **Load.** Read `DIFFS.md` for change/commit, `COMMITS.md` for commit and
-   squash integration, and `MERGE_PUSH.md` for integration.
+2. **Load.** Read the applicable review contract, `DIFFS.md` for change/commit,
+   `COMMITS.md` for commit and squash integration, and `MERGE_PUSH.md` for
+   integration.
 3. **Validate.** Inspect relevant files and Git state, then apply every
    selected contract's fail-fast checks.
-4. **Operate.** Make the minimal change, commit it, or integrate it according
-   to the selected motion. When called by ticket execution, return control
-   before any merge or push so the ticket transaction can finalize.
+4. **Operate.** Review without mutation, make the minimal change, commit it, or
+   integrate it according to the selected motion. When called by ticket
+   execution, return control before any merge or push so the ticket transaction
+   can finalize.
 5. **Report.** Prefix and preserve the canonical motion report, including diff
    scope, commit SHA/message, branch SHAs, merge strategy, push result, and any
    inspectable failure state.
@@ -77,7 +83,7 @@ the implementation minimal and create the ticket commit.
 
 - Ticket creation, execution, lifecycle, metadata, or projection:
   `operating-tickets`.
-- Parallel isolated attempts or worktree orchestration: `agent-swarm` or
+- Multiple parallel attempts: `agent-swarm`; one isolated worktree task:
   `worktree-task`.
 - Pull-request creation/review and remote issue trackers: their dedicated
   tooling, only when explicitly requested.
