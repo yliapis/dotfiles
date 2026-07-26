@@ -60,8 +60,9 @@ them.
 
 - `{topology}` (agent-swarm) — the arrangement of the `candidate_count`
   members: `parallel` (default — one wave of independent members) |
-  `partitioned` (`partition_count` independent groups, each selected within
-  before the global pass) | `staged` (`partition_count` sequential waves, each
+  `partitioned` (`partition_count` groups that share a model slice, each
+  selected within before the global pass) | `staged` (`partition_count`
+  sequential waves, each
   wave after the first receiving the previous wave's summaries as text) |
   `pipeline` (a chain of single-member stages, stage *i* forking from stage
   *i-1*'s branch). Orthogonal to `candidate_count` (how many) and
