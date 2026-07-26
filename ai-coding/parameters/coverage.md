@@ -43,7 +43,7 @@ sources.
 | `{target}` | [`context`](concerns/intent.md#context) | intent |
 | `{trait_map}` | [`trait_map`](concerns/composition.md#trait_map) | composition |
 
-### [merge-commit-push](../commands/merge-commit-push.md)
+### [merge-commit-push](../plugins/ticket-operations/commands/merge-commit-push.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|

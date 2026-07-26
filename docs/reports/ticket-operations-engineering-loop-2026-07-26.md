@@ -102,22 +102,43 @@ branches:
 
 No exercised defect remains open.
 
+## Two-Skill Routing Validation
+
+After consolidating to two activation surfaces, three independent read-only
+routing trials classified the same 12 prompts. All three agreed on:
+
+- ticket source → `operating-tickets/create`;
+- ticket implementation → `operating-tickets/execute`, composing Git change
+  and commit;
+- ticket state/definition/projection → `operating-tickets/update`;
+- generic code, commit, and merge/push work → `operating-git`;
+- tracker and multi-agent requests → their dedicated deferrals; and
+- ticket execution followed by merge/push → ordered ticket execute, then Git
+  integrate.
+
+The first routing pass found that commit-message inspection lacked a read-only
+motion. `operating-git/review` was added; the next pass found and fixed its
+missing report-prefix value. The final three trials passed all 12 cases, lazy
+contract loading, primary-object ownership, deferrals, and all seven motion
+prefixes.
+
 ## Structural Validation
 
 Final automated checks:
 
 ```text
-PASS json=12 plugins=5 skills=15 commands=9 mirrors=3 links=2
-PASS ticket-operations manifests, schemas, lifecycle vocabulary, and supersession
+PASS json=12 plugins=5 skills=12 commands=9 mirrors=3 links=18
+PASS ticket-operations exposes exactly operating-tickets and operating-git
+PASS six motion contracts, compatibility routes, schemas, and lifecycle markers
 PASS ticket parameter coverage links resolve
 PASS live parameter cards contain no superseded ticket-breakdown references
 ```
 
 Portable sync dry-runs passed for all six tool/type combinations:
 
-- Cursor skills and commands: 15 / 9;
-- Claude skills and commands: 15 / 9; and
-- OpenCode skills and commands: 15 / 9.
+- Cursor skills and commands: 12 / 9;
+- Claude skills and commands: 12 / 9; and
+- OpenCode skills and commands: 12 / 9.
 
 The VM bootstrap did not install `zsh`, `rsync`, or `shellcheck` because package
 metadata was rejected by the VM's clock, so the zsh/rsync-backed primary sync
@@ -126,7 +147,7 @@ validation both passed without writes.
 
 ## Result
 
-The merged plugin exposes one coherent local-ticket lifecycle, preserves the
-minimal-diff and Conventional Commit delivery primitives, keeps the old slash
-command as a fail-closed compatibility route, and removes the overlapping
-`ticket-breakdown` activation surface.
+The merged plugin exposes exactly two skills: `operating-tickets` owns the
+ticket lifecycle, and `operating-git` owns reviews, changes, commits, merges,
+and pushes. Detailed behavior remains in six lazily loaded motion contracts;
+the old slash commands are fail-closed compatibility routes.
