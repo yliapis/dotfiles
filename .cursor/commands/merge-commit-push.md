@@ -1,0 +1,1 @@
+../../ai-coding/plugins/git-delivery/commands/merge-commit-push.md

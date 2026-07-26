@@ -1,0 +1,1 @@
+../../ai-coding/plugins/design-suite/commands/designer.md

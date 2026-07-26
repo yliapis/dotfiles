@@ -1,0 +1,1 @@
+../../ai-coding/plugins/writing/commands/critique.md
