@@ -1,8 +1,8 @@
 # Parameter Wiki
 
 Canonical, concern-first reference, intended to cover every parameter declared
-by the AI-coding commands ([`ai-coding/commands/`](../commands/)) and skills
-([`ai-coding/skills/`](../skills/)). One page per concern; one card per
+by the commands and skills carried by the five plugins under
+[`ai-coding/plugins/`](../plugins/). One page per concern; one card per
 cross-artifact parameter concept. This wiki documents **today's live surface
 only** — aspirational parameters and tooling ideas live in [future.md](future.md).
 

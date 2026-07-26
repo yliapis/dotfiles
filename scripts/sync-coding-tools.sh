@@ -170,8 +170,8 @@ trap 'append_log $?' EXIT
 
 # --- copy-mode (rsync) ----------------------------------------------------
 #
-# -aL: archive + dereference symlinks (the .cursor-plugin/.claude-plugin
-# marketplace.json entries are symlinks; we want real files at the dest).
+# -aL: archive + dereference symlinks, so a symlinked source lands as a real
+# file at the destination rather than a link back into the repo.
 # --itemize-changes: one summary line per change so dry-run output is useful.
 
 typeset -a RSYNC_BASE

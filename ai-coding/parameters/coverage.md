@@ -4,14 +4,13 @@ Per-artifact index, intended to cover every declared parameter: each is mapped
 to its canonical card (or its artifact-specific entry) and concern file.
 Spellings are exactly as they appear in each artifact.
 
-The same artifacts are mirrored in `ai-coding/plugins/ai-coding/` and in the
-repo-root `.cursor/{commands,skills}/` and `.claude/{commands,skills}/`; this wiki tracks the
-[`ai-coding/commands/`](../commands/) and [`ai-coding/skills/`](../skills/)
-sources.
+This wiki tracks the sources under [`ai-coding/plugins/`](../plugins/), where
+each artifact belongs to exactly one of the five plugins. The sync scripts
+mirror the same artifacts into the per-tool home directories.
 
 ## Commands
 
-### [critique](../commands/critique.md)
+### [critique](../plugins/writing/commands/critique.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -22,7 +21,7 @@ sources.
 | `{num_experiments}` | [`candidate_count`](concerns/replication.md#candidate_count) | replication |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [meta-prompt](../commands/meta-prompt.md)
+### [meta-prompt](../plugins/writing/commands/meta-prompt.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -35,7 +34,7 @@ sources.
 | `{k}` | [`concurrency`](concerns/replication.md#concurrency) | replication |
 | `--interactive` / `-i` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [designer](../commands/designer.md)
+### [designer](../plugins/design-suite/commands/designer.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -43,7 +42,7 @@ sources.
 | `{target}` | [`context`](concerns/intent.md#context) | intent |
 | `{trait_map}` | [`trait_map`](concerns/composition.md#trait_map) | composition |
 
-### [merge-commit-push](../commands/merge-commit-push.md)
+### [merge-commit-push](../plugins/git-delivery/commands/merge-commit-push.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -54,7 +53,7 @@ sources.
 | `{commit_message}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `{include_push}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 
-### [wrap-up](../commands/wrap-up.md)
+### [wrap-up](../plugins/session-state/commands/wrap-up.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -72,7 +71,7 @@ sources.
 | `{save_trajectory}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [address-worklist-commit-loop](../commands/address-worklist-commit-loop.md)
+### [address-worklist-commit-loop](../plugins/git-delivery/commands/address-worklist-commit-loop.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -92,7 +91,7 @@ sources.
 | `{max_items}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
 | `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 
-### [save-session-state](../commands/save-session-state.md)
+### [save-session-state](../plugins/session-state/commands/save-session-state.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -104,7 +103,7 @@ sources.
 | `{include_sections}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [soft-shutdown](../commands/soft-shutdown.md)
+### [soft-shutdown](../plugins/session-state/commands/soft-shutdown.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -116,7 +115,7 @@ sources.
 | `{allow_unpushed}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [ralph-design](../commands/ralph-design.md)
+### [ralph-design](../plugins/design-suite/commands/ralph-design.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -135,7 +134,7 @@ sources.
 
 ## Skills
 
-### [worktree-task](../skills/worktree-task/SKILL.md)
+### [worktree-task](../plugins/orchestration/skills/worktree-task/SKILL.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -151,7 +150,7 @@ sources.
 | `{num_partitions}` | [`partition_count`](concerns/replication.md#partition_count) | replication |
 | `{stop_condition}` | [`stop_condition`](concerns/constraints.md#stop_condition) | constraints |
 
-### [agent-swarm](../skills/agent-swarm/SKILL.md)
+### [agent-swarm](../plugins/orchestration/skills/agent-swarm/SKILL.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -168,7 +167,7 @@ sources.
 | `{cost_cap}` | artifact-specific | [robustness](concerns/robustness.md#agent-swarm) |
 | `{pattern}` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
 
-### [design-skill](../skills/design-skill/SKILL.md)
+### [design-skill](../plugins/design-suite/skills/design-skill/SKILL.md)
 
 Knobs are unbraced `key=value` tokens.
 
@@ -183,7 +182,7 @@ Knobs are unbraced `key=value` tokens.
 | `use_worktree` | [`use_worktree`](concerns/isolation.md#use_worktree) | isolation |
 | `max_iterations` | [`max_iterations`](concerns/constraints.md#max_iterations) | constraints |
 
-### [designer-controller](../skills/designer-controller/SKILL.md)
+### [designer-controller](../plugins/design-suite/skills/designer-controller/SKILL.md)
 
 Knobs are unbraced `key=value` tokens.
 
@@ -203,13 +202,13 @@ Knobs are unbraced `key=value` tokens.
 | `max_iterations` | [`max_iterations`](concerns/constraints.md#max_iterations) | constraints |
 | `agent_model` | [`agent_model`](concerns/models.md#agent_model) | models |
 
-### [prompt-template-library](../skills/prompt-template-library/SKILL.md)
+### [prompt-template-library](../plugins/writing/skills/prompt-template-library/SKILL.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `--interactive-template` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [trajectory-snapshot](../skills/trajectory-snapshot/SKILL.md)
+### [trajectory-snapshot](../plugins/session-state/skills/trajectory-snapshot/SKILL.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -217,7 +216,7 @@ Knobs are unbraced `key=value` tokens.
 | `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 | `{coding_tool}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 
-### [ticket-breakdown](../skills/ticket-breakdown/SKILL.md)
+### [ticket-breakdown](../plugins/git-delivery/skills/ticket-breakdown/SKILL.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
@@ -238,7 +237,7 @@ Four skills declare no parameters, knobs, or flags — they activate
 contextually (or are invoked manually) and are procedural rather than
 knob-driven:
 
-- [conventional-commits](../skills/conventional-commits/SKILL.md)
-- [minimal-diffs](../skills/minimal-diffs/SKILL.md)
-- [declarative-design](../skills/declarative-design/SKILL.md)
-- [deterministic-design](../skills/deterministic-design/SKILL.md)
+- [conventional-commits](../plugins/git-delivery/skills/conventional-commits/SKILL.md)
+- [minimal-diffs](../plugins/git-delivery/skills/minimal-diffs/SKILL.md)
+- [declarative-design](../plugins/design-suite/skills/declarative-design/SKILL.md)
+- [deterministic-design](../plugins/design-suite/skills/deterministic-design/SKILL.md)
