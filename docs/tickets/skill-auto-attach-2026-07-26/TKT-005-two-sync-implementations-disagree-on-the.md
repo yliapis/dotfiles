@@ -5,10 +5,10 @@ ticket_set: "sha256:8de3aaef2b9550a73e1c703c3e2e63d9ef162acaa040ecd60d55338481da
 id: "TKT-005"
 fingerprint: "sha256:ba1fa2096dcdd4b9c0687bf7de21482d8aeb6d68f2fd6e960c1138cd8220ca5e"
 title: "Two sync implementations disagree on the Cursor skills destination"
-status: "open"
+status: "done"
 status_reason: null
 owner: null
-revision: 1
+revision: 3
 type: "refactor"
 severity: "minor"
 priority: "P2"
@@ -55,8 +55,8 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 
-- [ ] Exactly one sync implementation ships, or the unreferenced one is deleted
-- [ ] No two files in the repository name different Cursor skill destinations
+- [x] Exactly one sync implementation ships, or the unreferenced one is deleted
+- [x] No two files in the repository name different Cursor skill destinations
 
 ## Dependencies
 
