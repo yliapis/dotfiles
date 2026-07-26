@@ -10,7 +10,7 @@ walkthrough).
 
 ### `interactive`
 - **Aliases:** `-i` / `--interactive` (critique, meta-prompt, wrap-up,
-  save-session-state, soft-shutdown, ticket-create),
+  save-session-state, soft-shutdown, operating-tickets create),
   `--interactive-template` (prompt-template-library)
 - **Applies to:** command, skill
 - **Type:** boolean flag; bare token, no value (`key=value` form rejected
@@ -29,19 +29,19 @@ walkthrough).
   | save-session-state | asks before overwriting an existing `{output_path}` (otherwise an existing target aborts) |
   | soft-shutdown | asks about ambiguous session scope (otherwise unresolved scope is recorded as a blocker) |
   | prompt-template-library | presents the template catalog and lets the user pick, instead of auto-selecting by score |
-  | ticket-create | presents the validated ticket plan for approval before atomic publication (otherwise ambiguities go to Open Questions and the plan is not gated) |
+  | operating-tickets create | presents the validated ticket plan for approval before atomic publication (otherwise ambiguities go to Open Questions and the plan is not gated) |
 
 - **Propagation:** meta-prompt passes the same flag setting to its spawned
   variant agents.
 - **Used by:** critique, meta-prompt, wrap-up, save-session-state,
-  soft-shutdown, prompt-template-library, ticket-create
+  soft-shutdown, prompt-template-library, operating-tickets (create)
 
 ### `approval_mode`
-- **Aliases:** `mode` (ticket-execute, ticket-update,
+- **Aliases:** `mode` (operating-tickets execute/update,
   address-worklist-commit-loop compatibility command, ralph-design)
 - **Applies to:** command, skill
-- **Type:** ticket-execute and the compatibility command:
-  `interactive` | `non-interactive` | `force-approve-all`; ticket-update:
+- **Type:** operating-tickets execute and the compatibility command:
+  `interactive` | `non-interactive` | `force-approve-all`; its update motion:
   `interactive` | `non-interactive`; ralph-design uses its documented loop
   values.
 - **Default:** `interactive`
@@ -50,7 +50,7 @@ walkthrough).
   `non-interactive`, and nothing in `force-approve-all`. Ticket update binds
   interactive approval to a plan digest; non-interactive mutation requires
   that digest through `{approve}`.
-- **Used by:** ticket-execute, ticket-update,
+- **Used by:** operating-tickets (execute/update),
   address-worklist-commit-loop (relayed), ralph-design
 
 ### `authoring_mode`

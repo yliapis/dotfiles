@@ -1,10 +1,6 @@
----
-name: conventional-commits
-description: "Format git commit messages following Conventional Commits 1.0.0 specification. Use when the user asks to commit changes, create a git commit, or mentions committing code. Ensures consistent, semantic commit messages that support automated changelog generation and semantic versioning."
-license: MIT
----
+# Commit Contract
 
-# Conventional Commits
+Loaded by the `operating-git` commit motion and by squash integration.
 
 Format all git commit messages according to the [Conventional Commits 1.0.0](https://www.conventionalcommits.org/) specification.
 

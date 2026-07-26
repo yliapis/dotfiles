@@ -1,7 +1,7 @@
 {
   "name": "ticket-operations",
-  "version": "0.2.0",
-  "description": "Create, execute, update, and deliver local Markdown tickets with minimal diffs and conventional commits.",
+  "version": "0.3.0",
+  "description": "Operate local Markdown tickets and Git delivery through two focused skills.",
   "author": { "name": "yliapis" },
   "repository": "https://github.com/yliapis/dotfiles",
   "license": "MIT"

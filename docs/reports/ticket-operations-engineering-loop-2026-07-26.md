@@ -28,14 +28,14 @@ cross-plugin dependency while preserving their broader use.
 
 | Skill | Owns | Explicitly does not own |
 |---|---|---|
-| `ticket-create` | deterministic source normalization, ticket rendering, set identity, initial worklist | implementation, lifecycle edits, trackers |
-| `ticket-execute` | runnable selection, implementation, runtime evidence, lifecycle completion, one commit per ticket | definition edits, fan-out, remotes |
-| `ticket-update` | explicit definition/lifecycle patches, projection repair, legacy completion proposals | implementation or acceptance execution |
+| `operating-tickets` | create, execute, and update motions for local ticket sets | generic Git operations and trackers |
+| `operating-git` | minimal changes, Conventional Commits, merge, and push motions | ticket lifecycle and worklist authority |
 
 Ticket frontmatter is authoritative. `WORKLIST.md` is a validated projection.
-All three skills share schema version 1, stable `ticket_set` lineage,
-definition fingerprints, compare-before-write revisions, one mutation lock,
-and journaled recovery.
+The `operating-tickets` motion contracts share schema version 1, stable
+`ticket_set` lineage, definition fingerprints, compare-before-write revisions,
+one mutation lock, and journaled recovery. Its execute motion composes
+`operating-git` for the implementation diff and commit.
 
 ## Swarm Authoring Loop
 
@@ -49,33 +49,33 @@ The repository's `agent-swarm` policy was applied with:
 
 | Skill | Candidate runs | Synthesis result |
 |---|---:|---|
-| `ticket-create` | 3 | ticket-file lifecycle authority, deterministic set reuse, atomic publication |
-| `ticket-execute` | 3 plus one replacement for an isolation failure | tracked/local persistence, provisional claim transaction, evidence-bound single commits |
-| `ticket-update` | 3 isolated worktrees | stable lineage, explicit patch schema, zero-revision projection repair, strict legacy import |
+| `operating-tickets/create` | 3 | ticket-file lifecycle authority, deterministic set reuse, atomic publication |
+| `operating-tickets/execute` | 3 plus one replacement for an isolation failure | tracked/local persistence, provisional claim transaction, evidence-bound single commits |
+| `operating-tickets/update` | 3 isolated worktrees | stable lineage, explicit patch schema, zero-revision projection repair, strict legacy import |
 
 The first swarm runner placed two members in the calling checkout despite the
 `worktree-task` isolation contract. Their candidate snapshots were preserved,
 the collided member stopped without overwriting, and the missing execution
-candidate was replaced in an explicitly created worktree. All three
-`ticket-update` candidates ran in pre-created isolated worktrees.
+candidate was replaced in an explicitly created worktree. All three update
+motion candidates ran in pre-created isolated worktrees.
 
 ## Behavioral Trial Matrix
 
-Each finalized skill ran three end-to-end scenarios in isolated worktrees.
-Skills are procedural Markdown, so the trials applied their contracts directly
-and used independent parsers/hashers to validate persisted bytes.
+Each finalized ticket motion ran three end-to-end scenarios in isolated
+worktrees. The contracts are procedural Markdown, so the trials applied them
+directly and used independent parsers/hashers to validate persisted bytes.
 
 | Skill | Trial | Result | Evidence |
 |---|---|---|---|
-| create | render two findings into native tickets | PASS | schemas, source refs, fingerprints, ticket count, projection, accounting |
-| create | merge, split, filter, and account source items | PASS after two specification feedback loops | exact payloads, multi-ID outcomes, byte-identical reuse |
-| create | reuse, collision rejection, and deterministic new-set path | PASS | unchanged hashes/mtimes, hash suffix, no numeric fallback |
-| execute | successful local ticket implementation | PASS | one commit, fresh evidence, `open@1 -> done@3`, state-hash footers |
-| execute | supplemental verifier failure | PASS | no commit, exact tree/index/ticket/worklist rollback to `open@1` |
-| execute | dependency-ordered two-ticket execution and rerun | PASS | two linear commits, done projections, zero-work `already-done` rerun |
-| update | definition edit with local audit commit | PASS | changed fingerprint, stable lineage, revision 2, hash-bound receipt/replay |
-| update | dependency and evidence-gated lifecycle transitions | PASS after evidence-schema feedback | rejected premature claim, `TKT-001 done@3`, dependent claim allowed |
-| update | inspect/discard/unsafe-import legacy marker drift | PASS after preflight feedback | read-only inspect, zero-revision repair, byte-identical rejection |
+| tickets/create | render two findings into native tickets | PASS | schemas, source refs, fingerprints, ticket count, projection, accounting |
+| tickets/create | merge, split, filter, and account source items | PASS after two specification feedback loops | exact payloads, multi-ID outcomes, byte-identical reuse |
+| tickets/create | reuse, collision rejection, and deterministic new-set path | PASS | unchanged hashes/mtimes, hash suffix, no numeric fallback |
+| tickets/execute | successful local ticket implementation | PASS | one commit, fresh evidence, `open@1 -> done@3`, state-hash footers |
+| tickets/execute | supplemental verifier failure | PASS | no commit, exact tree/index/ticket/worklist rollback to `open@1` |
+| tickets/execute | dependency-ordered two-ticket execution and rerun | PASS | two linear commits, done projections, zero-work `already-done` rerun |
+| tickets/update | definition edit with local audit commit | PASS | changed fingerprint, stable lineage, revision 2, hash-bound receipt/replay |
+| tickets/update | dependency and evidence-gated lifecycle transitions | PASS after evidence-schema feedback | rejected premature claim, `TKT-001 done@3`, dependent claim allowed |
+| tickets/update | inspect/discard/unsafe-import legacy marker drift | PASS after preflight feedback | read-only inspect, zero-revision repair, byte-identical rejection |
 
 Representative execution commits produced only inside disposable trial
 branches:

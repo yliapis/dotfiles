@@ -21,7 +21,7 @@ ticket execution and update share journal recovery semantics.
   the projection exceeds the cap, the skill proposes a smaller
   `{num_agents}` and waits for user approval — it never silently shrinks.
 
-## ticket-execute
+## operating-tickets execute
 
 - `{on_failure}` — after guarded rollback, `abort` (default) stops or
   `continue` revalidates the set and considers only independent runnable
@@ -30,8 +30,8 @@ ticket execution and update share journal recovery semantics.
   `resume` continues only a recognized transaction state, and `rollback`
   restores exact journaled preimages while `HEAD` permits.
 
-## ticket-update
+## operating-tickets update
 
 - `{recovery}` — the same `abort` | `resume` | `rollback` surface, scoped to a
-  valid ticket-update journal. Resume never consumes another revision or
+  valid update-motion journal. Resume never consumes another revision or
   approval; rollback never rewrites a committed transaction.

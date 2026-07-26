@@ -1,10 +1,7 @@
----
-name: minimal-diffs
-description: "Apply minimal, surgical changes when creating, editing, modifying, refactoring, or fixing any file. Use whenever making code edits, to avoid noisy diffs, unrelated reformatting, drive-by cleanups, defensive checks the user did not request, comments that narrate code, or any change beyond what the task literally requires."
-license: MIT
----
+# Change Contract
 
-# Minimal Diffs
+Loaded by the `operating-git` change and commit motions, and by
+`operating-tickets` while executing a ticket.
 
 Default to the smallest change that satisfies the request. A noisy diff makes review harder than the change itself, and most reviewer fatigue comes from edits that weren't asked for.
 

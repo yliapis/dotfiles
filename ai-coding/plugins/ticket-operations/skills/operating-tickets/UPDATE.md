@@ -1,21 +1,14 @@
----
-name: ticket-update
-description: "Update lifecycle state or definitions in an existing native local ticket set, reconcile its managed WORKLIST.md projection, or import explicitly approved legacy completion proposals. Use for ticket status, owner, reason, metadata, body, acceptance, or dependency changes. Do not use to create tickets, implement work, verify acceptance, or operate a tracker."
-license: MIT
----
+# Update Tickets Contract
 
-# Ticket Update
-
-## Activation
-
-Use this skill only for an existing local set whose tickets declare
+Loaded by the `operating-tickets` `update` motion only for an existing local set
+whose tickets declare
 `ticket-operations/ticket` schema version `1` and whose managed `WORKLIST.md`
 declares `ticket-operations/worklist` schema version `1`.
 
-Use `ticket-create` for a new set and `ticket-execute` to implement or verify a
-ticket. Do not activate this skill for tracker records, unchecked prose tasks,
-implementation edits, acceptance execution, or a request that merely asks what
-to change.
+Route new-set requests to the create motion and implementation/verification to
+the execute motion. Do not use update for tracker records, unchecked prose
+tasks, implementation edits, acceptance execution, or a request that merely
+asks what to change.
 
 ## Task
 
@@ -106,8 +99,9 @@ before side effects.
 
 ## Guardrails
 
-- MUST read and apply the live `ticket-create` version-1 schema, fingerprint,
-  body, lifecycle, and worklist contracts. Fail closed on unknown versions.
+- MUST read and apply [CREATE.md](./CREATE.md)'s live version-1 schema,
+  fingerprint, body, lifecycle, and worklist contracts. Fail closed on unknown
+  versions.
 - MUST NOT change `schema`, `schema_version`, `ticket_set`, `id`, `source`, or
   `source_fingerprint`; rename ticket files; reorder manifest rank; or rewrite
   Item Accounting.
@@ -119,7 +113,7 @@ before side effects.
   the managed set. Lock, journal, receipt, and optional commit metadata are the
   only non-set writes.
 - MUST NOT overwrite unknown concurrent state, steal a live or uncertain lock,
-  adopt an unjournaled claim, or recover a `ticket-execute` transaction.
+  adopt an unjournaled claim, or recover an execute-motion transaction.
 - MUST preserve unknown `extensions` keys. Update them only through an explicit
   RFC 7396 merge patch; `null` deletes the named key.
 - MUST apply only explicit replacements. Never paraphrase body text or infer
@@ -247,8 +241,8 @@ mismatches, unavailable refs, and evidence for an index that neither becomes
 checked nor supports a `done` transition.
 
 Any change to a definition-owned frontmatter field, dependency, criterion
-text, or body byte recomputes that ticket's fingerprint using the
-`ticket-create` algorithm. Lifecycle and extension changes preserve the
+text, or body byte recomputes that ticket's fingerprint using CREATE.md's
+algorithm. Lifecycle and extension changes preserve the
 fingerprint. One entry with any effective combination of allowed changes is
 one native mutation and moves `revision: r` to `r+1`. An identical replacement
 is not effective.
@@ -293,7 +287,7 @@ different ticket entry in the same update cannot satisfy that gate.
 
 For an `in_progress` ticket, require top-level `expected_owner` to match.
 Marker-only updates, lifecycle transitions, or explicit owner reassignment may
-proceed when no live `ticket-execute` journal exists. Any definition, body,
+proceed when no live execute-motion journal exists. Any definition, body,
 dependency, acceptance text, or extension edit must also set
 `abandon_claim: true` and transition to `open`; it resets markers.
 
@@ -364,8 +358,8 @@ of the request, baseline hashes, and prospective hashes as the plan digest.
 Interactive mode approves that exact digest; non-interactive mutation requires
 the same value in `{approve}`.
 
-Before ordinary projection validation, detect unresolved `ticket-execute` and
-`ticket-update` journals and direct recovery to their owning skill. After
+Before ordinary projection validation, detect unresolved execute- and
+update-motion journals and direct recovery to their owning motion. After
 approval, derive a set key from canonical JSON containing the real
 worktree path, set-root path, and `ticket_set`. Acquire the same OS-released
 per-set mutation lock used by ticket execution at

@@ -1,14 +1,7 @@
----
-name: ticket-execute
-description: "Execute open runnable tickets from a native local Markdown ticket set, verify acceptance with runtime evidence, update authoritative lifecycle state and WORKLIST.md, and create exactly one traceable Conventional Commit per successful ticket. Use when the user asks to implement a ticket, execute the next ticket, or work through selected tickets. Do not use for ticket creation, trackers, remotes, or checkbox-only tasks."
-license: MIT
----
+# Execute Tickets Contract
 
-# Ticket Execute
-
-## Activation
-
-Use this skill only for local tickets created under the
+Loaded by the `operating-tickets` `execute` motion only for local tickets under
+the
 `ticket-operations/ticket` schema. It supersedes
 `address-worklist-commit-loop` for native ticket sets.
 
@@ -91,8 +84,8 @@ Unknown parameters or invalid values abort before side effects.
 
 ## Guardrails
 
-- MUST read and apply the live `ticket-create` version-1 schema and identity
-  contracts. Fail closed on unknown schema names or versions.
+- MUST read and apply [CREATE.md](./CREATE.md)'s live version-1 schema and
+  identity contracts. Fail closed on unknown schema names or versions.
 - MUST require the safe tracked/local baseline defined by preflight, an empty
   index, named branch, configured commit identity, and no merge, rebase,
   cherry-pick, revert, or bisect in progress. Explicit recovery of this
@@ -145,7 +138,7 @@ read-only snapshot:
    marker is valid. `revision` is a positive integer. `owner` is non-null
    exactly for `in_progress`; `status_reason` is non-null exactly for
    `blocked` and `cancelled`; a `done` ticket has all criteria checked.
-5. Recompute every ticket `fingerprint` exactly as `ticket-create` specifies:
+5. Recompute every ticket `fingerprint` exactly as CREATE.md specifies:
    canonical definition data, acceptance markers normalized to unchecked, and
    lifecycle fields, `ticket_set`, and extensions excluded. It MUST match the
    ticket and manifest.
@@ -222,14 +215,14 @@ mode their final files enter the commit; in `local` mode their exact final
 bytes remain local and are bound to the commit by state-hash footers. After
 plan approval, compute a set key from canonical JSON containing the worktree
 path, set-root path, and `ticket_set`. Acquire the shared per-set mutation lock
-used by `ticket-execute` and `ticket-update` at
+used by the execute and update motions at
 `$(git rev-parse --git-path ticket-execute)/<set-key>/lock` and rerun
 preflight. Record host, PID plus process-start identity, invocation ID, branch,
 and baseline `HEAD`; never steal a live or uncertain lock. Derive the claim
 owner as `ticket-execute:<first-12-hex>` of the set key, ticket ID, base
 revision, and baseline `HEAD`.
 
-Use the canonical JSON serialization defined by `ticket-create`. The set key is
+Use the canonical JSON serialization defined by CREATE.md. The set key is
 the 64 lowercase hex SHA-256 (without `sha256:`) of this exact payload:
 
 ```json
@@ -278,9 +271,10 @@ For each ticket at revision `r`:
    the worklist with `[>]`, `in_progress`, and `r+1`. Advance the write-ahead
    journal around each replacement so a torn pair is recognizable.
 3. **Implement.** Before editing a path, journal its baseline object/mode/hash
-   or absence. Apply only the smallest coherent ticket change, following
-   `minimal-diffs`. After every tool or command, inspect and register produced
-   paths; unexplained or out-of-scope changes fail the ticket.
+   or absence. Apply only the smallest coherent ticket change, following the
+   `operating-git` [change contract](../operating-git/DIFFS.md). After every
+   tool or command, inspect and register produced paths; unexplained or
+   out-of-scope changes fail the ticket.
 4. **Verify.** Stage only registered implementation paths, record the index-tree
    hash, and exercise changed behavior with the narrowest existing
    repository-native tests or end-to-end actions, then run `{verify_command}`
@@ -373,8 +367,8 @@ After proven rollback, `abort` stops and `continue` revalidates before the next
 independent ticket. A failed ticket remains `open@r`, produces no commit, and
 cannot satisfy a dependent.
 
-On startup, detect unresolved `ticket-update` journals before normal projection
-validation; stop and direct recovery to `ticket-update`. Handle a valid
+On startup, detect unresolved update-motion journals before normal projection
+validation; stop and direct recovery to the update motion. Handle a valid
 interrupted execution journal according to `{recovery}`:
 
 - `abort` reports phase, owner, baseline, and safe choices without mutation.
