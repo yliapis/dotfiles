@@ -5,10 +5,10 @@ ticket_set: "sha256:8de3aaef2b9550a73e1c703c3e2e63d9ef162acaa040ecd60d55338481da
 id: "TKT-006"
 fingerprint: "sha256:ee22bc343a7060f4079f4109b498573b5e1a6a914fb80238bd5f4fb4d499f4d4"
 title: "The committed skills index points at a path that no longer exists"
-status: "open"
+status: "done"
 status_reason: null
 owner: null
-revision: 1
+revision: 3
 type: "docs"
 severity: "minor"
 priority: "P2"
@@ -52,8 +52,8 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 
-- [ ] An index lists all 15 skills at their current `ai-coding/plugins/*/skills/<name>/SKILL.md` paths
-- [ ] The index is produced by a committed target, or is deleted in favour of a command that enumerates the skills directly
+- [x] An index lists all 15 skills at their current `ai-coding/plugins/*/skills/<name>/SKILL.md` paths
+- [x] The index is produced by a committed target, or is deleted in favour of a command that enumerates the skills directly
 
 ## Dependencies
 
