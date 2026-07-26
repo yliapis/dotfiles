@@ -17,7 +17,7 @@ This skill is the policy layer above `.cursor/skills/worktree-task/SKILL.md`. It
 - `{num_agents}` (aliases: `{n}`, `{num}`) — total agents to spawn; required; integer `>= 2`. A "swarm" of `1` is a single agent; refuse and recommend a direct `worktree-task` invocation instead.
 - `{topology}` — how the `{num_agents}` members are arranged: `parallel` (one wave of independent members), `partitioned` (independent groups), `staged` (sequential waves, each informed by the previous one), or `pipeline` (a chain of single-member stages, each forking from its predecessor's branch); optional, default: `parallel`. See the Topology Catalog for per-topology dispatch, validation, and selection rules.
 - `--preview-swarm-topology[=<format>]` — flag; when present, render the resolved topology as a diagram in the `### Topology Preview` section before the first worktree is created. `<format>` is `mermaid` (default — one fenced ` ```mermaid ` block), `ascii`, or `both`; the bare flag means `mermaid`. Render-only: it never gates dispatch and never changes the plan.
-- `{parallel_agents}` (aliases: `{p}`, `{parallel}`) — concurrency cap on members running simultaneously; optional, default: `{num_agents}` (full parallelism). MUST be an integer in `1..{num_agents}`. Maps to worktree-task's `{concurrency}` at dispatch; the total member count `{num_agents}` maps to its `{parallelism}`. Under `{topology} = staged` the cap applies within a wave; under `{topology} = pipeline` it resolves to `1` and an explicitly-set value above `1` is a validation error.
+- `{parallel_agents}` (aliases: `{p}`, `{parallel}`) — concurrency cap on members running simultaneously; optional, default: `{num_agents}` (full parallelism). MUST be an integer in `1..{num_agents}`. Maps to worktree-task's `{concurrency}` at dispatch; the total member count `{num_agents}` maps to its `{parallelism}`. Under `{topology} = staged` the cap applies within a wave; under `{topology} = pipeline` it resolves to `1`, and an invocation that names it with a value above `1` is a validation error.
 - `{model_mix}` — model-assignment shape: `broadcast` (one model to all), `per-agent` (list of length `{num_agents}`), or `per-partition` (list of length `{num_partitions}` broadcast across contiguous slices); optional, default: `broadcast` with the parent agent's model.
 - `{num_partitions}` — contiguous grouping of member slots, serving both per-partition model assignment and the `partitioned` / `staged` topologies from one value; optional with default `{num_agents}` when only `{model_mix} = per-partition` needs it, required with no default when `{topology}` is `partitioned` or `staged` (then MUST be an integer in `2..{num_agents}`). MUST divide `{num_agents}` evenly.
 - `{selection_modes}` — list (any subset) of: `manual`, `auto-best`, `synthesize`, `vote`, `hybrid`, `tournament`, `consensus`. Every listed mode runs in parallel over the surviving members and produces its own outcome block; optional, default: `auto` (every mode whose prerequisites are met given the other parameters and whose rule the resolved `{topology}` supports; skipped modes are listed in the report with the missing prerequisite or the topology reason).
@@ -138,7 +138,7 @@ Branch names stay unique because every wave and stage carries its own `{worktree
 
 - `{topology}` MUST be one of `parallel`, `partitioned`, `staged`, `pipeline`.
 - `partitioned` and `staged` MUST carry an explicit `{num_partitions}` in `2..{num_agents}` that divides `{num_agents}` evenly.
-- `pipeline` resolves `{parallel_agents}` to `1`; an explicitly-set `{parallel_agents} > 1` is a validation error rather than a silent serialization.
+- `pipeline` resolves `{parallel_agents}` to `1` when the invocation leaves it out; an invocation that names `{parallel_agents}` with a value above `1` is a validation error rather than a silent serialization.
 - `{model_mix} = per-partition` and the `partitioned` / `staged` topologies share the one `{num_partitions}`; there is no second partition count to reconcile.
 - A mode the topology skips does not carry its prerequisite: `{test_command}` and `{aggregator}` are required only for the modes that actually run.
 
@@ -149,7 +149,9 @@ Branch names stay unique because every wave and stage carries its own `{worktree
 | `parallel` | every resolved mode, over the surviving members | — |
 | `partitioned` | every resolved mode, once within each partition and then once globally over the partition outcomes | — |
 | `staged` | every resolved mode, over the surviving members of every wave | — |
-| `pipeline` | `manual` and `auto-best`, ranking stage branches with the deepest passing stage winning ties | `synthesize`, `vote`, `hybrid`, `tournament`, `consensus` — `skipped: pipeline stages are cumulative, not independent candidates` |
+| `pipeline` | `manual` and `auto-best`, ranking stage branches with the deepest passing stage winning ties — that tie-break replaces the mode's diff-size one, because a later stage's branch contains every earlier stage | `synthesize`, `vote`, `hybrid`, `tournament`, `consensus` — `skipped: pipeline stages are cumulative, not independent candidates` |
+
+`{min_successes}` stays a swarm-wide floor under every topology. A `partitioned` group with no survivors reports `under-floor` in its own partition block while the other groups still report their outcomes.
 
 ### Upstream context
 
@@ -160,6 +162,8 @@ Members in a `staged` wave after the first, and in every `pipeline` stage after 
 `--preview-swarm-topology` renders the resolved plan as a diagram so the caller sees the shape before paying for it. The preview reads resolved values only — slot count, per-slot model, group / wave / stage boundaries, base branches, and the resolved selection modes — so it renders after validation and cost projection and before the first worktree.
 
 - `mermaid` (default) emits one fenced ` ```mermaid ` block; `ascii` emits one fenced plain block; `both` emits the mermaid block followed by the ascii block.
+- The root node states the topology, `{num_agents}`, the resolved `{parallel_agents}`, and the grouping count when the topology has one (partitions, waves).
+- Every slot node carries its own resolved model; group nodes carry only their label, so a `per-agent` mix and the collapse rule below render the same way under every topology.
 - Above 12 members, collapse each run of identically-configured slots into one node labeled with its slot range and count (`slots 3-12 · sonnet ×10`).
 - Skipped selection modes stay out of the diagram; the Aggregation section reports them.
 
@@ -184,18 +188,18 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  S["swarm · partitioned · n=6 · partitions=3"]
-  subgraph P1["partition 1 · opus"]
-    A1["slot 1"]
-    A2["slot 2"]
+  S["swarm · partitioned · n=6 · concurrency=6 · partitions=3"]
+  subgraph P1["partition 1"]
+    A1["slot 1 · opus"]
+    A2["slot 2 · opus"]
   end
-  subgraph P2["partition 2 · sonnet"]
-    A3["slot 3"]
-    A4["slot 4"]
+  subgraph P2["partition 2"]
+    A3["slot 3 · sonnet"]
+    A4["slot 4 · sonnet"]
   end
-  subgraph P3["partition 3 · haiku"]
-    A5["slot 5"]
-    A6["slot 6"]
+  subgraph P3["partition 3"]
+    A5["slot 5 · haiku"]
+    A6["slot 6 · haiku"]
   end
   S --> P1
   S --> P2
@@ -209,7 +213,7 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  S["swarm · staged · n=6 · waves=3"]
+  S["swarm · staged · n=6 · concurrency=2 · waves=3"]
   subgraph W1["wave 1"]
     A1["slot 1 · sonnet"]
     A2["slot 2 · sonnet"]
@@ -232,16 +236,16 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-  S["swarm · pipeline · n=3"] --> T1["stage 1 · sonnet<br/>base main"]
+  S["swarm · pipeline · n=3 · concurrency=1"] --> T1["stage 1 · sonnet<br/>base main"]
   T1 -->|"branch + summary"| T2["stage 2 · opus<br/>base stage-1 branch"]
   T2 -->|"branch + summary"| T3["stage 3 · opus<br/>base stage-2 branch"]
   T3 --> SEL{{"selection · auto-best, manual"}}
 ```
 
-The `ascii` format carries the same labels as an indented tree: the root line states topology, `{num_agents}`, and concurrency; one line per group, wave, or stage; one line per slot beneath it; and a trailing line naming the resolved selection modes.
+The `ascii` format carries the same labels as an indented tree: the root line as above; one line per group, wave, or stage; one line per slot beneath it; and a trailing line naming the resolved selection modes.
 
 ```
-swarm · staged · n=6 · waves=3
+swarm · staged · n=6 · concurrency=2 · waves=3
 ├── wave 1
 │   ├── slot 1 · sonnet
 │   └── slot 2 · sonnet
@@ -264,7 +268,7 @@ Three shapes, dispatched through `worktree-task`'s `{agent_model}` parameter:
 - **`per-agent`** — list of length `{num_agents}`, one model per slot positionally. Use for explicit head-to-head model comparison.
 - **`per-partition`** — list of length `{num_partitions}`, broadcast across `{num_agents} / {num_partitions}` contiguous slots. Use for "k samples per model" comparisons.
 
-Validation: list-by-agent length MUST equal `{num_agents}`; list-by-partition length MUST equal `{num_partitions}`, and `{num_partitions}` MUST divide `{num_agents}` evenly. The swarm resolves the assignment once, over the global slots `1..{num_agents}`, then hands each `worktree-task` invocation only the slice its slots need: the whole assignment under `parallel` and `partitioned` (one invocation, `{parallelism} = {num_agents}`), the wave's slice under `staged`, and the stage's single identifier under `pipeline` (`{parallelism} = 1`). The child's check — a list-valued `{agent_model}` has length `{parallelism}` — therefore holds for every invocation (see Workflow step 7).
+Validation: list-by-agent length MUST equal `{num_agents}`; list-by-partition length MUST equal `{num_partitions}`, and `{num_partitions}` MUST divide `{num_agents}` evenly. Those lengths describe the caller's input. The swarm resolves it once into a per-slot assignment over the global slots `1..{num_agents}` — expanding a `per-partition` list across its slices — and then hands each `worktree-task` invocation the slots it owns: all `{num_agents}` of them under `parallel` and `partitioned`, the wave's slice under `staged`, the stage's single identifier under `pipeline`. Each invocation therefore receives a scalar when its slots share one model, or a list whose length equals that invocation's `{parallelism}`, which is exactly the child's check (see Workflow step 7). Expanding before dispatch keeps the child from having to choose between its two accepted list shapes.
 
 ## Selection Modes (run in parallel)
 
@@ -315,7 +319,7 @@ The skill emits structured events in a dedicated `### Events` section of the rep
 | Type | Payload fields | Emitted when |
 |---|---|---|
 | `swarm.gate_decided` | `verdict`, `triggers_fired`, `pattern` | After the Swarm Gate runs |
-| `swarm.topology_previewed` | `topology`, `format`, `slots` | After the preview renders (only when `--preview-swarm-topology` is set) |
+| `swarm.topology_previewed` | `topology`, `format`, `slot_count` | After the preview renders (only when `--preview-swarm-topology` is set) |
 | `swarm.dispatched` | `num_agents`, `parallel_agents`, `topology`, `model_mix`, `selection_modes` | After `worktree-task` is launched |
 | `swarm.stage_started` | `kind` (`wave` / `stage`), `index`, `slots`, `base_branch` | Before each wave or stage launches under `staged` / `pipeline` |
 | `member.started` | `slot`, `model`, `worktree_path` | When a member begins |
@@ -331,7 +335,7 @@ Events MUST appear in chronological order. Do NOT inline events outside the dedi
 
 1. **Swarm gate.** Walk the Swarm Gate table and any counter-triggers. If no trigger fires (or a counter-trigger applies), recommend a single agent and stop. Emit `swarm.gate_decided`.
 2. **Apply pattern (if `{pattern}` is set).** Populate defaults for `{num_agents}`, `{topology}`, `{model_mix}`, and `{selection_modes}` from the Pattern Catalog row. User-set parameters override.
-3. **Resolve `{selection_modes}`.** When the value is `auto`, include every mode whose prerequisites are met given the other parameters and whose rule the resolved `{topology}` supports. Record which modes were resolved and which were skipped (with the missing prerequisite or the topology reason) for the report.
+3. **Resolve `{selection_modes}`.** When the value is `auto`, include every mode whose prerequisites are met given the other parameters and whose rule the resolved `{topology}` supports. Every catalog mode outside the resolved list is a skipped mode: record each one with its reason (the missing prerequisite, or the topology rule that excludes it) so the Aggregation section can report it.
 4. **Validate parameters.** Confirm sizing, topology (catalog value, partition count where required, `{parallel_agents}` under `pipeline`), mix shape, partition divisibility, and selection-mode prerequisites. Fail fast on any mismatch (no filesystem side effects).
 5. **Cost projection (when `{cost_cap}` is set).** Compute projected cost against `{num_agents}` for tokens and against the topology's serial depth for wall clock. If `projected > {cost_cap}`, propose the largest `{num_agents}` that fits and wait for user approval.
 6. **Preview the topology (when `--preview-swarm-topology` is set).** Render the resolved topology per the Topology Preview section into the `### Topology Preview` section and emit `swarm.topology_previewed`. Continue to dispatch; the preview gates nothing.

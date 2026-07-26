@@ -30,7 +30,7 @@ Everything below is grounded in today's artifacts. The full design space
 | Parameter | Rule |
 |---|---|
 | `task` | broadcast verbatim to every member; agent-swarm relays it unchanged into worktree-task, appending a delimited `## Upstream Context` block (prior summaries, branches, test results) for `staged` waves and `pipeline` stages after the first |
-| `agent_model` | scalar → broadcast; list → zip (length = `candidate_count`) or partition (length = `partition_count`); agent-swarm resolves the assignment over its global slots, then hands each dispatch only its slice |
+| `agent_model` | scalar → broadcast; list → zip (length = `candidate_count`) or partition (length = `partition_count`); agent-swarm expands either shape into a per-slot assignment over its global slots, then hands each dispatch only the slots it owns |
 | `test_command` | broadcast; each member's exit code bubbles back and gates merge eligibility |
 | `stop_condition` | broadcast; per-member satisfaction bubbles back |
 | `base_branch` | broadcast; every member forks from it and diffs render against it. Exception: under agent-swarm's `pipeline` topology the swarm rewrites it per stage, so stage *i* forks from stage *i-1*'s branch |
@@ -58,7 +58,7 @@ contract cases:
 | `{num_agents}` | `{parallelism}` | total member count; the child creates exactly this many worktrees |
 | `{topology}` | — | not a child parameter; it selects the dispatch pattern (one invocation, or one per wave or stage) |
 | `{parallel_agents}` | `{concurrency}` | simultaneous-execution cap; pacing only, never the total |
-| resolved `{model_mix}` | `{agent_model}` | `broadcast` → scalar; `per-agent` → list of length `{num_agents}`; `per-partition` → list of length `{num_partitions}` plus `{num_partitions}` |
+| resolved `{model_mix}` | `{agent_model}` | the swarm expands its mix into a per-slot assignment first, so the child receives a scalar (`broadcast`) or a list of length `{parallelism}` (`per-agent`, and `per-partition` expanded across its slices); `{num_partitions}` rides along under `per-partition` |
 | `{num_partitions}` | `{num_partitions}` | only with `model_mix = per-partition`; the `partitioned` and `staged` topologies group the swarm's own slots, which the child never needs to know |
 | `{test_command}` | `{test_command}` | when set |
 | — | `{merge_mode}` | always set to `interactive`; the chosen branch is handed back through worktree-task's merge prompt |
@@ -67,7 +67,9 @@ Receiving-side contract check (worktree-task validates before any side
 effect): a list-valued `{agent_model}` must have length `{parallelism}`
 (per-agent) or, when `{num_partitions}` is set, be a correctly-sized
 per-partition iteration; `{concurrency}` must be an integer in
-`1..{parallelism}`.
+`1..{parallelism}`. Sending the expanded per-slot list satisfies both readings
+at once, which is why agent-swarm expands before dispatch instead of forwarding
+the caller's shorter per-partition list.
 
 The swarm keeps for itself (never forwarded): `{selection_modes}`,
 `{aggregator}`, `{min_successes}`, `{relaunch_on_hang_after}`,
@@ -85,7 +87,7 @@ validation must accept), with `n = {num_agents}`, `p = {parallel_agents}`:
 | `n = p` (full parallelism) | `num_agents=4, parallel_agents=4`, `model_mix=broadcast` | `parallelism=4, concurrency=4, agent_model=<scalar>` | 4 worktrees; all members launch together |
 | `n > p` (throttled) | `num_agents=8, parallel_agents=4`, `model_mix=broadcast` | `parallelism=8, concurrency=4, agent_model=<scalar>` | 8 worktrees; at most 4 run at once; slot indexes stay stable |
 | per-agent models | `num_agents=8, parallel_agents=4`, `model_mix=per-agent` (list of 8) | `parallelism=8, concurrency=4, agent_model=<list of 8>` | `len(agent_model) == parallelism`; member *i* gets element *i* |
-| per-partition models | `num_agents=8, parallel_agents=4`, `model_mix=per-partition`, `num_partitions=2` (list of 2) | `parallelism=8, concurrency=4, num_partitions=2, agent_model=<list of 2>` | list length = `num_partitions`; `num_partitions` divides `parallelism`; each slice of 4 shares one model |
+| per-partition models | `num_agents=8, parallel_agents=4`, `model_mix=per-partition`, `num_partitions=2` (list of 2) | `parallelism=8, concurrency=4, num_partitions=2, agent_model=<list of 8>` | the caller's list length = `num_partitions` and `num_partitions` divides `num_agents`; the swarm expands each element across its slice of 4 so the child sees a full iteration |
 | `staged` waves | `num_agents=6, parallel_agents=6`, `topology=staged`, `num_partitions=3` | three invocations, each `parallelism=2, concurrency=2, base_branch=<swarm base>, worktree_name=<slug>-w<j>`, carrying that wave's 2-element model slice | wave *j+1* launches only after wave *j* terminates; every invocation satisfies `len(agent_model) == parallelism` |
 | `pipeline` stages | `num_agents=3`, `topology=pipeline` (`parallel_agents` resolves to 1) | three invocations, each `parallelism=1, concurrency=1, worktree_name=<slug>-s<i>`, with `base_branch` = the previous stage's branch | stage 1 forks from the swarm base; a non-`success` stage stops the chain and the remaining stages are reported `incomplete` |
 
