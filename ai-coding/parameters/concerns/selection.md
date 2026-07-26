@@ -14,8 +14,13 @@ cards — only the two artifact groups below.
 - `{selection_modes}` — list (any subset) of `manual`, `auto-best`,
   `synthesize`, `vote`, `hybrid`, `tournament`, `consensus`. Every listed mode
   runs in parallel over the surviving members and produces its own outcome
-  block. Default: `auto` — every mode whose prerequisites are met; skipped
-  modes are reported with the missing prerequisite. Prerequisites:
+  block. Default: `auto` — every mode whose prerequisites are met and whose
+  rule the resolved [`{topology}`](replication.md#artifact-specific) supports;
+  skipped modes are reported with the missing prerequisite or the topology
+  reason. Under `partitioned`, each mode runs within every partition and then
+  globally over the partition outcomes; under `pipeline`, only `manual` and
+  `auto-best` run, because cumulative stage branches are not independent
+  candidates. Prerequisites:
 
   | Mode | Decision rule | Requires |
   |---|---|---|
@@ -30,9 +35,10 @@ cards — only the two artifact groups below.
 - `{aggregator}` — prompt or shell command that produces a merged artifact from
   candidates. Required when `synthesize` or `hybrid` is selected.
 - `{min_successes}` — minimum members reaching `success` before aggregation
-  runs. Default: `ceil({num_agents} / 2)`. If unmet after replacements
-  terminate, every selection mode reports `under-floor` and no winner is
-  auto-selected.
+  runs. Default: `ceil({num_agents} / 2)`, or `1` under `{topology} =
+  pipeline`, where stages are cumulative rather than independent. If unmet
+  after replacements terminate, every selection mode reports `under-floor` and
+  no winner is auto-selected.
 
 Regardless of how many modes converge on the same winner, at most one worktree
 branch is merged per invocation (see [merge_mode](lifecycle.md#merge_mode)).
