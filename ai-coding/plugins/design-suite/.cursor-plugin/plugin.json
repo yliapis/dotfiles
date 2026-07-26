@@ -1,0 +1,8 @@
+{
+  "name": "design-suite",
+  "version": "0.1.0",
+  "description": "Author and orchestrate <trait>-design skills (design-skill, designer-controller, declarative/deterministic-design).",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT"
+}

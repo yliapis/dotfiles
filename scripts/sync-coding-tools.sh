@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # sync-coding-tools.sh — mirror the commands and skills carried by the
 # ai-coding plugins (plus marketplace metadata) from this dotfiles repo into
-# the home-dir locations used by Cursor and Claude Code.
+# the home-dir locations used by Cursor, Claude Code, and OpenCode.
 #
 # Two modes:
 #   copy     (default) rsync, deterministic, source-of-truth is the dotfiles
@@ -13,7 +13,8 @@
 # Sources (in this repo, do not modify by hand here):
 #   ai-coding/plugins/<plugin>/commands/*.md           slash commands
 #   ai-coding/plugins/<plugin>/skills/<name>/SKILL.md  skills
-#   .claude-plugin/marketplace.json + ai-coding/plugins/
+#   .cursor-plugin/marketplace.json (Cursor),
+#   .claude-plugin/marketplace.json (Claude) + ai-coding/plugins/
 #                                                      marketplace metadata
 #
 # Commands and skills from every plugin are flattened into one destination
@@ -27,6 +28,8 @@
 #   claude    ~/.claude/commands
 #             ~/.claude/skills/<name>
 #             ~/.claude/plugins/marketplaces/yliapis-dotfiles
+#   opencode  ~/.config/opencode/commands
+#             ~/.config/opencode/skills/<name>
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -49,14 +52,15 @@ DRY_RUN=0
 VERBOSE=0
 UNLINK=0
 MODE="copy"
-TARGETS="cursor,claude"
+TARGETS="cursor,claude,opencode"
 
 usage() {
   cat <<EOF
 Usage: ${SCRIPT_PATH:t} [options]
 
 Mirror ai-coding commands and skills from this dotfiles repo into the home
-locations used by Cursor and Claude Code. Idempotent; safe to re-run.
+locations used by Cursor, Claude Code, and OpenCode. Idempotent; safe to
+re-run.
 
 Modes:
   copy         (default) rsync-based; deterministic snapshot of the repo at
@@ -67,7 +71,8 @@ Modes:
 
 Options:
   -n, --dry-run         Show actions without writing.
-      --targets <list>  Comma-separated subset of: cursor,claude (default: both).
+      --targets <list>  Comma-separated subset of: cursor,claude,opencode
+                        (default: all).
       --mode <m>        copy | symlink (default: copy).
       --unlink          Reverse a previous sync: remove symlinks that point
                         into this repo and remove copies that match the repo
@@ -118,8 +123,8 @@ TOOLS=()
 for tool in ${(s:,:)TARGETS}; do
   [[ -z "$tool" ]] && continue
   case "$tool" in
-    cursor|claude) TOOLS+=("$tool") ;;
-    *) die "unknown target '$tool' (expected: cursor, claude)" ;;
+    cursor|claude|opencode) TOOLS+=("$tool") ;;
+    *) die "unknown target '$tool' (expected: cursor, claude, opencode)" ;;
   esac
 done
 (( ${#TOOLS[@]} > 0 )) || die "no targets selected"
@@ -132,25 +137,38 @@ done
 
 dest_commands_dir() {
   case "$1" in
-    cursor) print -- "$HOME/.cursor/commands" ;;
-    claude) print -- "$HOME/.claude/commands" ;;
+    cursor)   print -- "$HOME/.cursor/commands" ;;
+    claude)   print -- "$HOME/.claude/commands" ;;
+    opencode) print -- "$HOME/.config/opencode/commands" ;;
     *) die "no commands dir for tool '$1'" ;;
   esac
 }
 
 dest_skills_dir() {
   case "$1" in
-    cursor) print -- "$HOME/.cursor/skills-cursor" ;;
-    claude) print -- "$HOME/.claude/skills" ;;
+    cursor)   print -- "$HOME/.cursor/skills-cursor" ;;
+    claude)   print -- "$HOME/.claude/skills" ;;
+    opencode) print -- "$HOME/.config/opencode/skills" ;;
     *) die "no skills dir for tool '$1'" ;;
   esac
 }
 
+# Empty output means the tool has no plugin-marketplace concept to mirror.
 dest_plugin_dir() {
   case "$1" in
-    cursor) print -- "$HOME/.cursor/plugins/local/ai-coding" ;;
-    claude) print -- "$HOME/.claude/plugins/marketplaces/yliapis-dotfiles" ;;
+    cursor)   print -- "$HOME/.cursor/plugins/local/ai-coding" ;;
+    claude)   print -- "$HOME/.claude/plugins/marketplaces/yliapis-dotfiles" ;;
+    opencode) print -- "" ;;
     *) die "no plugin dir for tool '$1'" ;;
+  esac
+}
+
+plugin_meta_subdir() {
+  case "$1" in
+    cursor)   print -- ".cursor-plugin" ;;
+    claude)   print -- ".claude-plugin" ;;
+    opencode) print -- "" ;;
+    *) die "no plugin meta subdir for tool '$1'" ;;
   esac
 }
 
@@ -170,8 +188,8 @@ trap 'append_log $?' EXIT
 
 # --- copy-mode (rsync) ----------------------------------------------------
 #
-# -aL: archive + dereference symlinks (the .cursor-plugin/.claude-plugin
-# marketplace.json entries are symlinks; we want real files at the dest).
+# -aL: archive + dereference symlinks so destinations always get real files,
+# even if a source entry is ever a symlink into the repo.
 # --itemize-changes: one summary line per change so dry-run output is useful.
 
 typeset -a RSYNC_BASE
@@ -190,10 +208,11 @@ run_rsync() {
 
 copy_sync_tool() {
   local tool="$1"
-  local cmds_dst skills_dst plugin_dst
+  local cmds_dst skills_dst plugin_dst meta_subdir
   cmds_dst="$(dest_commands_dir "$tool")"
   skills_dst="$(dest_skills_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
+  meta_subdir="$(plugin_meta_subdir "$tool")"
 
   print -- "==> $tool commands -> $cmds_dst"
   mkdir -p "$cmds_dst"
@@ -203,12 +222,16 @@ copy_sync_tool() {
   mkdir -p "$skills_dst"
   run_rsync "${SRC_SKILLS[@]}" "$skills_dst"/
 
+  if [[ -z "$plugin_dst" ]]; then
+    print -- "==> $tool plugin   (skipped)"
+    return 0
+  fi
   print -- "==> $tool plugin   -> $plugin_dst"
   if [[ -L "$plugin_dst" ]]; then
     (( DRY_RUN )) || rm -f "$plugin_dst"
   fi
-  mkdir -p "$plugin_dst/.claude-plugin" "$plugin_dst/ai-coding"
-  run_rsync "$SRC_MARKETPLACE/.claude-plugin"/ "$plugin_dst/.claude-plugin"/
+  mkdir -p "$plugin_dst/$meta_subdir" "$plugin_dst/ai-coding"
+  run_rsync "$SRC_MARKETPLACE/$meta_subdir"/ "$plugin_dst/$meta_subdir"/
   run_rsync "$SRC_PLUGINS" "$plugin_dst/ai-coding"/
 }
 
@@ -287,6 +310,10 @@ symlink_sync_tool() {
     link_one "$d" "$skills_dst/${d:t}"
   done
 
+  if [[ -z "$plugin_dst" ]]; then
+    print -- "==> $tool plugin   (skipped)"
+    return 0
+  fi
   print -- "==> $tool plugin   -> $plugin_dst  (symlink)"
   if [[ -L "$plugin_dst" ]]; then
     local cur; cur="$(readlink "$plugin_dst")"
@@ -371,6 +398,10 @@ unlink_tool() {
     unlink_one "$skills_dst/${d:t}" "${d:t}" "$d"
   done
 
+  if [[ -z "$plugin_dst" ]]; then
+    print -- "==> $tool plugin   (skipped)"
+    return 0
+  fi
   print -- "==> $tool plugin   <- $plugin_dst"
   if [[ -L "$plugin_dst" ]]; then
     local resolved; resolved="${plugin_dst:A}"

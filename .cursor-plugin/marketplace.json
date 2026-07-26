@@ -1,0 +1,34 @@
+{
+  "name": "yliapis-dotfiles",
+  "owner": { "name": "yliapis" },
+  "metadata": {
+    "description": "Personal AI coding tools shared across Cursor, Claude Code, OpenCode, and Codex."
+  },
+  "plugins": [
+    {
+      "name": "design-suite",
+      "source": "./ai-coding/plugins/design-suite",
+      "description": "Author and orchestrate <trait>-design skills (design-skill, designer-controller, declarative/deterministic-design)."
+    },
+    {
+      "name": "git-delivery",
+      "source": "./ai-coding/plugins/git-delivery",
+      "description": "Tickets -> minimal diffs -> conventional commits -> merge/push."
+    },
+    {
+      "name": "orchestration",
+      "source": "./ai-coding/plugins/orchestration",
+      "description": "Parallel agent swarms and isolated git-worktree task execution."
+    },
+    {
+      "name": "session-state",
+      "source": "./ai-coding/plugins/session-state",
+      "description": "Trajectory snapshots, file dumps, session save/shutdown/wrap-up."
+    },
+    {
+      "name": "writing",
+      "source": "./ai-coding/plugins/writing",
+      "description": "De-slop prose, prompt template library, meta-prompt, critique."
+    }
+  ]
+}

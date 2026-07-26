@@ -3,7 +3,8 @@
 ## Cursor Cloud specific instructions
 
 Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
-`ai-coding/` commands + skills into the Cursor and Claude home locations.
+`ai-coding/` commands + skills into the Cursor, Claude, and OpenCode home
+locations.
 
 Cloud agent setup is defined in `.cursor/environment.json`, which runs the
 provider-agnostic `.cursor/scripts/cloud-agent-bootstrap.sh` at VM boot to
