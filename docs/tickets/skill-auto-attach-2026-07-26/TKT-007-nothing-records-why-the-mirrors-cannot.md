@@ -5,10 +5,10 @@ ticket_set: "sha256:8de3aaef2b9550a73e1c703c3e2e63d9ef162acaa040ecd60d55338481da
 id: "TKT-007"
 fingerprint: "sha256:028d8176f79686c8929ef346c30daff5180a9311c2f1dd45f06f9135b421b33f"
 title: "Nothing records why the mirrors cannot be symlinks"
-status: "open"
+status: "done"
 status_reason: null
 owner: null
-revision: 1
+revision: 3
 type: "docs"
 severity: "minor"
 priority: "P2"
@@ -54,8 +54,8 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 
-- [ ] Both files state the mirror layout, the regeneration command, and the drift-check command
-- [ ] Both files state that a symlinked mirror entry is skipped by at least one discovery implementation, and name the escape hatch for a maintainer who wants live edits
+- [x] Both files state the mirror layout, the regeneration command, and the drift-check command
+- [x] Both files state that a symlinked mirror entry is skipped by at least one discovery implementation, and name the escape hatch for a maintainer who wants live edits
 
 ## Dependencies
 

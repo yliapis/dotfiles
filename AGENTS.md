@@ -32,6 +32,18 @@ Both wrap `scripts/sync-project-mirrors.sh`, which needs only bash and
 coreutils. Two plugins claiming one flattened name abort the run instead of
 shadowing each other.
 
+Mirror entries are real files and directories, never symlinks. At least one
+shipped skill-discovery implementation resolves a link and drops the entry when
+the real path leaves the scanned directory, so a symlinked mirror is invisible
+to it; `make mirrors-check` reports one as drift. The escape hatch for live
+edits without a regenerate step is to install this repo as a plugin
+marketplace: `.cursor-plugin/marketplace.json` and
+`.claude-plugin/marketplace.json` point each plugin at
+`./ai-coding/plugins/<name>`, so a client reads the source tree with no mirror
+in between. `make symlink` is the home-scope alternative and re-introduces the
+same symlink risk at user scope, so confirm the client still lists the skills
+after running it.
+
 Agent frontmatter stays inside the intersection all three tools accept:
 `name`, `description`, and `mode: subagent`. Cursor ignores Claude-only fields,
 while OpenCode folds unrecognized keys into provider model options and fails its
