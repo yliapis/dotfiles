@@ -22,7 +22,8 @@ side effects, and deterministically select open tickets. Process one ticket at
 a time: claim it with compare-before-write lifecycle state, implement only its
 scope, prove every acceptance criterion with current runtime evidence, complete
 the lifecycle and worklist projection, and create exactly one Conventional
-Commit containing implementation and lifecycle writeback.
+Commit containing the implementation and ticket trace; include tracked
+lifecycle files or bind exact local lifecycle bytes through the journal.
 
 ## Parameters
 
@@ -53,9 +54,9 @@ Commit containing implementation and lifecycle writeback.
 - `{recovery}` — `abort` | `resume` | `rollback`; optional, default `abort`.
   It applies only to a valid interrupted `ticket-execute` journal in this
   worktree and never adopts an unjournaled claim.
-- `{legacy_checkbox_policy}` — `reject` | `project-from-tickets`; optional,
-  default `reject`. The latter explicitly treats checkbox-only state as
-  advisory; it never converts a checked box into ticket completion.
+- `{legacy_worklist}` — `resolve-native-links` | `reject`; optional, default
+  `resolve-native-links`. Compatibility is read-only and never converts a
+  checkbox into ticket lifecycle state.
 - `{dry_run}` — optional boolean, default `false`. Resolve, validate, select,
   and render the complete plan, but acquire no lock, write no journal or file,
   ask no approval, run no verification command, stage nothing, and create no
@@ -78,24 +79,24 @@ Unknown parameters or invalid values abort before side effects.
 - [ ] Check acceptance markers and update the canonical worklist only from
       authoritative final ticket state.
 - [ ] Create exactly one Conventional Commit per successful ticket, containing
-      implementation, final ticket state, and worklist writeback with ticket
-      identity trailers.
+      implementation, identity trailers, and tracked lifecycle writeback or a
+      journal binding to exact local lifecycle bytes.
 - [ ] A failure or declined approval creates no commit and restores the exact
       pre-ticket tree/index, or stops without overwriting when safe restoration
       cannot be proved.
 - [ ] A rerun skips authoritative `done` tickets and creates no duplicate
       commit regardless of legacy checkbox state.
-- [ ] End each committed or safely rolled-back ticket with a clean worktree and
-      report its evidence and commit SHA.
+- [ ] End each committed or safely rolled-back ticket with the validated
+      tracked/local baseline shape and report its evidence and commit SHA.
 
 ## Guardrails
 
 - MUST read and apply the live `ticket-create` version-1 schema and identity
   contracts. Fail closed on unknown schema names or versions.
-- MUST require a clean tracked/untracked tree, empty index, named branch,
-  configured commit identity, and no merge, rebase, cherry-pick, revert, or
-  bisect in progress. Explicit recovery of this skill's valid journal is the
-  sole exception.
+- MUST require the safe tracked/local baseline defined by preflight, an empty
+  index, named branch, configured commit identity, and no merge, rebase,
+  cherry-pick, revert, or bisect in progress. Explicit recovery of this
+  skill's valid journal is the sole exception.
 - MUST NOT execute a ticket unless it is `open` and runnable. Never reopen
   `blocked`, `cancelled`, or `done`, or seize `in_progress`.
 - MUST NOT change immutable or definition-owned fields, acceptance text,
@@ -119,8 +120,8 @@ Unknown parameters or invalid values abort before side effects.
 ## Native Set Preflight
 
 Reject every symlink path component before normalizing paths. The target,
-managed worklist, and every ticket MUST be tracked regular files inside the
-current worktree and outside `.git`. A ticket target resolves through its
+managed worklist, and every ticket MUST be writable regular local files inside
+the current worktree and outside `.git`. A ticket target resolves through its
 sibling `WORKLIST.md`; a directory resolves only
 `<directory>/WORKLIST.md`, without recursive guessing.
 
@@ -157,33 +158,37 @@ read-only snapshot:
 8. `HEAD`, branch, identity, index, worktree, submodules, and Git-operation
    state satisfy the Guardrails.
 
-Any mismatch aborts without repair, except the single explicitly authorized
-checkbox-only compatibility case below. Re-read and compare exact bytes under
-the execution lock before every lifecycle write.
+Classify persistence before dirty-tree validation:
+
+- `tracked`: the worklist and every ticket are tracked and byte-identical to
+  `HEAD`; lifecycle writeback is staged into the ticket commit.
+- `local`: none is tracked; ignored or untracked lifecycle files stay outside
+  the commit, and the journal binds their final bytes to its SHA.
+
+Mixed persistence aborts. The only permitted untracked baseline paths are the
+validated local set and optional legacy selector; capture their exact bytes.
+Every other staged, tracked, untracked, or submodule change aborts.
+
+Any mismatch aborts without repair. Re-read and compare exact bytes under the
+execution lock before every lifecycle write.
 
 ## Compatibility
 
-An unmanaged legacy worklist is never authority. Read only item IDs and
-`Ticket:` paths. Continue only when every selected item links to a valid native
-ticket, all links resolve to one managed set, and its canonical `WORKLIST.md`
-passes preflight. Items without native links are rejected rather than executed
-from checkbox prose. The legacy file remains read-only.
+An unmanaged legacy worklist is never authority. Under
+`resolve-native-links`, read it only as a selector: ignore every marker and
+status-like field, require each selected entry's `Ticket:` path to resolve to a
+native ticket listed by a managed sibling `WORKLIST.md`, and require all links
+to one validated set. Limit `{select}` to linked IDs, then use native status,
+dependencies, rank, and managed projection for all decisions. Keep the legacy
+file read-only.
 
-For legacy markers, including body markers changed by
-`address-worklist-commit-loop`:
-
-- `reject` aborts when a checkbox disagrees with authoritative ticket status
-  and reports both states.
-- `project-from-tickets` ignores markers for selection and reports every
-  disagreement. In a managed worklist, tolerate only body-marker drift for
-  which in-memory projection from ticket statuses is otherwise byte-valid.
-  Validate that canonical in-memory projection before any write. Include that
-  projection-only repair in the first successful ticket commit; it increments
-  no ticket revision. If no ticket succeeds, write no repair.
-
-Manifest lifecycle drift, changed projected text, missing links, mixed sets,
-or other ambiguity always aborts. `[x]` beside an `open` ticket is a legacy
-completion proposal, not evidence that the ticket is done.
+A legacy `[x]` linked to an open ticket is only a completion proposal; the
+ticket remains open and requires implementation/evidence. A legacy `[ ]`
+linked to `done` remains done. Report both mismatches. Missing links, old
+schemas, mixed sets, absent managed projections, and every drift inside a
+managed worklist abort before side effects. `{legacy_worklist}=reject` rejects
+an unmanaged worklist immediately. Never create a hidden completion-state
+file.
 
 ## Selection and Ordering
 
@@ -192,7 +197,7 @@ enumeration or legacy body order.
 
 - `next` selects the lowest-ranked currently `open` ticket whose dependencies
   are all `done`.
-- `all` selects every `open` ticket in the target universe.
+- `all` selects every ticket in the target universe for classification.
 - An ID list rejects empty, duplicate, or unknown IDs; execution still
   tie-breaks by canonical rank.
 
@@ -211,17 +216,20 @@ conversion is ambiguous, stop before side effects.
 
 ## Lifecycle Transaction
 
-Claims are provisional working-tree transactions, not commits. After plan
-approval, acquire an exclusive set lock beneath this worktree's Git
-administrative directory and rerun preflight. Never auto-break a stale lock.
+Claims are provisional working-tree transactions, not commits. In `tracked`
+mode their final files enter the commit; in `local` mode their exact final
+bytes remain local and are bound to the commit by the journal. After plan
+approval, acquire an OS-released exclusive set lock beneath this worktree's Git
+administrative directory and rerun preflight. Never steal a live lock.
 
 For each ticket at revision `r`:
 
 1. Create and sync an atomic write-ahead journal at
    `$GIT_DIR/ticket-execute/<set-hex>/<ticket-id>.json`. Record baseline `HEAD`,
-   exact ticket/worklist bytes and hashes, expected revision/owner, planned
-   before/after hashes, phase, index state, commit message, and every path
-   before its first mutation. Locks and journals are never staged.
+   persistence mode, exact ticket/worklist bytes and hashes, expected
+   revision/owner, phase, and index state. Before each later phase, atomically
+   add its planned before/after hashes, touched paths and preimages, and, before
+   staging, the commit message/tree. Locks and journals are never staged.
 2. **Claim CAS.** Require exact preflight bytes, `open`, null owner/reason,
    revision `r`, unchanged fingerprint, and all dependencies `done`. Prepare
    both images in memory. Compare again immediately before atomically replacing
@@ -243,17 +251,22 @@ For each ticket at revision `r`:
    owner, unchanged fingerprint and baseline `HEAD`, and dependencies still
    `done`. In memory, check every evidenced criterion, set `done`, null
    owner/reason, revision `r+2`, and project `[x]`, `done`, `r+2` to the
-   worklist. Validate the complete prospective set, journal it, compare before
-   each atomic replacement, then replace ticket first and worklist second.
-6. Review the complete diff and evidence. In `interactive` mode obtain
-   per-ticket approval; decline triggers rollback. Stage only journaled
-   implementation paths, ticket, and worklist. Require no unstaged or
+   worklist. Validate and journal the complete prospective set without writing.
+6. Review the prospective complete diff and evidence. In `interactive` mode
+   obtain per-ticket approval; decline triggers rollback. Then require the
+   exact claim again, compare before each atomic replacement, replace ticket
+   first and worklist second, and revalidate the projection. Stage only
+   journaled implementation paths and, in `tracked` mode, the ticket and
+   worklist. In `local` mode prove no ticket artifact is staged. Require no
    unexpected change and no staged journal, definition edit, or unchecked
    criterion.
-7. Create one normal commit whose sole parent is the journaled baseline.
+7. Create one commit whose sole parent is the journaled baseline. A freshly
+   verified already-satisfied local ticket with no implementation delta uses
+   `--allow-empty` so success still has exactly one traceable commit.
    Verify exactly one commit was added, its tree/message match approval, both
-   final images are present, and the tree/index are clean. Only then remove the
-   journal and release the lock (or continue under it to the next ticket).
+   final lifecycle images match the journal, and the tracked/local baseline
+   shape is restored. Only then remove the journal and release the lock (or
+   continue under it to the next ticket).
 
 The committed ticket moves visibly from `r` to `r+2` because the transaction
 contains two valid compare-before-write lifecycle mutations. Restoring `r`
@@ -292,11 +305,11 @@ Before `HEAD` advances, any implementation error, failed evidence/CAS/hook,
 approval decline, or definite commit failure invokes rollback. Roll back only
 when `HEAD` equals the baseline and all states match journaled hashes or
 transaction-owned deltas. Restore explicit tracked paths and index entries from
-the baseline and delete only individually recorded new paths. Restore ticket
-and worklist byte-for-byte, then validate either an exact native set or the same
-authorized checkbox-only compatibility state captured at preflight. Confirm a
-clean Git tree before removing journal and lock. Never overwrite an unknown
-hash or unregistered path; preserve state and report `recovery-required`.
+the baseline and delete only individually recorded new paths. Restore ticket,
+worklist, and any local-set baseline byte-for-byte, then validate the exact
+native set and tracked/local baseline shape before removing journal and lock.
+Never overwrite an unknown hash or unregistered path; preserve state and report
+`recovery-required`.
 
 After proven rollback, `abort` stops and `continue` revalidates before the next
 independent ticket. A failed ticket remains `open@r`, produces no commit, and
@@ -305,19 +318,23 @@ cannot satisfy a dependent.
 On startup, handle a valid interrupted journal according to `{recovery}`:
 
 - `abort` reports phase, owner, baseline, and safe choices without mutation.
-- `rollback` acquires the lock and performs the guarded exact restoration.
-- `resume` requires the same baseline, owner, known phase, registered paths,
-  and recognized preimage/claim/final states. Repair only a journaled torn
-  ticket/worklist pair, revalidate dependencies, and rerun all verification.
-  Never claim twice or increment the claim revision twice.
+- `rollback` requires `HEAD` still at the journal baseline, acquires the lock,
+  and performs the guarded exact restoration. If the expected commit exists,
+  refuse to rewrite history and report that `resume` must finalize it.
+- `resume` requires the journaled owner, known phase, registered paths,
+  recognized preimage/claim/final states, and `HEAD` at either the baseline or
+  its exact expected child. At the baseline, repair only a journaled torn
+  ticket/worklist pair, revalidate dependencies, and rerun all verification;
+  never claim or increment twice. At the expected child, validate final
+  lifecycle bytes and finalize without another commit.
 
-If `HEAD` is exactly one child of the baseline, contains the journaled final
-tree and identity trailers, and has no unknown index/worktree residue, clean up
-and report recovered success without another commit. An exact commit with
-unexpected hook residue remains successful, but execution stops and preserves
-the journal until the residue is resolved. Explicit recovery may reclaim only
-the stale lock named by that validated journal. Unknown journals, dirty
-unjournaled claims, and committed `in_progress` tickets are never adopted.
+Under `resume`, recovery succeeds only when `HEAD` is exactly one child of the
+baseline, contains the journaled final tree and identity trailers, has exact
+final ticket/worklist bytes, and has no unknown index/worktree residue. An
+exact commit with unexpected hook residue remains successful, but execution
+stops and preserves the journal until the residue is resolved. Unknown
+journals, dirty unjournaled claims, and committed `in_progress` tickets are
+never adopted.
 
 Ordinary reruns select current ticket frontmatter. `done` is reported
 `already-done` with no verifier, write, stage, or commit.
@@ -337,8 +354,8 @@ Ordinary reruns select current ticket frontmatter. `done` is reported
    one commit.
 7. Roll back failures before applying `{on_failure}`; recalculate dependency
    readiness before continuing.
-8. Revalidate final set, projection, commit chain, and cleanliness; report
-   without remote side effects.
+8. Revalidate final set, projection, commit chain, and tracked/local baseline
+   shape; report without remote side effects.
 
 ## Output Format
 
@@ -347,16 +364,16 @@ Return these sections in order, omitting only empty optional sections:
 ### Run Summary
 
 Target and canonical worklist; ticket-set identity; selector/order; mode;
-owner; baseline/final `HEAD`; outcome (`completed`, `partial`, `no-runnable`,
-`already-done`, `dry-run`, `declined`, `failed`, or `recovery-required`); and
-counts for selected, scheduled, committed, already-done, deferred, failed, and
-declined.
+owner; persistence; baseline/final `HEAD`; outcome (`completed`, `partial`,
+`no-runnable`, `already-done`, `dry-run`, `declined`, `failed`, or
+`recovery-required`); and counts for selected, scheduled, committed,
+already-done, deferred, failed, and declined.
 
 ### Validation
 
 Schema versions; ticket/file count; set identity (`consistent`, not
-`recomputed`); fingerprint, projection, dependency, and Git-safety results;
-and every compatibility or recovery discrepancy.
+`recomputed`); fingerprint, projection, dependency, persistence, and
+Git-safety results; and every compatibility or recovery discrepancy.
 
 ### Plan
 
@@ -383,6 +400,7 @@ result, retained journal path when applicable, and deferred dependents.
 
 ### Handoff
 
-List local commits in order, remaining open/deferred IDs, and final worktree
-status. State that no tracker, branch/worktree creation or switch, swarm,
-merge, push, pull request, tag, or remote write occurred.
+List local commits in order, tracked/local lifecycle-writeback disposition,
+remaining open/deferred IDs, and final worktree status. State that no tracker,
+branch/worktree creation or switch, swarm, merge, push, pull request, tag, or
+remote write occurred.
