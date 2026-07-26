@@ -171,4 +171,4 @@ Fixes #234
 
 ## Full Specification
 
-For the complete Conventional Commits 1.0.0 specification including all rules and FAQ, see [references/full-spec.md](references/full-spec.md).
+For the complete Conventional Commits 1.0.0 specification including all rules and FAQ, see [conventionalcommits.org](https://www.conventionalcommits.org/en/v1.0.0/).
