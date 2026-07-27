@@ -18,6 +18,23 @@ are intentionally not installed in cloud (headless VM; slow boots); run
 `./install.sh` manually only if a task needs them. Run `make help` for details
 on sync and other targets.
 
+When npm's global prefix is not user-writable (common in cloud VMs), the
+bootstrap installs `backlog` into `~/.local` via `NPM_CONFIG_PREFIX`; login
+shells pick it up from `~/.profile`'s `~/.local/bin` PATH entry.
+
+There is no compiled app or test framework — the deliverables are shell
+scripts, so the lint/test/build/run loop maps to `make` and `shellcheck`:
+lint with `shellcheck` on the bash scripts (`scripts/sync-project-mirrors.sh`,
+`scripts/gen-artifact-index.sh`, `ai-coding/hooks/*.sh`) and `zsh -n` on the
+zsh scripts (`install.sh`, `scripts/sync-coding-tools.sh`, which shellcheck
+rejects with SC1071); test with the drift checks `make mirrors-check`,
+`make skills-index-check`, `make commands-index-check`; build by regenerating
+with `make mirrors` / `make skills-index` / `make commands-index` (a clean
+`git status` afterward means no drift); run the actual product with
+`make sync` (or `make dry-run` / `make status` first), which mirrors
+commands/skills/agents into the Cursor, Claude, and OpenCode home dirs and
+appends an audit line to `~/.cache/dotfiles/sync.log`.
+
 ## Backlog.md ticket set
 
 The repo's canonical work-item set is the [Backlog.md](https://github.com/MrLesk/Backlog.md)

@@ -53,7 +53,13 @@ fi
 install_backlog() {
   if command -v npm >/dev/null 2>&1; then
     echo "[cloud-agent-bootstrap] installing: backlog.md (npm)"
-    npm install -g --no-fund --no-audit backlog.md
+    local npm_prefix npm_env=()
+    npm_prefix="$(npm config get prefix 2>/dev/null || true)"
+    if [ -n "$npm_prefix" ] && [ ! -w "$npm_prefix" ]; then
+      mkdir -p "${HOME}/.local/bin"
+      npm_env=(env NPM_CONFIG_PREFIX="${HOME}/.local")
+    fi
+    "${npm_env[@]}" npm install -g --no-fund --no-audit backlog.md
   elif command -v brew >/dev/null 2>&1; then
     echo "[cloud-agent-bootstrap] installing: backlog-md (brew)"
     brew install backlog-md
