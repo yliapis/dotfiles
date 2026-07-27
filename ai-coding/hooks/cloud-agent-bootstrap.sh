@@ -24,12 +24,22 @@
 
 set -euo pipefail
 
+# User-local binaries (npm NPM_CONFIG_PREFIX=~/.local, uv, pip --user, etc.).
+# Same prepend as home-config/.shell_extras.sh; cloud skips that file, so do it
+# here for this process and any child installs that land under ~/.local/bin.
+mkdir -p "${HOME}/.local/bin"
+if [[ ":$PATH:" != *":${HOME}/.local/bin:"* ]]; then
+  export PATH="${HOME}/.local/bin:${PATH}"
+fi
+
 # zsh runs every repo script, rsync backs the make sync targets, and the
-# linter covers a repo whose deliverables are shell scripts.
+# linter covers a repo whose deliverables are shell scripts. curl fetches
+# the standalone uv installer when brew is absent.
 packages=()
 command -v zsh >/dev/null 2>&1 || packages+=(zsh)
 command -v rsync >/dev/null 2>&1 || packages+=(rsync)
 command -v shellcheck >/dev/null 2>&1 || packages+=(shellcheck)
+command -v curl >/dev/null 2>&1 || packages+=(curl)
 
 if ((${#packages[@]})); then
   echo "[cloud-agent-bootstrap] installing: ${packages[*]}"
@@ -76,6 +86,31 @@ if command -v backlog >/dev/null 2>&1; then
 else
   install_backlog ||
     echo "[cloud-agent-bootstrap] warning: backlog.md install failed; continuing"
+fi
+
+# uv is in the Brewfile on full installs and drives scripts/install-doc-tools.sh.
+# Cloud skips Homebrew, so fall through brew or the official standalone installer
+# into ~/.local/bin (already on PATH above). Non-fatal: same boot-continue policy
+# as backlog.md.
+install_uv() {
+  if command -v brew >/dev/null 2>&1; then
+    echo "[cloud-agent-bootstrap] installing: uv (brew)"
+    brew install uv
+  elif command -v curl >/dev/null 2>&1; then
+    echo "[cloud-agent-bootstrap] installing: uv (astral installer)"
+    # UV_NO_MODIFY_PATH: we already put ~/.local/bin on PATH; do not edit
+    # shell profiles from a headless bootstrap.
+    curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh
+  else
+    echo "[cloud-agent-bootstrap] no brew or curl on PATH; skipping uv"
+  fi
+}
+
+if command -v uv >/dev/null 2>&1; then
+  echo "[cloud-agent-bootstrap] uv already present"
+else
+  install_uv ||
+    echo "[cloud-agent-bootstrap] warning: uv install failed; continuing"
 fi
 
 echo "[cloud-agent-bootstrap] done"
