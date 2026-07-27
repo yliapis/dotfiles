@@ -6,7 +6,7 @@ command and regenerate rather than editing this file.
 `make commands-index-check` fails when it has drifted.
 
 - **Source root:** `ai-coding/plugins/*/commands/`
-- **Count:** 9
+- **Count:** 8
 
 ## Parameter surface
 
@@ -18,28 +18,26 @@ command. Enumerate every row when no filter is given. Titles are cut to
 
 | # | slug | invocation | path | has_parameters | title |
 |---:|---|---|---|---|---|
-| 1 | `address-worklist-commit-loop` | `/address-worklist-commit-loop` | `ai-coding/plugins/ticket-operations/commands/address-worklist-commit-loop.md` | yes | Address Worklist Commit Loop (Compatibility) |
-| 2 | `critique` | `/critique` | `ai-coding/plugins/writing/commands/critique.md` | yes | Critique |
-| 3 | `designer` | `/designer` | `ai-coding/plugins/design-suite/commands/designer.md` | yes | Designer |
-| 4 | `merge-commit-push` | `/merge-commit-push` | `ai-coding/plugins/git-operations/commands/merge-commit-push.md` | yes | Merge Commit Push |
-| 5 | `meta-prompt` | `/meta-prompt` | `ai-coding/plugins/writing/commands/meta-prompt.md` | yes | Meta-Prompt: Create or Refine a Task Prompt |
-| 6 | `ralph-design` | `/ralph-design` | `ai-coding/plugins/design-suite/commands/ralph-design.md` | yes | Ralph Design |
-| 7 | `save-session-state` | `/save-session-state` | `ai-coding/plugins/session-state/commands/save-session-state.md` | yes | Save Session State |
-| 8 | `soft-shutdown` | `/soft-shutdown` | `ai-coding/plugins/session-state/commands/soft-shutdown.md` | yes | Soft Shutdown |
-| 9 | `wrap-up` | `/wrap-up` | `ai-coding/plugins/session-state/commands/wrap-up.md` | yes | Wrap Up |
+| 1 | `critique` | `/critique` | `ai-coding/plugins/writing/commands/critique.md` | yes | Critique |
+| 2 | `designer` | `/designer` | `ai-coding/plugins/design-suite/commands/designer.md` | yes | Designer |
+| 3 | `merge-commit-push` | `/merge-commit-push` | `ai-coding/plugins/git-operations/commands/merge-commit-push.md` | yes | Merge Commit Push |
+| 4 | `meta-prompt` | `/meta-prompt` | `ai-coding/plugins/writing/commands/meta-prompt.md` | yes | Meta-Prompt: Create or Refine a Task Prompt |
+| 5 | `ralph-design` | `/ralph-design` | `ai-coding/plugins/design-suite/commands/ralph-design.md` | yes | Ralph Design |
+| 6 | `save-session-state` | `/save-session-state` | `ai-coding/plugins/session-state/commands/save-session-state.md` | yes | Save Session State |
+| 7 | `soft-shutdown` | `/soft-shutdown` | `ai-coding/plugins/session-state/commands/soft-shutdown.md` | yes | Soft Shutdown |
+| 8 | `wrap-up` | `/wrap-up` | `ai-coding/plugins/session-state/commands/wrap-up.md` | yes | Wrap Up |
 
 ## Slug list
 
 Comma-separated slugs for command parameters:
 
 ```text
-address-worklist-commit-loop, critique, designer, merge-commit-push, meta-prompt, ralph-design, save-session-state, soft-shutdown, wrap-up
+critique, designer, merge-commit-push, meta-prompt, ralph-design, save-session-state, soft-shutdown, wrap-up
 ```
 
 ## Path list
 
 ```text
-ai-coding/plugins/ticket-operations/commands/address-worklist-commit-loop.md
 ai-coding/plugins/writing/commands/critique.md
 ai-coding/plugins/design-suite/commands/designer.md
 ai-coding/plugins/git-operations/commands/merge-commit-push.md
