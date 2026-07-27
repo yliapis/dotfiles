@@ -69,7 +69,7 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | `artifact_path` | [io](concerns/io.md) | `save_path`, `output_path` | meta-prompt, save-session-state, ralph-design, design-skill, designer-controller |
 | `test_command` | [constraints](concerns/constraints.md) | `verify_command` | worktree-task, agent-swarm, ticket-execute, address-worklist-commit-loop (relayed) |
 | `stop_condition` | [constraints](concerns/constraints.md) | — | worktree-task, ralph-design |
-| `max_iterations` | [constraints](concerns/constraints.md) | — | ralph-design, design-skill, designer-controller |
+| `max_iterations` | [constraints](concerns/constraints.md) | — | ralph-design, design-skill, designer-controller, agent-swarm |
 | `candidate_count` | [replication](concerns/replication.md) | `n`, `num_experiments`, `parallelism`, `num_agents`, `num`, `fan_out`, `fanout_default_n` | meta-prompt, critique, worktree-task, agent-swarm, designer-controller, ralph-design |
 | `concurrency` | [replication](concerns/replication.md) | `k`, `parallel`, `parallel_agents`, `p` | meta-prompt, critique, agent-swarm, worktree-task |
 | `partition_count` | [replication](concerns/replication.md) | `num_partitions` | worktree-task, agent-swarm |
@@ -82,7 +82,7 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | `merge_mode` | [lifecycle](concerns/lifecycle.md) | — | worktree-task, agent-swarm (sets it) |
 | `remote` | [lifecycle](concerns/lifecycle.md) | — | merge-commit-push, wrap-up, soft-shutdown |
 | `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, ticket-create |
-| `approval_mode` | [interaction](concerns/interaction.md) | `mode` | ticket-execute, ticket-update, address-worklist-commit-loop, ralph-design |
+| `approval_mode` | [interaction](concerns/interaction.md) | `mode` | ticket-execute, ticket-update, address-worklist-commit-loop, ralph-design, agent-swarm |
 | `authoring_mode` | [interaction](concerns/interaction.md) | `mode` | design-skill, designer-controller |
 | `traits` | [composition](concerns/composition.md) | — | designer, designer-controller |
 | `trait_map` | [composition](concerns/composition.md) | — | designer, designer-controller |
@@ -101,6 +101,7 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | [concerns/lifecycle.md](concerns/lifecycle.md) | What persists at the end of a run: write gating, merging, pushing, write-back. |
 | [concerns/robustness.md](concerns/robustness.md) | What happens when members hang, fail, or overspend. |
 | [concerns/interaction.md](concerns/interaction.md) | When the user is asked: interactive flags, approval cadence, authoring motion. |
+| [concerns/reporting.md](concerns/reporting.md) | What the run shows the reader: detail level, plan diagrams, other output-shape knobs. |
 | [concerns/composition.md](concerns/composition.md) | How artifacts select and shape other skills: traits, registries, presets, styles. |
 
 ## Other pages

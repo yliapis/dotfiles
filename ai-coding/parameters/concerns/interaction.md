@@ -38,20 +38,31 @@ walkthrough).
 
 ### `approval_mode`
 - **Aliases:** `mode` (ticket-execute, ticket-update,
-  address-worklist-commit-loop compatibility command, ralph-design)
+  address-worklist-commit-loop compatibility command, ralph-design,
+  agent-swarm)
 - **Applies to:** command, skill
 - **Type:** ticket-execute and the compatibility command:
   `interactive` | `non-interactive` | `force-approve-all`; ticket-update:
-  `interactive` | `non-interactive`; ralph-design uses its documented loop
-  values.
-- **Default:** `interactive`
+  `interactive` | `non-interactive`; agent-swarm:
+  `default` | `preview` | `interactive` | `plan`; ralph-design uses its
+  documented loop values.
+- **Default:** `interactive`; agent-swarm instead resolves the value from the
+  invocation context (the user asking to design the swarm gives `plan`, a user
+  settling one that would dispatch this turn gives `interactive`, a request to
+  see the shape gives `preview`) and falls back to `default`.
 - **Meaning:** Approval cadence for a loop. Ticket execution approves the plan
   and each final ticket diff in `interactive`, the plan once in
   `non-interactive`, and nothing in `force-approve-all`. Ticket update binds
   interactive approval to a plan digest; non-interactive mutation requires
-  that digest through `{approve}`.
+  that digest through `{approve}`. agent-swarm's values also decide whether
+  the run draws its topology at all: `default` states the plan in text and
+  dispatches, `preview` adds the diagram, `interactive` adds one go/no-go, and
+  `plan` iterates on the design until the user verifies it or
+  [`max_iterations`](constraints.md#max_iterations) halts the loop with
+  `plan-cap-hit`. The rendering half of those values is documented on
+  [`{preview_swarm_topology}`](reporting.md#agent-swarm).
 - **Used by:** ticket-execute, ticket-update,
-  address-worklist-commit-loop (relayed), ralph-design
+  address-worklist-commit-loop (relayed), ralph-design, agent-swarm
 
 ### `authoring_mode`
 - **Aliases:** `mode` (design-skill, designer-controller)

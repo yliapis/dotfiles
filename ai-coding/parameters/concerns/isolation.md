@@ -20,7 +20,9 @@ commands against the calling worktree or any sibling.
   default split follows the artifact's role: fan-out artifacts fork from where
   you are; session-hygiene commands reconcile against `main`.
 - **Propagation:** broadcast — every member forks from the same branch, and
-  per-member diffs are rendered against it.
+  per-member diffs are rendered against it. Exception: agent-swarm's
+  `pipeline` topology rewrites it per stage so each stage builds on its
+  predecessor's branch. See [propagation.md](../propagation.md).
 - **Used by:** worktree-task, ralph-design, wrap-up, soft-shutdown
 
 ### `worktree_name`
@@ -33,6 +35,9 @@ commands against the calling worktree or any sibling.
   defaults to empty (write into the current tree, no worktree)
 - **Meaning:** Base name for the worktree directory and branch. When fanning
   out, a 1-based index suffix (`-1`, `-2`, ...) is appended per member.
+  agent-swarm's `staged` and `pipeline` topologies dispatch each wave or stage
+  under its own name (`<slug>-w<j>`, `<slug>-s<i>`), so that suffix numbers
+  members within one wave or stage rather than across the swarm.
 - **Propagation:** rewrite — each member gets the suffixed variant. See
   [propagation.md](../propagation.md).
 - **Used by:** worktree-task, ralph-design, meta-prompt

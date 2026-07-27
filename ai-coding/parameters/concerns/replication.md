@@ -55,3 +55,20 @@ them.
   must be a full per-agent iteration (length `candidate_count`) or a
   per-partition iteration (length `partition_count`).
 - **Used by:** worktree-task, agent-swarm
+
+## Artifact-specific
+
+- `{topology}` (agent-swarm) — the arrangement of the `candidate_count`
+  members: `parallel` (default — one wave of independent members) |
+  `partitioned` (`partition_count` groups that share a model slice, each
+  selected within before the global pass) | `staged` (`partition_count`
+  sequential waves, each
+  wave after the first receiving the previous wave's summaries as text) |
+  `pipeline` (a chain of single-member stages, stage *i* forking from stage
+  *i-1*'s branch). Orthogonal to `candidate_count` (how many) and
+  `concurrency` (how many at once): topology sets what members fork from and
+  what flows between them. `partitioned` and `staged` require an explicit
+  `partition_count`; `pipeline` forces `concurrency = 1` and rejects an
+  explicit higher value. Dispatch consequences — one worktree-task invocation
+  per wave or stage, and the per-stage `base_branch` rewrite — are in
+  [propagation.md](../propagation.md).
