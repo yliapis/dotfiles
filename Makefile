@@ -35,7 +35,7 @@ INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
 install:        ## Run initial dotfiles install (./install.sh)
 	@./install.sh
 
-refresh:        ## Brew bundle, upgrades, sync, and install-*.sh scripts (./refresh.sh)
+refresh:        ## Maintenance mode: ./install.sh --refresh (via ./refresh.sh)
 	@./refresh.sh
 
 help:  ## Print targets and sync script CLI (GNU Make owns make -h / make --help)
