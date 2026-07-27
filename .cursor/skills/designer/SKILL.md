@@ -1,6 +1,6 @@
 ---
 name: designer
-description: "Manually-invoked design controller that applies one or more design traits — declarative (YAML DSL and schema modeling) and deterministic (reproducibility and non-determinism elimination) — to a target via explicit control knobs (traits, mode, approval, depth, persistence, fan_out). Use when the user explicitly invokes designer, asks for a design controller, asks to compose multiple design philosophies with explicit parameters, or asks for a step-by-step design walkthrough against a named trait. Manually invoked only — do not auto-apply on bare 'design X' phrasings, unrelated edits, or general refactoring."
+description: "Manually-invoked design controller that applies one or more design traits — declarative (YAML DSL and schema modeling), deterministic (reproducibility and non-determinism elimination), and concise (redundancy elimination and tightening) — to a target via explicit control knobs (traits, mode, approval, depth, persistence, fan_out). Use when the user explicitly invokes designer, asks for a design controller, asks to compose multiple design philosophies with explicit parameters, or asks for a step-by-step design walkthrough against a named trait. Manually invoked only — do not auto-apply on bare 'design X' phrasings, unrelated edits, or general refactoring."
 license: MIT
 ---
 
@@ -102,6 +102,7 @@ Trait names map to trait cards under this skill's own [./traits/](./traits/) dir
 
 - `declarative` → [./traits/declarative.md](./traits/declarative.md)
 - `deterministic` → [./traits/deterministic.md](./traits/deterministic.md)
+- `concise` → [./traits/concise.md](./traits/concise.md)
 
 Add a new trait by:
 
