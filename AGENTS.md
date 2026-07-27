@@ -18,11 +18,9 @@ are intentionally not installed in cloud (headless VM; slow boots); run
 `./install.sh` manually only if a task needs them. Run `make help` for details
 on sync and other targets.
 
-The `backlog` CLI install is best-effort and currently fails in the cloud VM:
-npm's global prefix there is root-owned, so `npm install -g backlog.md` hits
-`EACCES` and the bootstrap continues without it (by design). Expect `backlog`
-to be absent on PATH; the tasks under `backlog/` are plain Markdown and can be
-read directly.
+When npm's global prefix is not user-writable (common in cloud VMs), the
+bootstrap installs `backlog` into `~/.local` via `NPM_CONFIG_PREFIX`; login
+shells pick it up from `~/.profile`'s `~/.local/bin` PATH entry.
 
 There is no compiled app or test framework — the deliverables are shell
 scripts, so the lint/test/build/run loop maps to `make` and `shellcheck`:
