@@ -34,12 +34,13 @@ fi
 
 # zsh runs every repo script, rsync backs the make sync targets, and the
 # linter covers a repo whose deliverables are shell scripts. curl fetches
-# the standalone uv installer (uv is not an apt package).
+# the standalone uv installer (uv is not an apt package). ripgrep provides rg.
 packages=()
 command -v zsh >/dev/null 2>&1 || packages+=(zsh)
 command -v rsync >/dev/null 2>&1 || packages+=(rsync)
 command -v shellcheck >/dev/null 2>&1 || packages+=(shellcheck)
 command -v curl >/dev/null 2>&1 || packages+=(curl)
+command -v rg >/dev/null 2>&1 || packages+=(ripgrep)
 
 if ((${#packages[@]})); then
   echo "[cloud-agent-bootstrap] installing: ${packages[*]}"
