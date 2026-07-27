@@ -9,7 +9,7 @@
       "name": "design-suite",
       "source": "./ai-coding/plugins/design-suite",
       "version": "0.1.0",
-      "description": "Author and orchestrate <trait>-design skills (design-skill, designer-controller, declarative/deterministic-design)."
+      "description": "Compose design traits against a target (designer, with declarative and deterministic trait cards) and author new ones (design-skill)."
     },
     {
       "name": "git-operations",

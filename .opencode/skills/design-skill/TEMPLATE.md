@@ -1,27 +1,22 @@
----
-name: {trait}-design
-description: "{One-sentence definition of what this skill turns into what artifact, e.g. 'Turn a domain into a YAML DSL schema and worked instance.'} Use when the user explicitly asks for {trait} design, {variant phrase 1}, or {variant phrase 2}. Manually invoked only — do not apply against unrelated edits."
-license: MIT
----
-
 <!--
-TEMPLATE FILE — not a real skill. Replace every {placeholder} when authoring a new
-<trait>-design/SKILL.md. The design-skill meta-skill (../design-skill/SKILL.md) consumes
-this template at runtime to scaffold new trait-design skills; it depends on the section
-names and section order below being stable across versions. Section bodies are the
-author-supplied parts. Remove this comment and the *italic guidance notes* throughout
-when filling the template.
+TEMPLATE FILE — not a real trait card. Replace every {placeholder} when authoring a new
+designer/traits/<trait>.md. The design-skill meta-skill (../design-skill/SKILL.md) consumes
+this template at runtime to scaffold new trait cards; it depends on the section names and
+section order below being stable across versions. Section bodies are the author-supplied
+parts. A card carries no frontmatter: it is loaded by the designer skill through its
+trait map, not discovered on its own. Remove this comment and the *italic guidance notes*
+throughout when filling the template.
 -->
 
 # {Trait Title} Design
 
-{One-paragraph framing: name the journey ("turn X into Y"), the deliverable shape (data, schema, refactor patch, audit checklist), and the key invariant the skill enforces.}
+{One-paragraph framing: name the journey ("turn X into Y"), the deliverable shape (data, schema, refactor patch, audit checklist), and the key invariant the trait enforces.}
 
 *The framing paragraph is the elevator pitch for an LLM that may have only this paragraph in context. Make every word earn its place.*
 
 ## When to Invoke
 
-This skill is manually invoked. Apply it only when the user explicitly asks for one of:
+Name this trait when the user explicitly asks for one of:
 
 - {Explicit phrase 1}
 - {Explicit phrase 2}
@@ -29,7 +24,7 @@ This skill is manually invoked. Apply it only when the user explicitly asks for 
 
 Do not apply against unrelated edits. If the user has not asked for {trait}, leave the target alone.
 
-*Calibrate the trigger phrase list to the trait's natural English: a deterministic-design trigger says "reproducibility" or "bit-identical output"; a declarative-design trigger says "DSL", "schema", "domain modeling". The "manually invoked" guard is non-negotiable; every trait skill in this family fights against premature auto-attachment.*
+*Calibrate the trigger phrase list to the trait's natural English: the deterministic trait's phrases say "reproducibility" or "bit-identical output"; the declarative trait's say "DSL", "schema", "domain modeling". These phrases tell a reader when the trait belongs in `traits=[...]`; they do not make the card auto-attach, because a card is not a discoverable skill.*
 
 ## Design Walkthrough
 
@@ -39,7 +34,7 @@ Work the steps in order; each step depends on the steps above it, and each produ
 2. **{Step 2 name}** — Question: {...}. Artifact: {...}. {heuristic}.
 3. **{Step 3 name}** — Question: {...}. Artifact: {...}. {heuristic}.
 
-*The `**{Step N name}**` slug is what the controller's walkthrough header-resolution rule (see [../designer-controller/SKILL.md](../designer-controller/SKILL.md)) keys on. Keep step names short, descriptive, and stable across schema versions; existing trait skills run 7–15 steps, but smaller is fine if the trait is narrow.*
+*The `**{Step N name}**` slug is what the controller's walkthrough header-resolution rule (see [../designer/SKILL.md](../designer/SKILL.md)) keys on. Keep step names short, descriptive, and stable across schema versions; existing trait cards run 7–15 steps, but smaller is fine if the trait is narrow.*
 
 ## Worked Example
 
@@ -49,19 +44,19 @@ Work the steps in order; each step depends on the steps above it, and each produ
 # {fenced example artifact}
 ```
 
-*Size the example to fit on one screen. Show the inputs and the resulting deliverable. Prefer a cohesive end-to-end example over a fragmentary one; readers learn the skill by reading the worked example.*
+*Size the example to fit on one screen. Show the inputs and the resulting deliverable. Prefer a cohesive end-to-end example over a fragmentary one; readers learn the trait by reading the worked example.*
 
 ## Deliverable
 
-When this skill finishes, the user leaves with:
+When this trait finishes, the user leaves with:
 
 1. **{Artifact 1}** — {one-sentence description; cite the section it composes from}.
 2. **{Artifact 2}** — {one-sentence description}.
 3. **{Artifact 3}** — {one-sentence description}.
 
-{One-sentence note on what is NOT in the deliverable, e.g. "Choice of validator library, codegen tool, or runtime is the user's call and outside this skill's scope."}
+{One-sentence note on what is NOT in the deliverable, e.g. "Choice of validator library, codegen tool, or runtime is the user's call and outside this trait's scope."}
 
-*The deliverable is the contract between this skill and the user. Authors should be able to point at every artifact and say which section produced it. Adjacent runtime concerns (validators, codegen, deploy tooling) are typically out of scope and should be named as such.*
+*The deliverable is the contract between this trait and the user. Authors should be able to point at every artifact and say which section produced it. Adjacent runtime concerns (validators, codegen, deploy tooling) are typically out of scope and should be named as such.*
 
 ## Validation & Verification
 
@@ -71,7 +66,7 @@ A conforming deliverable MUST satisfy every rule below. Each rule traces back to
 - **{Rule 2}.** {constraint}.
 - **{Rule 3}.** {constraint}.
 
-Verify the deliverable by running these checks (each MUST pass before declaring the skill done):
+Verify the deliverable by running these checks (each MUST pass before declaring the trait's work done):
 
 1. {Check 1: a concrete command, procedure, or comparison.}
 2. {Check 2.}
@@ -81,20 +76,20 @@ Verify the deliverable by running these checks (each MUST pass before declaring 
 
 ## When Not To Use
 
-- **{Anti-case 1}.** {One sentence on why this skill fights the domain in this case; what the user should do instead.}
+- **{Anti-case 1}.** {One sentence on why this trait fights the domain in this case; what the user should do instead.}
 - **{Anti-case 2}.** {one sentence}.
 - **{Anti-case 3}.** {one sentence}.
-- **{Adjacent skill is a better fit}.** {If another trait-design skill or a non-design tool covers the case better, name it.}
+- **{An adjacent trait is a better fit}.** {If another trait card or a non-design tool covers the case better, name it.}
 
-*The "When Not To Use" section is what makes the skill safe to auto-attach against bare phrasings. The longer this section, the safer the skill.*
+*The "When Not To Use" section is what keeps the controller from applying the trait where it fights the domain. The longer this section, the safer the trait.*
 
 ## {Trait} Principles
 
 Frame every design decision around these. Each is a "do this, not that" choice, not an abstract value.
 
-- **{Principle 1}** — {Imperative framing. State the choice the skill makes, not the value it nominally upholds.}
+- **{Principle 1}** — {Imperative framing. State the choice the trait makes, not the value it nominally upholds.}
 - **{Principle 2}** — {imperative framing}.
 - **{Principle 3}** — {imperative framing}.
 - **{Principle 4}** — {imperative framing}.
 
-*Principles live last because by this point the reader has seen the walkthrough, the worked example, the deliverable, and the validation contract. The principles' job is to summarize the worldview the rest of the skill has already enacted, not to introduce it.*
+*Principles live last because by this point the reader has seen the walkthrough, the worked example, the deliverable, and the validation contract. The principles' job is to summarize the worldview the rest of the card has already enacted, not to introduce it.*

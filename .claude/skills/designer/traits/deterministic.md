@@ -1,25 +1,19 @@
----
-name: deterministic-design
-description: "Drive a systematic effort to enumerate and eliminate every source of non-determinism in a target so the same input produces bit-identical output on every run, every machine, and every process. Use when the user explicitly asks for deterministic design, reproducibility, or removing non-determinism from a piece of code or a system. Manually invoked only — do not apply against unrelated edits."
-license: MIT
----
-
 # Deterministic Design
 
 Same input → same output, every run, every machine, every process.
 
-A program is deterministic when its observable output is a pure function of its declared inputs. Hidden inputs — wall-clock time, hash seeds, thread schedules, filesystem ordering, GPU reduction order, ambient environment — silently break that contract. This skill drives an audit-and-fix discipline against a specific target: find every such hidden input, pair it with a concrete mitigation, then prove the result is bit-identical across runs and machines.
+A program is deterministic when its observable output is a pure function of its declared inputs. Hidden inputs — wall-clock time, hash seeds, thread schedules, filesystem ordering, GPU reduction order, ambient environment — silently break that contract. This trait drives an audit-and-fix discipline against a specific target: find every such hidden input, pair it with a concrete mitigation, then prove the result is bit-identical across runs and machines.
 
 ## When to Invoke
 
-This skill is manually invoked. Apply it only when the user explicitly asks for one of:
+Name this trait when the user explicitly asks for one of:
 
 - Deterministic design, deterministic behavior, or deterministic execution.
 - Reproducibility across runs, machines, processes, containers, or environments.
 - Removing non-determinism, flaky tests tied to ordering or timing, or "works on my machine" drift.
 - Bit-identical output between two runs or two hosts (e.g., `sha256sum` parity).
 
-Do not apply this skill against unrelated edits. If the user has not asked for determinism, leave the target alone. The cost of a deterministic refactor is real (injection points, reduced parallelism, deferred clock and RNG access); it pays back only when the user has asked for it.
+Do not apply this trait against unrelated edits. If the user has not asked for determinism, leave the target alone. The cost of a deterministic refactor is real (injection points, reduced parallelism, deferred clock and RNG access); it pays back only when the user has asked for it.
 
 ## Sources of Non-Determinism
 
@@ -120,7 +114,7 @@ Each entry below names a source, its failure mode, and at least one concrete, na
 
 ## Deliverable When Invoked
 
-When this skill is invoked against a target, produce **one** of the following — pick one explicitly, do not mix. Choose (a) when the target is small and the user has authorized the refactor; choose (b) when the target is large, exploratory, or the user wants to scope the work first.
+When this trait is applied against a target, produce **one** of the following — pick one explicitly, do not mix. Choose (a) when the target is small and the user has authorized the refactor; choose (b) when the target is large, exploratory, or the user wants to scope the work first.
 
 ### (a) Deterministic Refactor
 

@@ -38,14 +38,13 @@ walkthrough).
 
 ### `approval_mode`
 - **Aliases:** `mode` (ticket-execute, ticket-update,
-  address-worklist-commit-loop compatibility command, ralph-design,
-  agent-swarm)
+  address-worklist-commit-loop compatibility command, agent-swarm),
+  `approval` (designer)
 - **Applies to:** command, skill
-- **Type:** ticket-execute and the compatibility command:
+- **Type:** ticket-execute, the compatibility command, and designer:
   `interactive` | `non-interactive` | `force-approve-all`; ticket-update:
   `interactive` | `non-interactive`; agent-swarm:
-  `default` | `preview` | `interactive` | `plan`; ralph-design uses its
-  documented loop values.
+  `default` | `preview` | `interactive` | `plan`.
 - **Default:** `interactive`; agent-swarm instead resolves the value from the
   invocation context (the user asking to design the swarm gives `plan`, a user
   settling one that would dispatch this turn gives `interactive`, a request to
@@ -60,22 +59,33 @@ walkthrough).
   `plan` iterates on the design until the user verifies it or
   [`max_iterations`](constraints.md#max_iterations) halts the loop with
   `plan-cap-hit`. The rendering half of those values is documented on
-  [`{preview_swarm_topology}`](reporting.md#agent-swarm).
+  [`{preview_swarm_topology}`](reporting.md#agent-swarm). designer's
+  `approval` governs its `mode=walkthrough` rounds: `interactive` offers
+  `accept` / `refine` / `fork` / `back` / `done` every round, `non-interactive`
+  approves the plan once and auto-accepts each round, `force-approve-all` skips
+  the plan approval too.
+- **Validation:** designer rejects `approval` outside `mode=walkthrough`, and
+  pairs it with [`stop_condition`](constraints.md#stop_condition) — the
+  `user-signals-done` default requires `interactive`, and the two unattended
+  cadences each require an explicit stop condition other than it.
 - **Used by:** ticket-execute, ticket-update,
-  address-worklist-commit-loop (relayed), ralph-design, agent-swarm
+  address-worklist-commit-loop (relayed), designer, agent-swarm; reached
+  through the `/ralph-design` preset, which presets it to `interactive`
 
 ### `authoring_mode`
-- **Aliases:** `mode` (design-skill, designer-controller)
+- **Aliases:** `mode` (design-skill, designer)
 - **Applies to:** skill
 - **Type:** enum: `walkthrough` | `propose`
 - **Default:** `walkthrough`
 - **Meaning:** The authoring motion: `walkthrough` runs an interactive
   section-by-section loop (one round per section); `propose` generates the
   full draft in one shot from the spec.
-- **Validation:** gates other knobs — `max_iterations` and `fan_out >= 2` are
-  walkthrough-only; `precedence` and multi-trait composition are propose-only
-  (designer-controller); `description` is required in propose (design-skill).
-- **Used by:** design-skill, designer-controller
+- **Validation:** gates other knobs — `max_iterations`, `approval`,
+  `stop_condition`, and `fan_out >= 2` are walkthrough-only; `precedence` and
+  multi-trait composition are propose-only (designer); `description` is
+  required in propose (design-skill).
+- **Used by:** design-skill, designer. The `/designer` and `/ralph-design`
+  presets each pin one value and do not expose it.
 
 ## Artifact-specific
 

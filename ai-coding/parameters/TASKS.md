@@ -75,14 +75,11 @@ Work items, in order:
   `concerns/replication.md:4-5` claims eleven spellings; the cards' own
   enumeration yields twelve. Bump the number or state the counting rule.
 - **Fork-edge scope errors** (C3): `propagation.md:36` says `base_branch` is
-  "broadcast — every member forks from it", but ralph-design's fork
+  "broadcast — every member forks from it", but designer's forked round
   dispatches members from the iterator's *current* branch
-  (`ralph-design.md:69`). The `merge_mode` card
-  (`concerns/lifecycle.md:42-45`) says only agent-swarm sets it, but
-  ralph-design pins `merge_mode = interactive` too. The `task` card's
-  Used-by (`concerns/intent.md:20-21`) omits ralph-design and
-  designer-controller, which synthesize a `task` at dispatch. (Consider a
-  `Set by` vs `Declared by` field split — see task 11.)
+  (`skills/designer/SKILL.md`). The `task` card's Used-by
+  (`concerns/intent.md:20-21`) omits designer, which synthesizes a `task` at
+  dispatch. (Consider a `Set by` vs `Declared by` field split — see task 11.)
 - **`{input}` self-contradiction** (C4): `concerns/intent.md:40-41` says
   "Required (may be empty, which triggers HELP)". Rephrase: always present;
   empty input selects HELP mode.
@@ -92,11 +89,11 @@ Work items, in order:
   overwrite-confirmation applies only when `{mode}` is `write`
   (`save-session-state.md:12,16,21`), which
   `concerns/interaction.md:26-27` omits.
-- **Missing mode/stop-condition coupling** (C1): ralph-design requires
-  `stop_condition=user-signals-done` only with `mode=interactive`
-  (`commands/ralph-design.md:11-16,32`). Record the bidirectional constraint
-  in both `concerns/constraints.md:29-41` and the `approval_mode` card in
-  `concerns/interaction.md:35-46`.
+- ~~**Missing mode/stop-condition coupling** (C1)~~: landed. The loop moved
+  into the `designer` skill, and the bidirectional `approval` /
+  `stop_condition` constraint is now recorded on both the `stop_condition`
+  card in `concerns/constraints.md` and the `approval_mode` card in
+  `concerns/interaction.md`.
 - **Flag, don't silently normalize, two inherited contradictions** (C3):
   (a) `concerns/constraints.md:20-21` vs `concerns/selection.md:25` mirror
   conflicting artifact lines on whether `vote` requires `test_command` or
@@ -115,9 +112,8 @@ The live graph has four spawn edges plus one composition edge; only
 agent-swarm → worktree-task is documented in full, with meta-prompt partial.
 Add one table per edge, in the agent-swarm example's format:
 
-- ralph-design → worktree-task (`fork`, `commands/ralph-design.md:39,69`)
-- designer-controller → worktree-task (`fan_out`,
-  `skills/designer-controller/SKILL.md:117`)
+- designer → worktree-task (`fan_out`, per forked walkthrough round,
+  `skills/designer/SKILL.md`)
 - meta-prompt → variant agents
 - prompt-template-library → meta-prompt (composition,
   `skills/prompt-template-library/SKILL.md:142-144`)

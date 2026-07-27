@@ -8,8 +8,8 @@ lifecycle governs what escapes it.
 ## Cards
 
 ### `write_gate` (family)
-- **Aliases:** `update_mode` (meta-prompt), `persistence` (ralph-design,
-  design-skill, designer-controller, ticket-create compatibility),
+- **Aliases:** `update_mode` (meta-prompt), `persistence` (designer,
+  design-skill, ticket-create compatibility),
   `dry_run` (ticket-create, ticket-execute, ticket-update,
   address-worklist-commit-loop), `mode` (save-session-state)
 - **Applies to:** command, skill
@@ -24,9 +24,8 @@ lifecycle governs what escapes it.
   | Artifact | Spelling | Values | Write behavior |
   |---|---|---|---|
   | meta-prompt | `{update_mode}` | `auto` (default), `plan`, `agent`, `dry-run`, `confirm` | `auto` writes when a target is resolvable, else shows the block; `plan` always shows; `agent` always writes (aborts without a target); `dry-run` previews manifest + diffs; `confirm` asks y/n (interactive only, else behaves as `plan`) |
-  | ralph-design | `{persistence}` | `chat`, `codebase` (default) | `chat` keeps the working artifact in-conversation; `codebase` writes `artifact_path` each round (inside a worktree per `use_worktree`) |
+  | designer | `persistence` | `chat` (default), `codebase` | `chat` keeps the working artifact in-conversation; `codebase` writes `artifact_path` (each round in `mode=walkthrough`, plus per-round snapshots) inside a worktree per `use_worktree`. The `/ralph-design` preset flips the default to `codebase` |
   | design-skill | `persistence` | `chat`, `codebase` (default) | same semantics; the artifact is the deliverable |
-  | designer-controller | `persistence` | `chat` (default), `codebase` | same semantics; note the default flips to `chat` |
   | address-worklist-commit-loop | `{dry_run}` | `true`, `false` (default) | relays the no-write plan mode to ticket-execute |
   | save-session-state | `{mode}` | `write` (default), `preview` | `preview` emits the snapshot in chat and creates or replaces no file |
   | ticket-create | `{dry_run}` | `true`, `false` (default) | validates and renders the complete set in memory, reports the plan, and writes no lock, staging directory, or artifact |
@@ -37,7 +36,7 @@ lifecycle governs what escapes it.
   when `persistence=chat`; meta-prompt's `agent` mode requires a resolvable
   save target; ticket-create accepts only compatibility
   `{persistence}=files` and `{emit_worklist}=true`.
-- **Used by:** meta-prompt, ralph-design, design-skill, designer-controller,
+- **Used by:** meta-prompt, designer, design-skill,
   address-worklist-commit-loop, save-session-state, ticket-create,
   ticket-execute, ticket-update
 

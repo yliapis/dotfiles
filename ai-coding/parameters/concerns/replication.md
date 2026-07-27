@@ -12,14 +12,16 @@ them.
 ### `candidate_count`
 - **Aliases:** `n` (meta-prompt), `num_experiments` (critique), `parallelism`
   (worktree-task), `num_agents` / `n` / `num` (agent-swarm), `fan_out`
-  (designer-controller), `fanout_default_n` (ralph-design)
+  (designer)
 - **Applies to:** command, skill
-- **Type:** integer `>= 1` (agent-swarm requires `>= 2` and refuses a "swarm of 1"; ralph-design's fan-out default requires `>= 2`; designer-controller accepts `>= 2` only in `mode=walkthrough`)
-- **Default:** `1` (meta-prompt, critique, worktree-task,
-  designer-controller); required (agent-swarm); `4` (ralph-design)
+- **Type:** integer `>= 1` (agent-swarm requires `>= 2` and refuses a "swarm of 1"; designer accepts `>= 2` only in `mode=walkthrough`)
+- **Default:** `1` (meta-prompt, critique, worktree-task, designer);
+  required (agent-swarm)
 - **Meaning:** Total number of independent runs / agents / variants launched
   for one invocation. `1` means no fan-out: the workflow runs entirely in the
-  calling agent.
+  calling agent. In designer's `mode=walkthrough` the fan-out is per round: a
+  round that forks spawns this many variants, and `1` means the round prompts
+  for a count instead.
 - **Validation:** a list-valued `agent_model` must have length
   `candidate_count` (per-agent) or `partition_count` (per-partition);
   `partition_count` must divide `candidate_count` evenly.
@@ -27,8 +29,7 @@ them.
   `candidate_count = 1` (meta-prompt spawns variants with `n=1`; swarm members
   never recurse; replacements never chain). See
   [propagation.md](../propagation.md).
-- **Used by:** meta-prompt, critique, worktree-task, agent-swarm,
-  designer-controller, ralph-design
+- **Used by:** meta-prompt, critique, worktree-task, agent-swarm, designer
 
 ### `concurrency`
 - **Aliases:** `k` (meta-prompt), `parallel` (critique), `parallel_agents` / `p` (agent-swarm); worktree-task spells it canonically (`concurrency`)

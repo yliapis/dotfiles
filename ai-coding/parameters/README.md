@@ -65,27 +65,27 @@ Cross-artifact cards only; single-artifact parameters are indexed in
 | Canonical | Concern | Aliases | Used by |
 |---|---|---|---|
 | `task` | [intent](concerns/intent.md) | — | worktree-task, agent-swarm (relayed) |
-| `context` | [intent](concerns/intent.md) | `target`, `domain` | critique, designer, designer-controller, ralph-design |
-| `artifact_path` | [io](concerns/io.md) | `save_path`, `output_path` | meta-prompt, save-session-state, ralph-design, design-skill, designer-controller |
+| `context` | [intent](concerns/intent.md) | `target`, `domain` | critique, designer, ralph-design |
+| `artifact_path` | [io](concerns/io.md) | `save_path`, `output_path` | meta-prompt, save-session-state, designer, design-skill |
 | `test_command` | [constraints](concerns/constraints.md) | `verify_command` | worktree-task, agent-swarm, ticket-execute, address-worklist-commit-loop (relayed) |
-| `stop_condition` | [constraints](concerns/constraints.md) | — | worktree-task, ralph-design |
-| `max_iterations` | [constraints](concerns/constraints.md) | — | ralph-design, design-skill, designer-controller, agent-swarm |
-| `candidate_count` | [replication](concerns/replication.md) | `n`, `num_experiments`, `parallelism`, `num_agents`, `num`, `fan_out`, `fanout_default_n` | meta-prompt, critique, worktree-task, agent-swarm, designer-controller, ralph-design |
+| `stop_condition` | [constraints](concerns/constraints.md) | — | worktree-task, designer |
+| `max_iterations` | [constraints](concerns/constraints.md) | — | designer, design-skill, agent-swarm |
+| `candidate_count` | [replication](concerns/replication.md) | `n`, `num_experiments`, `parallelism`, `num_agents`, `num`, `fan_out` | meta-prompt, critique, worktree-task, agent-swarm, designer |
 | `concurrency` | [replication](concerns/replication.md) | `k`, `parallel`, `parallel_agents`, `p` | meta-prompt, critique, agent-swarm, worktree-task |
 | `partition_count` | [replication](concerns/replication.md) | `num_partitions` | worktree-task, agent-swarm |
-| `agent_model` | [models](concerns/models.md) | — | worktree-task, ralph-design, designer-controller |
-| `base_branch` | [isolation](concerns/isolation.md) | — | worktree-task, ralph-design, wrap-up, soft-shutdown |
-| `worktree_name` | [isolation](concerns/isolation.md) | `worktree` | worktree-task, ralph-design, meta-prompt |
-| `use_worktree` | [isolation](concerns/isolation.md) | — | ralph-design, design-skill, designer-controller |
+| `agent_model` | [models](concerns/models.md) | — | worktree-task, designer |
+| `base_branch` | [isolation](concerns/isolation.md) | — | worktree-task, designer, wrap-up, soft-shutdown |
+| `worktree_name` | [isolation](concerns/isolation.md) | `worktree` | worktree-task, designer, meta-prompt |
+| `use_worktree` | [isolation](concerns/isolation.md) | — | designer, design-skill |
 | `delete_worktree` | [isolation](concerns/isolation.md) | `delete_after_merge` | worktree-task, wrap-up |
-| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, ralph-design, design-skill, designer-controller, ticket-create, ticket-execute, ticket-update, address-worklist-commit-loop, save-session-state |
+| `write_gate` (family) | [lifecycle](concerns/lifecycle.md) | `update_mode`, `persistence`, `dry_run`, `mode` | meta-prompt, designer, design-skill, ticket-create, ticket-execute, ticket-update, address-worklist-commit-loop, save-session-state |
 | `merge_mode` | [lifecycle](concerns/lifecycle.md) | — | worktree-task, agent-swarm (sets it) |
 | `remote` | [lifecycle](concerns/lifecycle.md) | — | merge-commit-push, wrap-up, soft-shutdown |
 | `interactive` | [interaction](concerns/interaction.md) | `-i`, `--interactive`, `--interactive-template` | critique, meta-prompt, wrap-up, save-session-state, soft-shutdown, prompt-template-library, ticket-create |
-| `approval_mode` | [interaction](concerns/interaction.md) | `mode` | ticket-execute, ticket-update, address-worklist-commit-loop, ralph-design, agent-swarm |
-| `authoring_mode` | [interaction](concerns/interaction.md) | `mode` | design-skill, designer-controller |
-| `traits` | [composition](concerns/composition.md) | — | designer, designer-controller |
-| `trait_map` | [composition](concerns/composition.md) | — | designer, designer-controller |
+| `approval_mode` | [interaction](concerns/interaction.md) | `mode`, `approval` | ticket-execute, ticket-update, address-worklist-commit-loop, designer, agent-swarm |
+| `authoring_mode` | [interaction](concerns/interaction.md) | `mode` | design-skill, designer |
+| `traits` | [composition](concerns/composition.md) | — | designer |
+| `trait_map` | [composition](concerns/composition.md) | — | designer |
 
 ## Concern files
 

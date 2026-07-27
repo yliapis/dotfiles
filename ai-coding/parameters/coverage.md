@@ -35,13 +35,15 @@ sources.
 | `{k}` | [`concurrency`](concerns/replication.md#concurrency) | replication |
 | `--interactive` / `-i` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [designer](../commands/designer.md)
+### [designer](../plugins/design-suite/commands/designer.md)
+
+A preset over the [designer](#designer-1) skill: it pins `mode=propose` and forwards
+everything else. Knobs not listed here are the skill's.
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `{traits}` | [`traits`](concerns/composition.md#traits) | composition |
 | `{target}` | [`context`](concerns/intent.md#context) | intent |
-| `{trait_map}` | [`trait_map`](concerns/composition.md#trait_map) | composition |
 
 ### [merge-commit-push](../plugins/git-operations/commands/merge-commit-push.md)
 
@@ -108,22 +110,17 @@ sources.
 | `{allow_unpushed}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [ralph-design](../commands/ralph-design.md)
+### [ralph-design](../plugins/design-suite/commands/ralph-design.md)
+
+A preset over the [designer](#designer-1) skill: it pins `mode=walkthrough` and
+presets `traits=[declarative]`, `approval=interactive`,
+`stop_condition=user-signals-done`, and `persistence=codebase`. Every preset except
+`mode` is overridable inline, and every other knob is the skill's. The retired
+`{design_skill}` path parameter is replaced by the skill's `traits` knob.
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `{domain}` | [`context`](concerns/intent.md#context) | intent |
-| `{design_skill}` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
-| `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
-| `{stop_condition}` | [`stop_condition`](concerns/constraints.md#stop_condition) | constraints |
-| `{persistence}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
-| `{artifact_path}` | [`artifact_path`](concerns/io.md#artifact_path) | io |
-| `{use_worktree}` | [`use_worktree`](concerns/isolation.md#use_worktree) | isolation |
-| `{base_branch}` | [`base_branch`](concerns/isolation.md#base_branch) | isolation |
-| `{worktree_name}` | [`worktree_name`](concerns/isolation.md#worktree_name) | isolation |
-| `{fanout_default_n}` | [`candidate_count`](concerns/replication.md#candidate_count) | replication |
-| `{agent_model}` | [`agent_model`](concerns/models.md#agent_model) | models |
-| `{max_iterations}` | [`max_iterations`](concerns/constraints.md#max_iterations) | constraints |
 
 ## Skills
 
@@ -164,7 +161,7 @@ sources.
 | `{cost_cap}` | artifact-specific | [robustness](concerns/robustness.md#agent-swarm) |
 | `{pattern}` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
 
-### [design-skill](../skills/design-skill/SKILL.md)
+### [design-skill](../plugins/design-suite/skills/design-skill/SKILL.md)
 
 Knobs are unbraced `key=value` tokens.
 
@@ -179,15 +176,18 @@ Knobs are unbraced `key=value` tokens.
 | `use_worktree` | [`use_worktree`](concerns/isolation.md#use_worktree) | isolation |
 | `max_iterations` | [`max_iterations`](concerns/constraints.md#max_iterations) | constraints |
 
-### [designer-controller](../skills/designer-controller/SKILL.md)
+### [designer](../plugins/design-suite/skills/designer/SKILL.md)
 
-Knobs are unbraced `key=value` tokens.
+Knobs are unbraced `key=value` tokens. The `/designer` and `/ralph-design` commands
+are presets over this skill and add no knobs of their own.
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `traits` | [`traits`](concerns/composition.md#traits) | composition |
 | `target` | [`context`](concerns/intent.md#context) | intent |
 | `mode` | [`authoring_mode`](concerns/interaction.md#authoring_mode) | interaction |
+| `approval` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
+| `stop_condition` | [`stop_condition`](concerns/constraints.md#stop_condition) | constraints |
 | `precedence` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
 | `fan_out` | [`candidate_count`](concerns/replication.md#candidate_count) | replication |
 | `deliverable_shape` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
@@ -196,6 +196,8 @@ Knobs are unbraced `key=value` tokens.
 | `persistence` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 | `artifact_path` | [`artifact_path`](concerns/io.md#artifact_path) | io |
 | `use_worktree` | [`use_worktree`](concerns/isolation.md#use_worktree) | isolation |
+| `base_branch` | [`base_branch`](concerns/isolation.md#base_branch) | isolation |
+| `worktree_name` | [`worktree_name`](concerns/isolation.md#worktree_name) | isolation |
 | `max_iterations` | [`max_iterations`](concerns/constraints.md#max_iterations) | constraints |
 | `agent_model` | [`agent_model`](concerns/models.md#agent_model) | models |
 
@@ -262,11 +264,14 @@ Knobs are unbraced `key=value` tokens.
 
 ### No parameter surface
 
-Four skills declare no parameters, knobs, or flags — they activate
+Two skills declare no parameters, knobs, or flags — they activate
 contextually (or are invoked manually) and are procedural rather than
 knob-driven:
 
 - [conventional-commits](../plugins/git-operations/skills/conventional-commits/SKILL.md)
 - [minimal-diffs](../plugins/git-operations/skills/minimal-diffs/SKILL.md)
-- [declarative-design](../skills/declarative-design/SKILL.md)
-- [deterministic-design](../skills/deterministic-design/SKILL.md)
+
+The `declarative` and `deterministic` design traits are no longer skills. They are
+trait cards under
+[designer/traits/](../plugins/design-suite/skills/designer/traits/), loaded through
+the `designer` skill's trait map and selected with its `traits` knob.

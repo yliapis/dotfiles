@@ -1,9 +1,3 @@
----
-name: declarative-design
-description: "Design a YAML DSL schema for a user-named domain — modeling entities, attributes, types, defaults, references, validation rules, and extensibility — and leave with the schema, a worked conforming instance, and an explicit validation-rules list. Use when the user explicitly asks for declarative design, DSL design, YAML schema design, or schema design help; do not self-attach to general edits, refactors, or unrelated authoring tasks."
-license: MIT
----
-
 # Declarative Design
 
 Turn a domain the user names — feature flags, RBAC policies, CI pipelines, form layouts, alert rules — into a YAML DSL schema that is the source of truth, plus a worked conforming instance and an explicit list of validation rules. The journey is: domain → entities → attributes → types → validation → schema → instance. Treat every step as discovering data already implicit in the domain, not as inventing behavior to bolt onto it; the deliverable is data, not code.
@@ -163,13 +157,13 @@ A conforming document MUST satisfy every rule below. Each rule traces back to a 
 
 ## Deliverable
 
-When this skill finishes, the user leaves with three artifacts, all expressed as data:
+When this trait finishes, the user leaves with three artifacts, all expressed as data:
 
 1. **A YAML DSL schema** for their domain, capturing entities, attributes, types, defaults, required vs optional, enums, references, and the extensibility hatch.
 2. **At least one worked instance** that conforms to the schema, sized to fit on one screen, exercising the interesting cases (defaults applied, enum values selected, references resolved).
 3. **An explicit validation-rules list** — every constraint a conforming instance MUST satisfy, each rule traceable back to a specific schema decision.
 
-The schema is the source of truth. Any downstream code (validators, UIs, runtimes, doc generators) is a consumer of the schema, never a parallel definition of it. Choice of YAML parser, validator library, or codegen tool is the user's call and outside this skill's scope.
+The schema is the source of truth. Any downstream code (validators, UIs, runtimes, doc generators) is a consumer of the schema, never a parallel definition of it. Choice of YAML parser, validator library, or codegen tool is the user's call and outside this trait's scope.
 
 ## When Not To Use
 

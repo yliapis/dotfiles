@@ -20,9 +20,9 @@ is already pinned down.
 - **Used by:** worktree-task (declared), agent-swarm (relayed, undeclared)
 
 ### `context`
-- **Aliases:** `target` (designer, designer-controller, ticket-execute,
-  ticket-update), `domain` (ralph-design — loose alias: names the domain being
-  modeled rather than an existing artifact)
+- **Aliases:** `target` (designer, ticket-execute, ticket-update), `domain`
+  (ralph-design — loose alias: names the domain being modeled rather than an
+  existing artifact, and is forwarded to designer's `target`)
 - **Applies to:** command, skill
 - **Type:** file path | directory path | URL | inline text | free-form description (see [addressing forms](io.md#addressing-forms))
 - **Default:** required in all current uses
@@ -32,8 +32,8 @@ is already pinned down.
 - **Validation:** consumers record what was loaded and what was skipped or
   unreachable; critique surfaces unresolvable ambiguity in an Open Questions
   section instead of guessing.
-- **Used by:** critique (`{context}`), designer (`{target}`),
-  designer-controller (`target`), ralph-design (`{domain}`), ticket-execute
+- **Used by:** critique (`{context}`), designer (`target`), the `/designer`
+  preset (`{target}`), ralph-design (`{domain}`), ticket-execute
   (`{target}`), ticket-update (`{target}`)
 
 ## Artifact-specific

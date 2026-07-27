@@ -1,7 +1,7 @@
 # Composition
 
-How artifacts select and shape *other* skills and presets: trait registries
-that resolve names to design skills, preset shortcuts that bundle defaults,
+How artifacts select and shape *other* guidance and presets: trait registries
+that resolve names to design trait cards, preset shortcuts that bundle defaults,
 and style dimensions that bias drafting. This is the meta-programming concern
 — parameters here change which guidance gets loaded, not what work is done.
 
@@ -17,24 +17,26 @@ and style dimensions that bias drafting. This is the meta-programming concern
   All named traits are applied together — none is dropped, down-weighted, or
   silently merged; conflicts surface as labeled tensions.
 - **Validation:** unknown traits abort before any design work, naming every
-  unrecognized trait and listing the available ones. designer-controller
-  requires exactly one trait in `mode=walkthrough`, one or more in
-  `mode=propose`.
-- **Used by:** designer (`{traits}`), designer-controller (`traits`)
+  unrecognized trait and listing the available ones. designer requires exactly
+  one trait in `mode=walkthrough`, one or more in `mode=propose`.
+- **Used by:** designer (`traits`), and the `/designer` and `/ralph-design`
+  presets, which forward it
 
 ### `trait_map`
 - **Aliases:** —
-- **Applies to:** command, skill
-- **Type:** trait-name → skill-path registry; every path is repo-relative
-  under `.cursor/skills/` (absolute paths, `~/`, `$HOME` rejected)
+- **Applies to:** skill
+- **Type:** trait-name → card-path registry; every path is relative to the
+  owning skill's own directory and must resolve under `./traits/` (`..`
+  segments, absolute paths, `~/`, `$HOME` rejected)
 - **Default:** declared verbatim in the artifact body; seeded with
-  `declarative` → `.cursor/skills/declarative-design/SKILL.md` and
-  `deterministic` → `.cursor/skills/deterministic-design/SKILL.md`
-- **Meaning:** The registry that resolves trait names to
-  `.cursor/skills/<trait>-design/SKILL.md` files, read at invocation time
-  (never inlined). Extending it is one new row plus the matching `SKILL.md` —
-  no caller changes.
-- **Used by:** designer (`{trait_map}` parameter), designer-controller (`## Trait Map` section)
+  `declarative` → `./traits/declarative.md` and
+  `deterministic` → `./traits/deterministic.md`
+- **Meaning:** The registry that resolves trait names to `./traits/<trait>.md`
+  cards, read at invocation time (never inlined). Extending it is one new row
+  plus the matching card — no caller changes. Sibling-relative paths are what
+  let the skill directory work unchanged as plugin source, as a generated
+  project mirror, and as a home-scope install.
+- **Used by:** designer (`## Trait Map` section)
 
 ## Artifact-specific
 
@@ -49,23 +51,22 @@ and style dimensions that bias drafting. This is the meta-programming concern
   `consensus` | `synthesize` | `tournament`. Supplies defaults for
   `{num_agents}`, `{model_mix}`, and `{selection_modes}` from the Pattern
   Catalog; user-set parameters always override preset defaults.
-- `{design_skill}` (ralph-design) — repo-relative path to the design skill
-  supplying the principles list and walkthrough the loop walks. Default:
-  `.cursor/skills/declarative-design/SKILL.md`. Read at invocation time;
-  round count, step names, and deliverable shape are sourced from it.
 - `{ticket_template}` (ticket-create) — path to the parameterized ticket
   template rendered once per ticket. Default: the skill's own
-  `TICKET_TEMPLATE.md`. Read at invocation time (never inlined), like
-  `{design_skill}`; a custom template may use any subset of the skill's
+  `TICKET_TEMPLATE.md`. Read at invocation time (never inlined), like a
+  `trait_map` card; a custom template may use any subset of the skill's
   token vocabulary, and unknown tokens abort before any write.
-- `precedence` (designer-controller) — trait-conflict resolution: `none`
+- `precedence` (designer) — trait-conflict resolution: `none`
   (default) | ordered trait list | explicit rule string. Only meaningful in
   `mode=propose` with two or more traits; rejected otherwise.
-- `deliverable_shape` (designer-controller) — output document shape: `union`
+- `deliverable_shape` (designer) — output document shape: `union`
   (default — per-trait deliverables under one umbrella report) | `schema-doc`
   | `adr` | `prd` | `spec` | inline template string.
-- `audience` (designer-controller) — advisory tone/detail target:
+- `audience` (designer) — advisory tone/detail target:
   `engineers` (default) | `managers` | `mixed` | free-form noun. No hard
   contract.
-- `depth` (designer-controller) — advisory length/density: `sketch` |
+- `depth` (designer) — advisory length/density: `sketch` |
   `standard` (default) | `deep`. No hard contract.
+
+`{design_skill}` (ralph-design) is retired. The loop's trait is now selected by
+the `designer` skill's `traits` knob, not by a path to a skill file.

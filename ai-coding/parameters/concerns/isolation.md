@@ -23,7 +23,7 @@ commands against the calling worktree or any sibling.
   per-member diffs are rendered against it. Exception: agent-swarm's
   `pipeline` topology rewrites it per stage so each stage builds on its
   predecessor's branch. See [propagation.md](../propagation.md).
-- **Used by:** worktree-task, ralph-design, wrap-up, soft-shutdown
+- **Used by:** worktree-task, designer, wrap-up, soft-shutdown
 
 ### `worktree_name`
 - **Aliases:** `worktree` (meta-prompt)
@@ -31,7 +31,7 @@ commands against the calling worktree or any sibling.
 - **Type:** filesystem-safe kebab-case name for the worktree directory and its
   branch
 - **Default:** kebab-case slug derived from the intent parameter (`task`,
-  `domain`); ralph-design prefixes `ralph-design/`; meta-prompt
+  `target`); designer prefixes `designer/`; meta-prompt
   defaults to empty (write into the current tree, no worktree)
 - **Meaning:** Base name for the worktree directory and branch. When fanning
   out, a 1-based index suffix (`-1`, `-2`, ...) is appended per member.
@@ -40,7 +40,7 @@ commands against the calling worktree or any sibling.
   members within one wave or stage rather than across the swarm.
 - **Propagation:** rewrite — each member gets the suffixed variant. See
   [propagation.md](../propagation.md).
-- **Used by:** worktree-task, ralph-design, meta-prompt
+- **Used by:** worktree-task, designer, meta-prompt
 
 ### `use_worktree`
 - **Aliases:** —
@@ -51,7 +51,9 @@ commands against the calling worktree or any sibling.
   inside a dedicated worktree forked from the current branch; when `true`, the
   calling working tree is never touched.
 - **Validation:** must be `false` when `persistence=chat` (rejected otherwise).
-- **Used by:** ralph-design, design-skill, designer-controller
+  designer additionally rejects `base_branch` and `worktree_name` when it is
+  `false`.
+- **Used by:** design-skill, designer
 
 ### `delete_worktree`
 - **Aliases:** `delete_after_merge` (wrap-up)

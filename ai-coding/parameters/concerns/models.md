@@ -18,12 +18,11 @@ bites when a fan-out mixes models.
   to every member; a list maps positionally.
 - **Validation:** list length must equal `candidate_count` (per agent, by
   index) or `partition_count` (per partition, broadcast within) — see
-  [replication.md](replication.md). ralph-design and designer-controller
-  accept a scalar only; designer-controller accepts it only when
-  `fan_out >= 2`.
+  [replication.md](replication.md). designer accepts a scalar only, and only
+  when `fan_out >= 2`.
 - **Propagation:** scalar → broadcast; list → positional zip or per-partition
   broadcast. See [propagation.md](../propagation.md).
-- **Used by:** worktree-task, ralph-design, designer-controller
+- **Used by:** worktree-task, designer
 
 ## Artifact-specific
 

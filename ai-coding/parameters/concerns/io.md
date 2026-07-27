@@ -25,10 +25,10 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
 ## Cards
 
 ### `artifact_path`
-- **Aliases:** `save_path` (meta-prompt), `output_path` (save-session-state), `artifact_path` (ralph-design, design-skill, designer-controller)
+- **Aliases:** `save_path` (meta-prompt), `output_path` (save-session-state), `artifact_path` (designer, design-skill)
 - **Applies to:** command, skill
 - **Type:** file path (repo-relative in the design skills; absolute or workspace-relative in save-session-state)
-- **Default:** artifact-specific — meta-prompt: `.cursor/commands/<kebab-name>.md` when save intent is detected, else unset; ralph-design: `schemas/<kebab-domain>.md`; design-skill: `.cursor/skills/<trait_name>-design/SKILL.md`; designer-controller: `schemas/<kebab-target>.md`; save-session-state: required, no default
+- **Default:** artifact-specific — meta-prompt: `.cursor/commands/<kebab-name>.md` when save intent is detected, else unset; designer: `schemas/<kebab-target>.md`, plus per-round snapshots under `<artifact_path>.snapshots/`; design-skill: `ai-coding/plugins/design-suite/skills/designer/traits/<trait_name>.md`; save-session-state: required, no default
 - **Meaning:** The destination file where the run persists its primary
   artifact (a generated prompt, a design deliverable, a session snapshot).
 - **Validation:** whether the write actually happens is controlled by the
@@ -36,7 +36,7 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
   reject `artifact_path` when `persistence=chat`.
 - **Propagation:** meta-prompt fan-out rewrites the path per variant, appending
   `-<i>` before the file extension. See [propagation.md](../propagation.md).
-- **Used by:** meta-prompt, save-session-state, ralph-design, design-skill, designer-controller
+- **Used by:** meta-prompt, save-session-state, designer, design-skill
 
 ## Artifact-specific
 

@@ -29,33 +29,37 @@ also defines the validation vocabulary the other concern files reference.
 
 ### `stop_condition`
 - **Aliases:** —
-- **Applies to:** skill → spawned agent (worktree-task); command (ralph-design)
+- **Applies to:** skill → spawned agent (worktree-task); skill (designer)
 - **Type:** two live shapes — free-text predicate (worktree-task) vs closed
-  enum (ralph-design: `user-signals-done` | `all-steps-complete` |
+  enum (designer: `user-signals-done` | `all-steps-complete` |
   `validation-pass` | `max-rounds:<n>` with `<n>` a positive integer)
 - **Default:** unset (worktree-task, falling back to "task implemented and
-  verified"); `user-signals-done` (ralph-design)
+  verified"); `user-signals-done` (designer)
 - **Meaning:** An explicit completion condition beyond the implicit "done":
   per-member in worktree-task (gates merge eligibility), loop-exit in
-  ralph-design.
+  designer's `mode=walkthrough`.
+- **Validation:** designer accepts it only in `mode=walkthrough` and pairs it
+  with [`approval`](interaction.md#approval_mode) — `user-signals-done`
+  requires `approval=interactive`, and the unattended cadences each require a
+  different stop condition.
 - **Propagation:** broadcast per member (worktree-task).
-- **Used by:** worktree-task, ralph-design
+- **Used by:** worktree-task, designer; reached through the `/ralph-design`
+  preset, which presets it to `user-signals-done`
 
 ### `max_iterations`
 - **Aliases:** —
 - **Applies to:** command, skill
 - **Type:** integer `>= 1`
-- **Default:** 50 (ralph-design, designer-controller), 20 (design-skill),
-  10 (agent-swarm)
+- **Default:** 50 (designer), 20 (design-skill), 10 (agent-swarm)
 - **Meaning:** Hard safety cap on total loop rounds, counting repeats via
   `refine` / `back`; hitting it halts with a terminal state (e.g.
   `iteration-cap-hit`, agent-swarm's `plan-cap-hit`) regardless of
   `stop_condition`. In agent-swarm the loop is the `plan` mode's
   design-revision round, so hitting the cap dispatches nothing.
 - **Validation:** gated on the artifact's mode in every case — design-skill
-  and designer-controller accept it only in `mode=walkthrough`, agent-swarm
+  and designer accept it only in `mode=walkthrough`, agent-swarm
   only in `mode=plan`; naming it in any other mode is rejected.
-- **Used by:** ralph-design, design-skill, designer-controller, agent-swarm
+- **Used by:** design-skill, designer, agent-swarm
 
 ## Artifact-specific
 
