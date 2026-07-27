@@ -107,8 +107,9 @@ Unknown parameters or invalid values abort before side effects.
 
 ## Selection
 
-Read the candidate universe with `backlog task list --plain`, and read each
-selected task in full with `backlog task view <id> --plain`.
+Read the candidate universe with
+`backlog task list --exclude-status "<terminal status>" --sort priority --plain`,
+and read each selected task in full with `backlog task view <id> --plain`.
 
 - `next` selects the highest-priority non-terminal task whose dependencies are
   all terminal, breaking ties by ascending task ID.
