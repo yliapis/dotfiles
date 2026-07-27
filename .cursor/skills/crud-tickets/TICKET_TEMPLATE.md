@@ -1,11 +1,11 @@
 ---
-name: ticket-create-ticket-template
-description: "Canonical versioned Markdown ticket template rendered by the ticket-create skill."
+name: crud-tickets-ticket-template
+description: "Canonical versioned Markdown ticket template rendered by the crud-tickets skill."
 license: MIT
 ---
 
 <!--
-TEMPLATE FILE — not a rendered ticket. ticket-create reads this file at
+TEMPLATE FILE — not a rendered ticket. crud-tickets reads this file at
 invocation time, removes this metadata and comment, and renders the remaining
 document once per normalized work item.
 -->
