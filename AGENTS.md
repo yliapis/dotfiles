@@ -6,12 +6,15 @@ Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
 `ai-coding/` commands, skills, and agents into the Cursor, Claude, and OpenCode
 home locations.
 
-Cloud agent setup is defined in `.cursor/environment.json`, which runs the
-provider-agnostic `.cursor/scripts/cloud-agent-bootstrap.sh` at VM boot to
-apt-install `zsh`, `rsync`, and `shellcheck` so the repo's scripts are
-runnable. Homebrew, the Brewfile, and ollama are intentionally not installed
-in cloud (headless VM; slow boots); run `./install.sh` manually only if a task
-needs them. Run `make help` for details on sync and other targets.
+Cloud agent setup lives in `ai-coding/hooks/`. Both wired-up providers run the
+provider-agnostic `ai-coding/hooks/cloud-agent-bootstrap.sh` at VM boot to
+apt-install `zsh`, `rsync`, and `shellcheck` so the repo's scripts are runnable:
+Cursor through the `install` command in `.cursor/environment.json`, and Claude
+Code through the `SessionStart` hook in `.claude/settings.json`, which runs the
+`ai-coding/hooks/session-start.sh` adapter. Homebrew, the Brewfile, and ollama
+are intentionally not installed in cloud (headless VM; slow boots); run
+`./install.sh` manually only if a task needs them. Run `make help` for details
+on sync and other targets.
 
 ## Project command/skill/agent mirrors
 
@@ -31,6 +34,15 @@ make mirrors-check  # no-write drift check; non-zero when a mirror is stale
 Both wrap `scripts/sync-project-mirrors.sh`, which needs only bash and
 coreutils. Two plugins claiming one flattened name abort the run instead of
 shadowing each other.
+
+The same script generates a tenth mirror on different rules: `.claude/hooks/`
+from the flat, non-plugin-scoped `ai-coding/hooks/*.sh`, and only for Claude
+Code, since it is the one tool that discovers hooks by path inside its config
+directory. Cursor reads the same source through an arbitrary path in
+`.cursor/environment.json` and gets no mirror. Adding a hook means dropping a
+`.sh` into `ai-coding/hooks/` and running `make mirrors`; registering it with
+Claude Code is a separate edit to `.claude/settings.json`, which is hand-written
+and not generated.
 
 Mirror entries are real files and directories, never symlinks. At least one
 shipped skill-discovery implementation resolves a link and drops the entry when
