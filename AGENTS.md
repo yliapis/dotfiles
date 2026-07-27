@@ -8,19 +8,15 @@ home locations.
 
 Cloud agent setup lives in `ai-coding/hooks/`. Both wired-up providers run the
 provider-agnostic `ai-coding/hooks/cloud-agent-bootstrap.sh` at VM boot to
-apt-install `zsh`, `rsync`, and `shellcheck` so the repo's scripts are runnable,
-plus the Backlog.md CLI (`backlog`) so the tasks in `backlog/` are workable —
-from npm, brew, or bun, whichever the image ships. Cursor runs it through the
+apt-install `zsh`, `rsync`, `shellcheck`, `curl`, and `ripgrep` so the repo's
+scripts are runnable, plus the Backlog.md CLI (`backlog`, via npm/brew/bun) and
+`uv` (Astral installer into `~/.local/bin`; not an apt package). Cursor runs it through the
 `install` command in `.cursor/environment.json`, and Claude Code through the
 `SessionStart` hook in `.claude/settings.json`, which runs the
 `ai-coding/hooks/session-start.sh` adapter. Homebrew, the Brewfile, and ollama
 are intentionally not installed in cloud (headless VM; slow boots); run
 `./install.sh` manually only if a task needs them. Run `make help` for details
 on sync and other targets.
-
-When npm's global prefix is not user-writable (common in cloud VMs), the
-bootstrap installs `backlog` into `~/.local` via `NPM_CONFIG_PREFIX`; login
-shells pick it up from `~/.profile`'s `~/.local/bin` PATH entry.
 
 There is no compiled app or test framework — the deliverables are shell
 scripts, so the lint/test/build/run loop maps to `make` and `shellcheck`:

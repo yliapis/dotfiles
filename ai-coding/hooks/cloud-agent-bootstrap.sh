@@ -24,12 +24,23 @@
 
 set -euo pipefail
 
+# User-local binaries (npm NPM_CONFIG_PREFIX=~/.local, uv, pip --user, etc.).
+# Same prepend as home-config/.shell_extras.sh; cloud skips that file, so do it
+# here for this process and any child installs that land under ~/.local/bin.
+mkdir -p "${HOME}/.local/bin"
+if [[ ":$PATH:" != *":${HOME}/.local/bin:"* ]]; then
+  export PATH="${HOME}/.local/bin:${PATH}"
+fi
+
 # zsh runs every repo script, rsync backs the make sync targets, and the
-# linter covers a repo whose deliverables are shell scripts.
+# linter covers a repo whose deliverables are shell scripts. curl fetches
+# the standalone uv installer (uv is not an apt package). ripgrep provides rg.
 packages=()
 command -v zsh >/dev/null 2>&1 || packages+=(zsh)
 command -v rsync >/dev/null 2>&1 || packages+=(rsync)
 command -v shellcheck >/dev/null 2>&1 || packages+=(shellcheck)
+command -v curl >/dev/null 2>&1 || packages+=(curl)
+command -v rg >/dev/null 2>&1 || packages+=(ripgrep)
 
 if ((${#packages[@]})); then
   echo "[cloud-agent-bootstrap] installing: ${packages[*]}"
@@ -76,6 +87,14 @@ if command -v backlog >/dev/null 2>&1; then
 else
   install_backlog ||
     echo "[cloud-agent-bootstrap] warning: backlog.md install failed; continuing"
+fi
+
+if command -v uv >/dev/null 2>&1; then
+  echo "[cloud-agent-bootstrap] uv already present"
+else
+  echo "[cloud-agent-bootstrap] installing: uv"
+  curl -LsSf https://astral.sh/uv/install.sh | env UV_NO_MODIFY_PATH=1 sh ||
+    echo "[cloud-agent-bootstrap] warning: uv install failed; continuing"
 fi
 
 echo "[cloud-agent-bootstrap] done"
