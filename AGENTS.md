@@ -18,11 +18,6 @@ are intentionally not installed in cloud (headless VM; slow boots); run
 `./install.sh` manually only if a task needs them. Run `make help` for details
 on sync and other targets.
 
-The bootstrap prepends `~/.local/bin` to `PATH` (same as
-`home-config/.shell_extras.sh`). When npm's global prefix is not user-writable
-(common in cloud VMs), it installs `backlog` into `~/.local` via
-`NPM_CONFIG_PREFIX`; `uv` lands there too.
-
 There is no compiled app or test framework — the deliverables are shell
 scripts, so the lint/test/build/run loop maps to `make` and `shellcheck`:
 lint with `shellcheck` on the bash scripts (`scripts/sync-project-mirrors.sh`,
