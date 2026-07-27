@@ -2,6 +2,11 @@
 # Single entrypoint sourced from both ~/.zshrc and ~/.bashrc. Runs
 # shell-agnostic setup, then per-shell tool init for the running shell.
 
+# User-local binaries (pip --user, npm NPM_CONFIG_PREFIX=~/.local, etc.)
+if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+  PATH="$HOME/.local/bin:$PATH"
+fi
+
 # Set up Homebrew. Prefer brew already on PATH; otherwise look up the
 # canonical install locations so a fresh shell still gets brew on PATH.
 if command -v brew >/dev/null 2>&1; then
