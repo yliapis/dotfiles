@@ -29,22 +29,9 @@ make mirrors        # regenerate, pruning entries whose source is gone
 make mirrors-check  # no-write drift check; non-zero when a mirror is stale
 ```
 
-Mirror entries are real files and directories, never symlinks. At least one
-shipped skill-discovery implementation resolves a link and drops the entry when
-the real path leaves the scanned directory, so a symlinked mirror is invisible
-to it and the skills silently stop reaching the agent. The escape hatch for a
-maintainer who wants live edits instead of a regenerate step is to install this
-repository as a plugin marketplace:
-[`.cursor-plugin/marketplace.json`](.cursor-plugin/marketplace.json) and
-[`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) point each
-plugin at `./ai-coding/plugins/<name>`, so a client reads the source tree
-directly. `make symlink` is the home-scope alternative and re-introduces the
-same symlink risk at user scope.
-
 ## Cloud Agents
 
 Cloud coding agents boot via the provider-agnostic
 [`.cursor/scripts/cloud-agent-bootstrap.sh`](.cursor/scripts/cloud-agent-bootstrap.sh),
-which installs `zsh`, `rsync`, and `shellcheck` so the repo's scripts and
-`make` targets are runnable on a fresh VM. Cursor is the wired-up provider
-today, via [`.cursor/environment.json`](.cursor/environment.json).
+which installs prerequisites so necessary commands for development are runnable on a fresh 
+VM. Cursor is the wired-up provider today, via [`.cursor/environment.json`](.cursor/environment.json).
