@@ -27,9 +27,9 @@ characters at a word boundary.
 | 8 | `minimal-diffs` | `ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md` | no | Apply minimal, surgical changes when creating, editing, modifying, refactoring, or fixing any... |
 | 9 | `prompt-template-library` | `ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md` | yes | Pick a starting skeleton from the prompt template library when an agent is drafting a new... |
 | 10 | `stop-slop` | `ai-coding/plugins/writing/skills/stop-slop/SKILL.md` | no | Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to... |
-| 11 | `ticket-create` | `ai-coding/plugins/ticket-operations/skills/ticket-create/SKILL.md` | yes | Create a deterministic local Markdown ticket set and WORKLIST.md from an analysis, review, plan,... |
-| 12 | `ticket-execute` | `ai-coding/plugins/ticket-operations/skills/ticket-execute/SKILL.md` | yes | Execute open runnable tickets from a native local Markdown ticket set, verify acceptance with... |
-| 13 | `ticket-update` | `ai-coding/plugins/ticket-operations/skills/ticket-update/SKILL.md` | yes | Update lifecycle state or definitions in an existing native local ticket set, reconcile its... |
+| 11 | `ticket-create` | `ai-coding/plugins/ticket-operations/skills/ticket-create/SKILL.md` | yes | Turn an analysis, review, plan, checklist, or inline recommendations into Backlog.md tasks... |
+| 12 | `ticket-execute` | `ai-coding/plugins/ticket-operations/skills/ticket-execute/SKILL.md` | yes | Work Backlog.md tasks to Done through the backlog CLI: plan, implement, prove every acceptance... |
+| 13 | `ticket-update` | `ai-coding/plugins/ticket-operations/skills/ticket-update/SKILL.md` | yes | Change fields or status on existing Backlog.md tasks through the backlog CLI, applying only what... |
 | 14 | `trajectory-snapshot` | `ai-coding/plugins/session-state/skills/trajectory-snapshot/SKILL.md` | yes | Snapshot the current agent session's trajectory into a file at a chosen granularity — verbatim... |
 | 15 | `worktree-task` | `ai-coding/plugins/orchestration/skills/worktree-task/SKILL.md` | yes | Launch agents in isolated git worktrees to execute a task end-to-end, then present per-worktree... |
 
