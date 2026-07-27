@@ -1,7 +1,7 @@
 # I/O
 
 How inputs are addressed and where outputs land. Input-side parameters
-(`context`, `criteria`, `worklist`) accept several addressing forms;
+(`context`, `criteria`, `source`) accept several addressing forms;
 output-side parameters name destination paths. Whether a write may be skipped
 or previewed is a lifecycle concern — see the
 [write gate family](lifecycle.md#write_gate-family) — as is what happens when
@@ -78,20 +78,21 @@ form; each declaring artifact lists its accepted subset (e.g. critique's
   auto-detected — `cursor` when the session transcript lives under
   `~/.cursor/projects/`, `claude-code` when under `~/.claude/projects/`, else
   `agent`.
-- `{granularity}` (ticket-create) — ticket splitting policy: closed enum
+- `{granularity}` (ticket-create) — task splitting policy: closed enum
   `one-to-one` | `split-composites` | `theme-grouped`. Default
   `split-composites`. A different concept from trajectory-snapshot's
   [`{granularity}`](reporting.md#trajectory-snapshot) under the same spelling:
   there it sets the detail level of one rendered artifact, here it sets how
-  extracted work items map to tickets (split composite items, merge same-theme
+  extracted work items map to tasks (split composite items, merge same-theme
   items), so it stays an io concern.
-- `{id_prefix}` (ticket-create) — prefix for rendered ticket ids
-  (`{id_prefix}-NNN`, zero-padded). Default `TKT`. Validation:
-  `^[A-Z][A-Z0-9]{1,9}$`.
-- `{output_dir}` (ticket-create) — directory the ticket files and
-  `WORKLIST.md` land in; a directory-valued sibling of the
-  [`artifact_path`](#artifact_path) family. Default:
-  `.ai-coding-artifacts/tickets/<source-slug>/` resolved against the workspace
-  root. `{on_existing}` controls deterministic reuse, failure, or a
-  ticket-set-hash suffix; numeric suffixes are forbidden (see
-  [overwrite postures](lifecycle.md#overwrite-postures)).
+- `{parent}` (ticket-create) — existing Backlog.md task ID that every created
+  task is nested under through `-p`. Default: unset (top-level tasks).
+- `{labels}` (ticket-create) — extra labels added to every created task, on top
+  of the labels derived from each source item.
+- `{patch}` (ticket-update) — mapping of field to new value, applied through
+  the corresponding `backlog task edit` flags. A field the patch does not name
+  is left alone.
+
+ticket-create declares no output path: Backlog.md owns task file naming and
+placement, and the destination is whichever backlog directory the project
+configured.

@@ -24,8 +24,8 @@ is already pinned down.
   ticket-update), `domain` (ralph-design — loose alias: names the domain being
   modeled rather than an existing artifact)
 - **Applies to:** command, skill
-- **Type:** file path | directory path | URL | inline text | free-form description (see [addressing forms](io.md#addressing-forms))
-- **Default:** required in all current uses
+- **Type:** file path | directory path | URL | inline text | free-form description (see [addressing forms](io.md#addressing-forms)); the ticket skills instead take Backlog.md task IDs, and ticket-execute also accepts the selectors `next` and `all`
+- **Default:** required, except ticket-execute's `{target}`, which defaults to `next`
 - **Meaning:** The subject artifact the invocation operates on, supplied as
   data; the verb lives in the command or skill itself (`critique` analyzes it,
   `designer` designs it).
@@ -43,11 +43,9 @@ is already pinned down.
   `key=value` tokens (`n=`, `k=`, `update-mode=`, `style(s)=`) and flags are
   parsed out of it and stripped before mode detection. Required (may be empty,
   which triggers HELP).
-- `{worklist}` (address-worklist-commit-loop compatibility command) — a native
-  managed `WORKLIST.md` path routed to `ticket-execute`. Required.
-- `{source}` / `{analysis}` (ticket-create) — the work-item source to split
-  into tickets: a Markdown file or directory, chat reference, or inline items.
-  `{analysis}` is a compatibility alias; supplying both aborts. Required.
+- `{source}` (ticket-create) — the work-item source to split into Backlog.md
+  tasks: a Markdown file or directory, chat reference, or inline items.
+  Required.
 - `trait_name` (design-skill) — kebab-case identifier for the trait skill being
   authored; becomes the directory name (`<trait_name>-design/`) and the
   trait-map row. Validation: `^[a-z][a-z0-9-]*$`. Required.

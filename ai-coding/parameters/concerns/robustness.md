@@ -1,8 +1,7 @@
 # Robustness
 
 What happens when work hangs, fails, or is interrupted. Agent-swarm owns member
-replacement and cost control; ticket execution owns per-ticket rollback;
-ticket execution and update share journal recovery semantics.
+replacement and cost control; ticket execution owns per-task rollback.
 
 ## agent-swarm
 
@@ -23,15 +22,6 @@ ticket execution and update share journal recovery semantics.
 
 ## ticket-execute
 
-- `{on_failure}` — after guarded rollback, `abort` (default) stops or
-  `continue` revalidates the set and considers only independent runnable
-  tickets. The compatibility command relays this parameter.
-- `{recovery}` — `abort` (default) reports an interrupted execution journal,
-  `resume` continues only a recognized transaction state, and `rollback`
-  restores exact journaled preimages while `HEAD` permits.
-
-## ticket-update
-
-- `{recovery}` — the same `abort` | `resume` | `rollback` surface, scoped to a
-  valid ticket-update journal. Resume never consumes another revision or
-  approval; rollback never rewrites a committed transaction.
+- `{on_failure}` — after the failed task is rolled back to its starting status
+  and its working-tree changes are restored, `abort` (default) stops or
+  `continue` re-reads the board and considers only independent runnable tasks.

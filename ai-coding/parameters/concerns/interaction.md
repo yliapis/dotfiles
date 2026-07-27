@@ -29,7 +29,7 @@ walkthrough).
   | save-session-state | asks before overwriting an existing `{output_path}` (otherwise an existing target aborts) |
   | soft-shutdown | asks about ambiguous session scope (otherwise unresolved scope is recorded as a blocker) |
   | prompt-template-library | presents the template catalog and lets the user pick, instead of auto-selecting by score |
-  | ticket-create | presents the validated ticket plan for approval before atomic publication (otherwise ambiguities go to Open Questions and the plan is not gated) |
+  | ticket-create | presents the validated task plan for approval before the first `backlog task create` (otherwise ambiguities go to Open Questions and the plan is not gated) |
 
 - **Propagation:** meta-prompt passes the same flag setting to its spawned
   variant agents.
@@ -37,11 +37,10 @@ walkthrough).
   soft-shutdown, prompt-template-library, ticket-create
 
 ### `approval_mode`
-- **Aliases:** `mode` (ticket-execute, ticket-update,
-  address-worklist-commit-loop compatibility command, ralph-design,
+- **Aliases:** `mode` (ticket-execute, ticket-update, ralph-design,
   agent-swarm)
 - **Applies to:** command, skill
-- **Type:** ticket-execute and the compatibility command:
+- **Type:** ticket-execute:
   `interactive` | `non-interactive` | `force-approve-all`; ticket-update:
   `interactive` | `non-interactive`; agent-swarm:
   `default` | `preview` | `interactive` | `plan`; ralph-design uses its
@@ -51,18 +50,17 @@ walkthrough).
   settling one that would dispatch this turn gives `interactive`, a request to
   see the shape gives `preview`) and falls back to `default`.
 - **Meaning:** Approval cadence for a loop. Ticket execution approves the plan
-  and each final ticket diff in `interactive`, the plan once in
-  `non-interactive`, and nothing in `force-approve-all`. Ticket update binds
-  interactive approval to a plan digest; non-interactive mutation requires
-  that digest through `{approve}`. agent-swarm's values also decide whether
+  and each final task diff in `interactive`, the plan once in
+  `non-interactive`, and nothing in `force-approve-all`. Ticket update presents
+  one complete plan and requires approval in `interactive`. agent-swarm's
+  values also decide whether
   the run draws its topology at all: `default` states the plan in text and
   dispatches, `preview` adds the diagram, `interactive` adds one go/no-go, and
   `plan` iterates on the design until the user verifies it or
   [`max_iterations`](constraints.md#max_iterations) halts the loop with
   `plan-cap-hit`. The rendering half of those values is documented on
   [`{preview_swarm_topology}`](reporting.md#agent-swarm).
-- **Used by:** ticket-execute, ticket-update,
-  address-worklist-commit-loop (relayed), ralph-design, agent-swarm
+- **Used by:** ticket-execute, ticket-update, ralph-design, agent-swarm
 
 ### `authoring_mode`
 - **Aliases:** `mode` (design-skill, designer-controller)

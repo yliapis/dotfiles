@@ -13,6 +13,27 @@ runnable. Homebrew, the Brewfile, and ollama are intentionally not installed
 in cloud (headless VM; slow boots); run `./install.sh` manually only if a task
 needs them. Run `make help` for details on sync and other targets.
 
+## Ticket work runs through Backlog.md
+
+Work items live in the repo-root [Backlog.md](https://github.com/MrLesk/Backlog.md)
+project at `backlog/`, one Markdown task per item under `backlog/tasks/`. The
+`ticket-create`, `ticket-execute`, and `ticket-update` skills all drive the
+`backlog` CLI; none of them writes a task file directly, and neither should you.
+
+The CLI is not installed in cloud (the Brewfile's `backlog-md` comes with
+Homebrew, which the bootstrap skips). Install it with
+`npm i -g backlog.md` when a task needs it. Reads are `backlog task list --plain`
+and `backlog task view <id> --plain`; `backlog instructions <guide>` prints the
+upstream task-creation, task-execution, and task-finalization workflows.
+
+Statuses, priorities, and task types are per-project and live in
+`backlog/config.yml`. This project configures the Conventional Commits
+vocabulary for `types`, which differs from what `backlog init --defaults`
+ships, so read accepted values from `backlog task create --help` rather than
+assuming the upstream defaults. Some flags documented upstream, including
+`--json` and `--append-plan`, are absent from older CLI builds; check `--help`
+before relying on one.
+
 ## Project command/skill/agent mirrors
 
 Repo-root `.cursor/{commands,skills,agents}/`,

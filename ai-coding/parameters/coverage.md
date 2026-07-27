@@ -72,18 +72,6 @@ sources.
 | `{save_trajectory}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
-### [address-worklist-commit-loop](../plugins/ticket-operations/commands/address-worklist-commit-loop.md)
-
-| Parameter | Canonical card | Concern |
-|---|---|---|
-| `{worklist}` | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
-| `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
-| `{max_items}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
-| `{commit_scope}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{verify_command}` | [`test_command`](concerns/constraints.md#test_command) | constraints |
-| `{on_failure}` | artifact-specific | [robustness](concerns/robustness.md) |
-| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
-
 ### [save-session-state](../commands/save-session-state.md)
 
 | Parameter | Canonical card | Concern |
@@ -217,15 +205,12 @@ Knobs are unbraced `key=value` tokens.
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
-| `{source}` / `{analysis}` | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
-| `{ticket_template}` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
+| `{source}` | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
 | `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 | `{min_severity}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
-| `{id_prefix}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{output_dir}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{parent}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{labels}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 | `{on_existing}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{persistence}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
-| `{emit_worklist}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
 
@@ -234,13 +219,10 @@ Knobs are unbraced `key=value` tokens.
 | Parameter | Canonical card | Concern |
 |---|---|---|
 | `{target}` | [`context`](concerns/intent.md#context) | intent |
-| `{select}` | artifact-specific | [selection](concerns/selection.md) |
 | `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
 | `{verify_command}` | [`test_command`](concerns/constraints.md#test_command) | constraints |
 | `{commit_scope}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `{on_failure}` | artifact-specific | [robustness](concerns/robustness.md) |
-| `{recovery}` | artifact-specific | [robustness](concerns/robustness.md) |
-| `{legacy_worklist}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 
 ### [ticket-update](../plugins/ticket-operations/skills/ticket-update/SKILL.md)
@@ -249,15 +231,8 @@ Knobs are unbraced `key=value` tokens.
 |---|---|---|
 | `{target}` | [`context`](concerns/intent.md#context) | intent |
 | `{patch}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{projection}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{legacy}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{legacy_worklist}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{legacy_accept}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
 | `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
-| `{approve}` | artifact-specific | [interaction](concerns/interaction.md#artifact-specific) |
-| `{operation_id}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `{commit}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{recovery}` | artifact-specific | [robustness](concerns/robustness.md) |
 | `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 
 ### No parameter surface
