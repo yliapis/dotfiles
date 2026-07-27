@@ -21,35 +21,6 @@ Common tasks are wrapped in a `Makefile`. List all targets with:
 make help
 ```
 
-## Claude Code defaults
-
-`install.sh` copies `home-config/` into `$HOME`, so
-[`home-config/.claude/settings.json`](home-config/.claude/settings.json) lands
-at `~/.claude/settings.json`, the user-scope Claude Code config:
-
-| Key | Value | Effect |
-| --- | --- | --- |
-| `model` | `claude-opus-5` | Pins Opus 5 rather than tracking the `opus` alias, which floats to whatever the newest Opus is. |
-| `alwaysThinkingEnabled` | `true` | Thinking on by default instead of per-session Tab toggling. |
-| `effortLevel` | `xhigh` | Highest effort the setting accepts; see below. |
-| `fastMode` | `false` | Fast mode off. |
-| `env.CLAUDE_CODE_EFFORT_LEVEL` | `max` | Runs at max effort, one step above `xhigh`. |
-
-Two things to know about that file:
-
-- `max` is not a persistable `effortLevel` — the setting accepts only `low`,
-  `medium`, `high`, and `xhigh`, and `/effort max` is session-scoped. Pinning it
-  takes the env var, which hard-overrides the session: `/effort` answers "Not
-  applied: CLAUDE_CODE_EFFORT_LEVEL=max overrides effort this session" until the
-  var is cleared. Drop the `env` block to fall back to the persisted `xhigh` and
-  get `/effort` back.
-- Claude Code writes to this file itself — `/model`, `/effort`, and `/fast`
-  persist their new value into `~/.claude/settings.json` — so the live file
-  drifts from the repo copy until the next `./install.sh` overwrites it.
-
-Repo-root `.claude/settings.json` is a different, project-scope file; it carries
-this repository's `SessionStart` hook, not these defaults.
-
 ## Project mirrors
 
 `.cursor/`, `.claude/`, and `.opencode/` each carry flattened `commands/`,
