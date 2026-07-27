@@ -18,6 +18,15 @@ are intentionally not installed in cloud (headless VM; slow boots); run
 `./install.sh` manually only if a task needs them. Run `make help` for details
 on sync and other targets.
 
+## Backlog.md ticket set
+
+The repo's canonical work-item set is the [Backlog.md](https://github.com/MrLesk/Backlog.md)
+project at `backlog/`. One Markdown task per item lives under `backlog/tasks/`.
+Route every interaction through the `backlog` CLI (`backlog task list --plain`,
+`backlog task view <id> --plain`); never hand-edit `tasks/*.md` or `config.yml`.
+Read `backlog/AGENTS.md` before create, execute, or update work: it routes to
+the `ticket-crud` and `ticket-execute` skills and states the execution contract.
+
 ## Project command/skill/agent mirrors
 
 Repo-root `.cursor/{commands,skills,agents}/`,
