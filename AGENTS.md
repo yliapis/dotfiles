@@ -66,12 +66,7 @@ directory. Cursor reads the same source through an arbitrary path in
 `.cursor/environment.json` and gets no mirror. Adding a hook means dropping a
 `.sh` into `ai-coding/hooks/` and running `make mirrors`; registering it with
 Claude Code is a separate edit to `.claude/settings.json`, which is hand-written
-and not generated. It also carries the Claude Code defaults — Opus 5, thinking
-always on, max effort, fast mode off — which apply to sessions in this repo and
-override whatever the machine's `~/.claude/settings.json` says. `max` is not a
-valid `effortLevel` (the key takes only `low`, `medium`, `high`, `xhigh`, and
-silently drops anything else), so it is pinned through the
-`CLAUDE_CODE_EFFORT_LEVEL` env var, with `xhigh` persisted as the fallback.
+and not generated.
 
 Mirror entries are real files and directories, never symlinks. At least one
 shipped skill-discovery implementation resolves a link and drops the entry when
