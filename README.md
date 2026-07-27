@@ -6,6 +6,13 @@ run installation with the following command:
 source install.sh
 ```
 
+Refresh mode (brew upgrades, coding-tools sync, re-run `install-*.sh`):
+
+```sh
+./install.sh --refresh
+# or: make refresh
+```
+
 ## Makefile
 
 Common tasks are wrapped in a `Makefile`. List all targets with:
