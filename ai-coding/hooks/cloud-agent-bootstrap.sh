@@ -19,8 +19,8 @@
 #
 # Intentionally slimmer than ./install.sh: no Homebrew, Brewfile, or ollama.
 # Cloud VMs are headless, and those installs only slow down boots. This only
-# provisions the interpreters and tools the repo's own scripts need, leaving
-# the agent free to run them per task.
+# provisions the tools the repo's own scripts and workflows need, leaving the
+# agent free to run them per task.
 
 set -euo pipefail
 
@@ -43,6 +43,33 @@ if ((${#packages[@]})); then
   sudo -E apt-get install -y "${packages[@]}"
 else
   echo "[cloud-agent-bootstrap] required packages already present"
+fi
+
+# Work items live in backlog/ and the repo's docs point agents at `backlog task
+# list`, so the CLI belongs on a cloud VM too. It is not an apt package, and
+# cloud skips the Brewfile, so fall through whatever package manager the
+# provider image happens to ship. Non-fatal by design: an image with none of
+# them, or with a global prefix this user cannot write, should still boot.
+install_backlog() {
+  if command -v npm >/dev/null 2>&1; then
+    echo "[cloud-agent-bootstrap] installing: backlog.md (npm)"
+    npm install -g --no-fund --no-audit backlog.md
+  elif command -v brew >/dev/null 2>&1; then
+    echo "[cloud-agent-bootstrap] installing: backlog-md (brew)"
+    brew install backlog-md
+  elif command -v bun >/dev/null 2>&1; then
+    echo "[cloud-agent-bootstrap] installing: backlog.md (bun)"
+    bun add -g backlog.md
+  else
+    echo "[cloud-agent-bootstrap] no npm, brew, or bun on PATH; skipping backlog.md"
+  fi
+}
+
+if command -v backlog >/dev/null 2>&1; then
+  echo "[cloud-agent-bootstrap] backlog already present"
+else
+  install_backlog ||
+    echo "[cloud-agent-bootstrap] warning: backlog.md install failed; continuing"
 fi
 
 echo "[cloud-agent-bootstrap] done"
