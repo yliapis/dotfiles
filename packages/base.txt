@@ -1,0 +1,31 @@
+# packages/base.txt — headless baseline for linux hosts and containers,
+# installed by scripts/bootstrap-packages.sh (always, no gate). macOS gets
+# everything from the Brewfile instead.
+#
+# Format: one logical package per line, optionally with per-manager names:
+#   NAME [apt=... dnf=... pacman=... apk=... zypper=...]
+# NAME is used for any manager without an override. Override values are
+# comma-separated package names; '-' skips the entry for that manager.
+# dnf= also covers dnf5/microdnf/yum hosts. '#' starts a comment.
+#
+# Scope: only what this repo's own machinery needs when the Brewfile is
+# skipped (install.sh skips it on non-macOS unless GUI_INSTALL=1), plus the
+# Homebrew-on-Linux prerequisites. The Brewfile remains the source of truth
+# for the full toolset; add day-to-day tools there, not here.
+
+# repo machinery
+zsh        # install.sh + scripts/sync-coding-tools.sh shebangs, Makefile shell
+rsync      # copy-mode sync in scripts/sync-coding-tools.sh
+make       # Makefile entrypoints (make install / make sync / ...)
+unzip      # archive extraction assumed by various installers
+
+# common utilities + Homebrew-on-Linux prerequisites
+# https://docs.brew.sh/Homebrew-on-Linux#requirements
+# (Homebrew supports glibc distros only; on musl hosts like alpine these are
+# still a sane baseline, the Homebrew step just does not apply there.)
+ca-certificates
+curl
+file
+git
+procps           dnf=procps-ng pacman=procps-ng apk=procps-ng
+build-essential  dnf=gcc,gcc-c++,make pacman=base-devel apk=build-base zypper=gcc,gcc-c++,make
