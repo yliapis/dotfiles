@@ -30,7 +30,7 @@ ticket execution and update share journal recovery semantics.
   `resume` continues only a recognized transaction state, and `rollback`
   restores exact journaled preimages while `HEAD` permits.
 
-## crud-tickets
+## ticket-crud
 
 - `{recovery}` — the same `abort` | `resume` | `rollback` surface, scoped to a
   valid update journal. Resume never consumes another revision or

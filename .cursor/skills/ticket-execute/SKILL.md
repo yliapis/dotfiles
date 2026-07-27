@@ -101,7 +101,7 @@ Unknown parameters or invalid values abort before side effects.
 
 ## Guardrails
 
-- MUST read and apply the live `crud-tickets` version-1 schema and identity
+- MUST read and apply the live `ticket-crud` version-1 schema and identity
   contracts. Fail closed on unknown schema names or versions.
 - MUST require the safe tracked/local baseline defined by preflight, an empty
   index, named branch, configured commit identity, and no merge, rebase,
@@ -155,7 +155,7 @@ read-only snapshot:
    marker is valid. `revision` is a positive integer. `owner` is non-null
    exactly for `in_progress`; `status_reason` is non-null exactly for
    `blocked` and `cancelled`; a `done` ticket has all criteria checked.
-5. Recompute every ticket `fingerprint` exactly as `crud-tickets` specifies:
+5. Recompute every ticket `fingerprint` exactly as `ticket-crud` specifies:
    canonical definition data, acceptance markers normalized to unchecked, and
    lifecycle fields, `ticket_set`, and extensions excluded. It MUST match the
    ticket and manifest.
@@ -232,14 +232,14 @@ mode their final files enter the commit; in `local` mode their exact final
 bytes remain local and are bound to the commit by state-hash footers. After
 plan approval, compute a set key from canonical JSON containing the worktree
 path, set-root path, and `ticket_set`. Acquire the shared per-set mutation lock
-used by `ticket-execute` and `crud-tickets` at
+used by `ticket-execute` and `ticket-crud` at
 `$(git rev-parse --git-path ticket-execute)/<set-key>/lock` and rerun
 preflight. Record host, PID plus process-start identity, invocation ID, branch,
 and baseline `HEAD`; never steal a live or uncertain lock. Derive the claim
 owner as `ticket-execute:<first-12-hex>` of the set key, ticket ID, base
 revision, and baseline `HEAD`.
 
-Use the canonical JSON serialization defined by `crud-tickets`. The set key is
+Use the canonical JSON serialization defined by `ticket-crud`. The set key is
 the 64 lowercase hex SHA-256 (without `sha256:`) of this exact payload:
 
 ```json
@@ -384,7 +384,7 @@ independent ticket. A failed ticket remains `open@r`, produces no commit, and
 cannot satisfy a dependent.
 
 On startup, detect unresolved update journals before normal projection
-validation; stop and direct recovery to `crud-tickets`. Handle a valid
+validation; stop and direct recovery to `ticket-crud`. Handle a valid
 interrupted execution journal according to `{recovery}`:
 
 - `abort` reports phase, owner, baseline, and safe choices without mutation.
