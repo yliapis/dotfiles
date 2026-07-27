@@ -1,0 +1,8 @@
+{
+  "name": "excalidraw",
+  "version": "0.1.0",
+  "description": "Draw architecture, flow, and sequence diagrams with the Excalidraw MCP.",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT"
+}

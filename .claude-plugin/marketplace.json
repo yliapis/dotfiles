@@ -12,6 +12,12 @@
       "description": "Compose design traits against a target (designer, with declarative, deterministic, and concise trait cards) and author new ones (design-skill)."
     },
     {
+      "name": "excalidraw",
+      "source": "./ai-coding/plugins/excalidraw",
+      "version": "0.1.0",
+      "description": "Draw architecture, flow, and sequence diagrams with the Excalidraw MCP."
+    },
+    {
       "name": "git-operations",
       "source": "./ai-coding/plugins/git-operations",
       "version": "0.1.0",
