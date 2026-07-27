@@ -1,7 +1,7 @@
 {
   "name": "ticket-operations",
-  "version": "0.3.0",
-  "description": "Create, execute, and update local Markdown tickets.",
+  "version": "0.4.0",
+  "description": "Create, execute, and update Backlog.md tasks through the backlog CLI.",
   "author": { "name": "yliapis" },
   "repository": "https://github.com/yliapis/dotfiles",
   "license": "MIT"

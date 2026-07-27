@@ -8,24 +8,21 @@ also defines the validation vocabulary the other concern files reference.
 ## Cards
 
 ### `test_command`
-- **Aliases:** `verify_command` (ticket-execute and the
-  address-worklist-commit-loop compatibility command)
+- **Aliases:** `verify_command` (ticket-execute)
 - **Applies to:** command, skill → spawned agent
 - **Type:** shell command; exit code `0` = pass, anything else = fail
 - **Default:** unset (no programmatic gate)
 - **Meaning:** A per-candidate verifier run inside the candidate's workspace
   after the agent reports done (worktree-task, agent-swarm) or after each
-  ticket's implementation is staged but before completion/commit
-  (ticket-execute, where failure invokes journal-guarded rollback and
-  `{on_failure}`).
+  task's implementation but before finalization and commit (ticket-execute,
+  where failure rolls the task back and applies `{on_failure}`).
 - **Validation:** agent-swarm requires it when any of `auto-best`, `vote`,
   `hybrid`, `tournament` is in `{selection_modes}`.
-  ticket-execute exports `TICKET_*` and `WORKLIST_FILE` variables.
+  ticket-execute exports `TASK_ID` and `TASK_TITLE`.
 - **Propagation:** broadcast to every member; per-member exit codes bubble back
   into the report and gate merge eligibility. See
   [propagation.md](../propagation.md).
-- **Used by:** worktree-task, agent-swarm, ticket-execute,
-  address-worklist-commit-loop (relayed)
+- **Used by:** worktree-task, agent-swarm, ticket-execute
 
 ### `stop_condition`
 - **Aliases:** —
@@ -66,11 +63,8 @@ also defines the validation vocabulary the other concern files reference.
   Every finding must name the specific criterion it relates to; the model must
   not substitute its own preferences. Expected to generalize to other
   analysis-style artifacts — see [future.md](../future.md).
-- `{max_items}` (address-worklist-commit-loop compatibility command) — limits
-  the native IDs routed to `ticket-execute`; `1` means `select=next`, larger
-  values select that many IDs, and omission means `select=all`.
 - `{min_severity}` (ticket-create) — lowest severity that still gets a
-  ticket, over `critical > major > minor > nit`; items below the threshold
+  task, over `critical > major > minor > nit`; items below the threshold
   are reported as `filtered`, never silently dropped, and severity-less
   (`unclassified`) items are always retained. Default: include all.
 

@@ -9,9 +9,8 @@ lifecycle governs what escapes it.
 
 ### `write_gate` (family)
 - **Aliases:** `update_mode` (meta-prompt), `persistence` (ralph-design,
-  design-skill, designer-controller, ticket-create compatibility),
-  `dry_run` (ticket-create, ticket-execute, ticket-update,
-  address-worklist-commit-loop), `mode` (save-session-state)
+  design-skill, designer-controller), `dry_run` (ticket-create,
+  ticket-execute, ticket-update), `mode` (save-session-state)
 - **Applies to:** command, skill
 - **Meaning:** Whether the run mutates the filesystem or only shows what it
   would do. Four spellings with distinct enums, one concept — each artifact
@@ -27,19 +26,16 @@ lifecycle governs what escapes it.
   | ralph-design | `{persistence}` | `chat`, `codebase` (default) | `chat` keeps the working artifact in-conversation; `codebase` writes `artifact_path` each round (inside a worktree per `use_worktree`) |
   | design-skill | `persistence` | `chat`, `codebase` (default) | same semantics; the artifact is the deliverable |
   | designer-controller | `persistence` | `chat` (default), `codebase` | same semantics; note the default flips to `chat` |
-  | address-worklist-commit-loop | `{dry_run}` | `true`, `false` (default) | relays the no-write plan mode to ticket-execute |
   | save-session-state | `{mode}` | `write` (default), `preview` | `preview` emits the snapshot in chat and creates or replaces no file |
-  | ticket-create | `{dry_run}` | `true`, `false` (default) | validates and renders the complete set in memory, reports the plan, and writes no lock, staging directory, or artifact |
-  | ticket-execute | `{dry_run}` | `true`, `false` (default) | resolves and validates selection, then emits the plan without lock, journal, implementation, verification, staging, or commit |
-  | ticket-update | `{dry_run}` | `true`, `false` (default) | validates and renders the prospective transaction and plan digest without lock, journal, file mutation, staging, or commit |
+  | ticket-create | `{dry_run}` | `true`, `false` (default) | completes extraction, accounting, and the command plan, then runs no `backlog` write command |
+  | ticket-execute | `{dry_run}` | `true`, `false` (default) | resolves and validates selection, then emits the plan without task edit, verification, staging, or commit |
+  | ticket-update | `{dry_run}` | `true`, `false` (default) | validates and reports the prospective change without editing a task or creating a commit |
 
 - **Validation:** the design skills reject `artifact_path` / `use_worktree`
   when `persistence=chat`; meta-prompt's `agent` mode requires a resolvable
-  save target; ticket-create accepts only compatibility
-  `{persistence}=files` and `{emit_worklist}=true`.
+  save target.
 - **Used by:** meta-prompt, ralph-design, design-skill, designer-controller,
-  address-worklist-commit-loop, save-session-state, ticket-create,
-  ticket-execute, ticket-update
+  save-session-state, ticket-create, ticket-execute, ticket-update
 
 ### `merge_mode`
 - **Aliases:** —
@@ -85,9 +81,9 @@ live:
   collisions; it is distinct from the fan-out index suffix `-<i>` that
   numbers siblings on [`worktree_name`](isolation.md#worktree_name) and on
   meta-prompt's rewritten [`artifact_path`](io.md#artifact_path).
-- **Deterministic managed-set reuse** — ticket-create never overwrites or adds
-  numeric suffixes. `{on_existing}=reuse` preserves a valid same-lineage set,
-  `error` aborts, and `new-set` uses the ticket-set hash suffix.
+- **Duplicate detection instead of overwrite** — ticket-create writes no file
+  itself; Backlog.md owns task paths. A candidate whose title already matches an
+  existing task is resolved by `{on_existing}` rather than by any path rule.
 
 ## Artifact-specific
 
@@ -101,21 +97,16 @@ live:
   when `{merge_strategy}` is `--squash`.
 - `{include_push}` (merge-commit-push) — push after a successful merge.
   Default: `true`.
-- `{commit_scope}` (ticket-execute, relayed by
-  address-worklist-commit-loop) — optional validated Conventional Commits scope
-  for per-ticket commits. Omitted means no scope.
+- `{commit_scope}` (ticket-execute) — optional validated Conventional Commits
+  scope for per-task commits. Omitted means no scope.
 - `{save_trajectory}` (wrap-up) — whether the trajectory + learnings files are
   written. Default: `interactive` (prompt at end) when `-i` is set, `false`
   otherwise.
 - `force` (design-skill) — overwrite an existing `artifact_path` instead of
   aborting. Default: `false`; rejected with `persistence=chat`.
-- `{on_existing}` (ticket-create) — `reuse` (default) | `error` | `new-set`;
-  controls deterministic same-lineage reuse and collision behavior.
-- `{emit_worklist}` (ticket-create compatibility) — only explicit `true` is
-  accepted; native sets always include `WORKLIST.md`.
-- `{projection}` (ticket-update) — `require` (default) | `repair`; repair is
-  limited to fields deterministically projected from authoritative tickets.
+- `{on_existing}` (ticket-create) — `skip` (default) | `create` | `error`;
+  what to do with a candidate whose title matches an existing Backlog.md task.
 - `{commit}` (ticket-update) — `none` (default) | `audit`; audit creates one
-  local commit containing or hashing the managed-state transaction.
+  local commit containing the changed task files.
 - `{allow_unpushed}` (soft-shutdown) — tolerate unpushed commits on the
   current branch without blocking shutdown. Default: `false`.
