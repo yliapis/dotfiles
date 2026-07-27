@@ -9,19 +9,19 @@ home locations.
 Cloud agent setup lives in `ai-coding/hooks/`. Both wired-up providers run the
 provider-agnostic `ai-coding/hooks/cloud-agent-bootstrap.sh` at VM boot to
 apt-install `zsh`, `rsync`, `shellcheck`, and `curl` so the repo's scripts are
-runnable, plus the Backlog.md CLI (`backlog`) and `uv` so backlog tasks and
-doc-tool installs are workable — from npm/brew/bun for backlog and brew or the
-Astral installer for uv. Cursor runs it through the `install` command in
-`.cursor/environment.json`, and Claude Code through the `SessionStart` hook in
-`.claude/settings.json`, which runs the `ai-coding/hooks/session-start.sh`
-adapter. Homebrew, the Brewfile, and ollama are intentionally not installed in
-cloud (headless VM; slow boots); run `./install.sh` manually only if a task
-needs them. Run `make help` for details on sync and other targets.
+runnable, plus the Backlog.md CLI (`backlog`, via npm/brew/bun) and `uv` (Astral
+installer into `~/.local/bin`; not an apt package). Cursor runs it through the
+`install` command in `.cursor/environment.json`, and Claude Code through the
+`SessionStart` hook in `.claude/settings.json`, which runs the
+`ai-coding/hooks/session-start.sh` adapter. Homebrew, the Brewfile, and ollama
+are intentionally not installed in cloud (headless VM; slow boots); run
+`./install.sh` manually only if a task needs them. Run `make help` for details
+on sync and other targets.
 
 The bootstrap prepends `~/.local/bin` to `PATH` (same as
 `home-config/.shell_extras.sh`). When npm's global prefix is not user-writable
 (common in cloud VMs), it installs `backlog` into `~/.local` via
-`NPM_CONFIG_PREFIX`; `uv` also lands there via the standalone installer.
+`NPM_CONFIG_PREFIX`; `uv` lands there too.
 
 There is no compiled app or test framework — the deliverables are shell
 scripts, so the lint/test/build/run loop maps to `make` and `shellcheck`:
