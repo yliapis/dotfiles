@@ -162,12 +162,12 @@ from that candidate. Serialize outcomes exactly as `ticketed(TKT-001)`,
 
 | Task field | CLI flag | Derivation |
 |---|---|---|
-| title | positional | For a critique finding, the exact criterion label; otherwise the source statement through its first `.`, `?`, or `!`. Preserve wording; truncate beyond 72 code points at the last whitespace by code point 69 and append `...`. |
+| title | positional | For a critique finding, the exact criterion label; otherwise the source statement through its first `.`, `?`, or `!` that is followed by whitespace or the end of the text, so a path such as `src/util.ts` does not split the sentence. Preserve wording; truncate beyond 72 code points at the last whitespace by code point 69 and append `...`. |
 | description | `-d` | Normalized source statement, then each distinct explicit `Why` or `Rationale` value, then a `### Context and Evidence` block with containing headings, explicit `Context` values, and each evidence value with its source ref, then a `### Scope` block listing in-scope locations and the out-of-scope statement. Do not paraphrase. |
 | acceptance criteria | `--ac` per value | One flag per explicit `Done-when` or acceptance child in source order; fallback one criterion `Source requirement is satisfied: "<title>".` |
 | priority | `--priority` | `critical`/`major` to `high`, `minor` to `medium`, `nit` to `low`, `unclassified` to `medium`. |
 | type | `--type` | Explicit valid type, else first matching rule: every concrete location under `docs/` or ending `.md`/`.rst`/`.adoc` to `docs`; a location under `/test/`, `/tests/`, or a basename containing `.test.`, `.spec.`, `_test.`, or text containing `test`/`coverage` to `test`; text containing `refactor`/`restructure`/`rename`/`move` to `refactor`; text containing `fix`/`bug`/`broken`/`error`/`failure`/`incorrect`/`regression` to `fix`; a first word of `add`/`create`/`implement`/`introduce`/`support` to `feat`; otherwise `chore`. |
-| labels | `-l` | Sorted unique lowercase ASCII slugs from explicit labels, the criterion, the first path segment, the source slug, `{labels}`, and `estimate:<XS\|S\|M\|L\|XL>`. Form each slug from maximal ASCII alphanumeric runs after NFKD folding and combining-mark removal, joined with `-`. |
+| labels | `-l` | Sorted unique lowercase ASCII slugs from explicit labels, the leading directory of each concrete location, the source slug, `{labels}`, and `estimate:<XS\|S\|M\|L\|XL>`. Form each slug from maximal ASCII alphanumeric runs after NFKD folding and combining-mark removal, joined with `-`. A location with no directory component contributes no label, and the criterion is not slugged because it belongs in the title. |
 | references | `--ref` per value | Every source ref for the item, in source order. |
 | parent | `-p` | `{parent}` when supplied. |
 
