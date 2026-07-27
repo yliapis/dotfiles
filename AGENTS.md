@@ -66,7 +66,10 @@ directory. Cursor reads the same source through an arbitrary path in
 `.cursor/environment.json` and gets no mirror. Adding a hook means dropping a
 `.sh` into `ai-coding/hooks/` and running `make mirrors`; registering it with
 Claude Code is a separate edit to `.claude/settings.json`, which is hand-written
-and not generated.
+and not generated. That file is project-scope; the user-scope Claude Code
+defaults (model, thinking, effort, fast mode) are a different hand-written file,
+`home-config/.claude/settings.json`, which `install.sh` copies to
+`~/.claude/settings.json`. See `README.md`.
 
 Mirror entries are real files and directories, never symlinks. At least one
 shipped skill-discovery implementation resolves a link and drops the entry when
