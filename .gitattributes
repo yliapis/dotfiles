@@ -11,3 +11,8 @@
 .opencode/commands/** linguist-generated=true
 .opencode/skills/** linguist-generated=true
 .opencode/agents/** linguist-generated=true
+
+# Excalidraw exporter output. The hand-edited source is the sibling
+# .elements.json; these two are re-derived from it, so collapse them in diffs.
+docs/diagrams/*.svg linguist-generated=true
+docs/diagrams/*.excalidraw linguist-generated=true

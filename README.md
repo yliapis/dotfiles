@@ -39,6 +39,10 @@ make mirrors-check  # no-write drift check; non-zero when a mirror is stale
 The same script generates a tenth mirror, `.claude/hooks/` from
 [`ai-coding/hooks/`](ai-coding/hooks) — see Cloud Agents below.
 
+Which tree is hand-edited, which script derives what, and where each one lands
+is drawn in
+[`docs/diagrams/repo-architecture.svg`](docs/diagrams/repo-architecture.svg).
+
 ## Cloud Agents
 
 Cloud coding agents boot via the provider-agnostic
@@ -63,3 +67,6 @@ The hook is a no-op unless `CLAUDE_CODE_REMOTE=true`, so local Claude Code
 sessions on an already-provisioned machine skip it and leave `./install.sh` in
 charge. The Claude Code hook runs synchronously: sessions start slightly slower,
 but no task can race a half-installed VM.
+
+Both routes are drawn in
+[`docs/diagrams/cloud-agent-bootstrap.svg`](docs/diagrams/cloud-agent-bootstrap.svg).
