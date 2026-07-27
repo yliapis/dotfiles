@@ -215,10 +215,12 @@ are presets over this skill and add no knobs of their own.
 | `{granularity}` | artifact-specific | [reporting](concerns/reporting.md#trajectory-snapshot) |
 | `{coding_tool}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
 
-### [ticket-create](../plugins/ticket-operations/skills/ticket-create/SKILL.md)
+### [crud-tickets](../plugins/ticket-operations/skills/crud-tickets/SKILL.md)
 
 | Parameter | Canonical card | Concern |
 |---|---|---|
+| `{operation}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 | `{source}` / `{analysis}` | artifact-specific | [intent](concerns/intent.md#artifact-specific) |
 | `{ticket_template}` | artifact-specific | [composition](concerns/composition.md#artifact-specific) |
 | `{granularity}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
@@ -228,8 +230,18 @@ are presets over this skill and add no knobs of their own.
 | `{on_existing}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
 | `{persistence}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 | `{emit_worklist}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 | `-i` / `--interactive` | [`interactive`](concerns/interaction.md#interactive) | interaction |
+| `{target}` | [`context`](concerns/intent.md#context) | intent |
+| `{patch}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{projection}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{legacy}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{legacy_worklist}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
+| `{legacy_accept}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
+| `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
+| `{approve}` | artifact-specific | [interaction](concerns/interaction.md#artifact-specific) |
+| `{operation_id}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{commit}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
+| `{recovery}` | artifact-specific | [robustness](concerns/robustness.md) |
 
 ### [ticket-execute](../plugins/ticket-operations/skills/ticket-execute/SKILL.md)
 
@@ -243,23 +255,6 @@ are presets over this skill and add no knobs of their own.
 | `{on_failure}` | artifact-specific | [robustness](concerns/robustness.md) |
 | `{recovery}` | artifact-specific | [robustness](concerns/robustness.md) |
 | `{legacy_worklist}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
-
-### [ticket-update](../plugins/ticket-operations/skills/ticket-update/SKILL.md)
-
-| Parameter | Canonical card | Concern |
-|---|---|---|
-| `{target}` | [`context`](concerns/intent.md#context) | intent |
-| `{patch}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{projection}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{legacy}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{legacy_worklist}` | artifact-specific | [io](concerns/io.md#artifact-specific) |
-| `{legacy_accept}` | artifact-specific | [constraints](concerns/constraints.md#artifact-specific) |
-| `{mode}` | [`approval_mode`](concerns/interaction.md#approval_mode) | interaction |
-| `{approve}` | artifact-specific | [interaction](concerns/interaction.md#artifact-specific) |
-| `{operation_id}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{commit}` | artifact-specific | [lifecycle](concerns/lifecycle.md#artifact-specific) |
-| `{recovery}` | artifact-specific | [robustness](concerns/robustness.md) |
 | `{dry_run}` | [`write_gate` family](concerns/lifecycle.md#write_gate-family) | lifecycle |
 
 ### No parameter surface

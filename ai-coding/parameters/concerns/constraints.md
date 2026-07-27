@@ -73,7 +73,7 @@ also defines the validation vocabulary the other concern files reference.
 - `{max_items}` (address-worklist-commit-loop compatibility command) — limits
   the native IDs routed to `ticket-execute`; `1` means `select=next`, larger
   values select that many IDs, and omission means `select=all`.
-- `{min_severity}` (ticket-create) — lowest severity that still gets a
+- `{min_severity}` (crud-tickets create) — lowest severity that still gets a
   ticket, over `critical > major > minor > nit`; items below the threshold
   are reported as `filtered`, never silently dropped, and severity-less
   (`unclassified`) items are always retained. Default: include all.

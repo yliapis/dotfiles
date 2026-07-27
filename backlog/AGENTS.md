@@ -38,9 +38,8 @@ skill in full:
 
 | Intent | Skill |
 |---|---|
-| Ticketize findings / decompose work | `ai-coding/plugins/ticket-operations/skills/ticket-create/SKILL.md` |
+| Ticketize findings, or edit status, definitions, metadata | `ai-coding/plugins/ticket-operations/skills/crud-tickets/SKILL.md` |
 | Implement, verify, commit | `ai-coding/plugins/ticket-operations/skills/ticket-execute/SKILL.md` |
-| Status / definition / metadata edits | `ai-coding/plugins/ticket-operations/skills/ticket-update/SKILL.md` |
 
 These tasks are Backlog.md-native, not `ticket-operations/ticket` schema v1,
 so the skills' native-set preflights do not apply here; follow their
