@@ -1,4 +1,37 @@
 #!/usr/bin/env zsh
+# install.sh — bootstrap or refresh this dotfiles repo on the local machine.
+#
+# Usage:
+#   source install.sh                 # initial bootstrap (README entry point)
+#   ./install.sh                      # same, as a subprocess (make install)
+#   ./install.sh --refresh            # maintenance refresh (make refresh)
+#   GUI_INSTALL=1 ./install.sh        # Linux: also run the Brewfile
+#   INSTALL_OLLAMA=0 ./install.sh     # skip ollama during bootstrap
+#   CLEAR_CACHE=1 ./install.sh --refresh
+#
+# Modes:
+#   install   (default) platform/shell detect, Homebrew, optional Brewfile,
+#                       copy home-config/, wire shell extras, run
+#                       scripts/install-*.sh, optional ollama.
+#   refresh   (--refresh) optional brew bundle / full re-bootstrap, brew
+#                       upgrades, sync-coding-tools.sh, optional install-*.sh.
+#
+# Flags:
+#   --refresh             Set MODE=refresh (maintenance path above).
+#   <positional>          Optional; if set, overrides GUI_INSTALL (legacy:
+#                         pass 1 to force Brewfile on non-macOS). Prefer the
+#                         GUI_INSTALL env var.
+#
+# Environment variables (all optional; defaults shown):
+#   MODE=install          install | refresh. --refresh sets refresh.
+#   GUI_INSTALL=          Empty by default. On macOS the Brewfile always runs;
+#                         on Linux set to 1 (or pass positional 1) to run it.
+#   INSTALL_OLLAMA=1      Bootstrap only: install ollama when missing.
+#   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
+#   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
+#                         of just brew bundle.
+#   REFRESH_BREWFILE=1    Refresh only: run brew bundle unless RERUN_INSTALL=1.
+#   REFRESH_SCRIPTS=1     Refresh only: re-run scripts/install-*.sh when 1.
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
