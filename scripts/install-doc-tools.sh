@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # install-doc-tools.sh — Python CLI tools that convert documents to Markdown
-# for LLM/RAG pipelines. Idempotent; safe to re-run from install.sh and refresh.sh.
+# for LLM/RAG pipelines. Idempotent; safe to re-run from install.sh.
 
 set -euo pipefail
 

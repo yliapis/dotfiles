@@ -6,8 +6,7 @@ run installation with the following command:
 source install.sh
 ```
 
-Maintenance (brew upgrades, coding-tools sync, re-run `install-*.sh`) is the
-same script in refresh mode:
+Refresh mode (brew upgrades, coding-tools sync, re-run `install-*.sh`):
 
 ```sh
 ./install.sh --refresh
