@@ -6,9 +6,17 @@
 #   ai-coding/plugins/<plugin>/commands/*.md           slash commands
 #   ai-coding/plugins/<plugin>/skills/<name>/          skills (whole directory)
 #   ai-coding/plugins/<plugin>/agents/*.md             subagent definitions
+#   ai-coding/hooks/*.sh                               cloud agent hooks
 #
 # Mirrors (generated, never edited by hand):
 #   {.cursor,.claude,.opencode}/{commands,skills,agents}
+#   .claude/hooks
+#
+# Hooks are the one kind that is not plugin-scoped and not mirrored to all
+# three tools. They come from a single flat directory, and only Claude Code
+# discovers them by path: .claude/settings.json names .claude/hooks/
+# session-start.sh. Cursor reads the same source through .cursor/
+# environment.json, which takes an arbitrary path and so needs no mirror.
 #
 # Every plugin's items are flattened into one directory per tool per kind, so a
 # name may be claimed by only one plugin; a collision aborts rather than letting
@@ -31,8 +39,12 @@ SCRIPT_DIR="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)"
 REPO_ROOT="$(dirname -- "$SCRIPT_DIR")"
 
 SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
+SRC_HOOKS="$REPO_ROOT/ai-coding/hooks"
 TOOLS="cursor claude opencode"
 KINDS="commands skills agents"
+# Kinds a given tool receives. Everything gets the plugin-scoped three; only
+# Claude Code discovers hooks from its config directory.
+HOOK_TOOLS="claude"
 
 MODE="write"
 DRY_RUN=0
@@ -42,10 +54,11 @@ usage() {
   cat <<EOF
 Usage: $PROG [options]
 
-Regenerate the nine repo-root project mirrors
-({.cursor,.claude,.opencode}/{commands,skills,agents}) from ai-coding/plugins/.
-Mirror entries are byte-identical copies of their source, never symlinks.
-Idempotent; a mirror already in sync is left untouched.
+Regenerate the repo-root project mirrors from ai-coding/: the nine
+{.cursor,.claude,.opencode}/{commands,skills,agents} trees from
+ai-coding/plugins/, and .claude/hooks from ai-coding/hooks/. Mirror entries are
+byte-identical copies of their source, never symlinks. Idempotent; a mirror
+already in sync is left untouched.
 
 Options:
       --check       Report drift and exit non-zero if any mirror differs from
@@ -83,6 +96,9 @@ while [ $# -gt 0 ]; do
 done
 
 [ -d "$SRC_PLUGINS" ] || die "plugin source missing: $SRC_PLUGINS"
+# Guarded for the same reason as the plugins: an absent source directory would
+# otherwise read as "every entry was deleted" and prune the mirror.
+[ -d "$SRC_HOOKS" ] || die "hook source missing: $SRC_HOOKS"
 
 TMP_RUN="$(mktemp -d "${TMPDIR:-/tmp}/sync-project-mirrors.XXXXXX")"
 trap 'rm -rf -- "$TMP_RUN"' EXIT
@@ -107,12 +123,28 @@ kind_sources() {
           printf '%s\t%s\n' "$(basename -- "$path")" "$path"
         done
         ;;
+      hooks)
+        for path in "$SRC_HOOKS"/*.sh; do
+          [ -f "$path" ] || continue
+          printf '%s\t%s\n' "$(basename -- "$path")" "$path"
+        done
+        ;;
       *) die "unknown kind: $kind" ;;
     esac
   } | LC_ALL=C sort
 }
 
 relpath() { printf '%s\n' "${1#"$REPO_ROOT"/}"; }
+
+# Kinds mirrored for one tool: the plugin-scoped three, plus hooks for the
+# tools that read them from their config directory.
+tool_kinds() {
+  printf '%s' "$KINDS"
+  case " $HOOK_TOOLS " in
+    *" $1 "*) printf ' hooks' ;;
+  esac
+  printf '\n'
+}
 
 check_collisions() {
   local kind duplicates name found=0
@@ -208,7 +240,7 @@ apply() {
 }
 
 for tool in $TOOLS; do
-  for kind in $KINDS; do
+  for kind in $(tool_kinds "$tool"); do
     dest_dir="$REPO_ROOT/.$tool/$kind"
     names="$TMP_RUN/$tool.$kind.names"
     kind_sources "$kind" | cut -f1 >"$names"
@@ -243,11 +275,11 @@ printf '%s: created=%d updated=%d pruned=%d in_sync=%d\n' \
 
 if [ "$MODE" = "check" ]; then
   if [ "$drifted" -gt 0 ]; then
-    printf "%s: %d mirror entries drifted from ai-coding/plugins/; run 'make mirrors'\n" \
+    printf "%s: %d mirror entries drifted from ai-coding/; run 'make mirrors'\n" \
       "$PROG" "$drifted" >&2
     exit 1
   fi
-  printf '%s: mirrors match ai-coding/plugins/\n' "$PROG"
+  printf '%s: mirrors match ai-coding/\n' "$PROG"
 fi
 
 exit 0

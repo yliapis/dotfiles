@@ -29,9 +29,30 @@ make mirrors        # regenerate, pruning entries whose source is gone
 make mirrors-check  # no-write drift check; non-zero when a mirror is stale
 ```
 
+The same script generates a tenth mirror, `.claude/hooks/` from
+[`ai-coding/hooks/`](ai-coding/hooks) — see Cloud Agents below.
+
 ## Cloud Agents
 
 Cloud coding agents boot via the provider-agnostic
-[`.cursor/scripts/cloud-agent-bootstrap.sh`](.cursor/scripts/cloud-agent-bootstrap.sh),
-which installs prerequisites so necessary commands for development are runnable on a fresh 
-VM. Cursor is the wired-up provider today, via [`.cursor/environment.json`](.cursor/environment.json).
+[`ai-coding/hooks/cloud-agent-bootstrap.sh`](ai-coding/hooks/cloud-agent-bootstrap.sh),
+which installs prerequisites so necessary commands for development are runnable
+on a fresh VM. Two providers are wired up today, and both run that one script:
+
+| Provider | Entry point | Path it invokes |
+| --- | --- | --- |
+| Cursor | [`.cursor/environment.json`](.cursor/environment.json) `install` | `ai-coding/hooks/cloud-agent-bootstrap.sh` |
+| Claude Code | [`.claude/settings.json`](.claude/settings.json) `SessionStart` hook | `.claude/hooks/session-start.sh` |
+
+Claude Code discovers hooks by path inside `.claude/`, so
+[`ai-coding/hooks/session-start.sh`](ai-coding/hooks/session-start.sh) — a thin
+adapter that execs the bootstrap — is mirrored there by `make mirrors` along
+with the bootstrap it calls. Cursor's `install` takes an arbitrary path and
+reads `ai-coding/hooks/` directly, so it needs no mirror. Edit
+`ai-coding/hooks/` and regenerate; `make mirrors-check` fails on a stale
+`.claude/hooks/`.
+
+The hook is a no-op unless `CLAUDE_CODE_REMOTE=true`, so local Claude Code
+sessions on an already-provisioned machine skip it and leave `./install.sh` in
+charge. The Claude Code hook runs synchronously: sessions start slightly slower,
+but no task can race a half-installed VM.
