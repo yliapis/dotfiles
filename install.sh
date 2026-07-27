@@ -32,8 +32,6 @@
 #                         of just brew bundle.
 #   REFRESH_BREWFILE=1    Refresh only: run brew bundle unless RERUN_INSTALL=1.
 #   REFRESH_SCRIPTS=1     Refresh only: re-run scripts/install-*.sh when 1.
-#
-# Also: make install / make refresh.
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
