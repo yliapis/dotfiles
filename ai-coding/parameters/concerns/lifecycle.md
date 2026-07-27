@@ -9,8 +9,8 @@ lifecycle governs what escapes it.
 
 ### `write_gate` (family)
 - **Aliases:** `update_mode` (meta-prompt), `persistence` (designer,
-  design-skill, ticket-create compatibility),
-  `dry_run` (ticket-create, ticket-execute, ticket-update,
+  design-skill, crud-tickets compatibility),
+  `dry_run` (crud-tickets, ticket-execute,
   address-worklist-commit-loop), `mode` (save-session-state)
 - **Applies to:** command, skill
 - **Meaning:** Whether the run mutates the filesystem or only shows what it
@@ -28,17 +28,16 @@ lifecycle governs what escapes it.
   | design-skill | `persistence` | `chat`, `codebase` (default) | same semantics; the artifact is the deliverable |
   | address-worklist-commit-loop | `{dry_run}` | `true`, `false` (default) | relays the no-write plan mode to ticket-execute |
   | save-session-state | `{mode}` | `write` (default), `preview` | `preview` emits the snapshot in chat and creates or replaces no file |
-  | ticket-create | `{dry_run}` | `true`, `false` (default) | validates and renders the complete set in memory, reports the plan, and writes no lock, staging directory, or artifact |
+  | crud-tickets | `{dry_run}` | `true`, `false` (default) | create validates and renders the complete set in memory and writes no lock, staging directory, or artifact; update renders the prospective transaction and plan digest without lock, journal, file mutation, staging, or commit |
   | ticket-execute | `{dry_run}` | `true`, `false` (default) | resolves and validates selection, then emits the plan without lock, journal, implementation, verification, staging, or commit |
-  | ticket-update | `{dry_run}` | `true`, `false` (default) | validates and renders the prospective transaction and plan digest without lock, journal, file mutation, staging, or commit |
 
 - **Validation:** the design skills reject `artifact_path` / `use_worktree`
   when `persistence=chat`; meta-prompt's `agent` mode requires a resolvable
-  save target; ticket-create accepts only compatibility
+  save target; crud-tickets accepts only compatibility
   `{persistence}=files` and `{emit_worklist}=true`.
 - **Used by:** meta-prompt, designer, design-skill,
-  address-worklist-commit-loop, save-session-state, ticket-create,
-  ticket-execute, ticket-update
+  address-worklist-commit-loop, save-session-state, crud-tickets,
+  ticket-execute
 
 ### `merge_mode`
 - **Aliases:** —
@@ -84,7 +83,7 @@ live:
   collisions; it is distinct from the fan-out index suffix `-<i>` that
   numbers siblings on [`worktree_name`](isolation.md#worktree_name) and on
   meta-prompt's rewritten [`artifact_path`](io.md#artifact_path).
-- **Deterministic managed-set reuse** — ticket-create never overwrites or adds
+- **Deterministic managed-set reuse** — crud-tickets never overwrites or adds
   numeric suffixes. `{on_existing}=reuse` preserves a valid same-lineage set,
   `error` aborts, and `new-set` uses the ticket-set hash suffix.
 
@@ -108,13 +107,15 @@ live:
   otherwise.
 - `force` (design-skill) — overwrite an existing `artifact_path` instead of
   aborting. Default: `false`; rejected with `persistence=chat`.
-- `{on_existing}` (ticket-create) — `reuse` (default) | `error` | `new-set`;
-  controls deterministic same-lineage reuse and collision behavior.
-- `{emit_worklist}` (ticket-create compatibility) — only explicit `true` is
+- `{on_existing}` (crud-tickets create) — `reuse` (default) | `error` |
+  `new-set`; controls deterministic same-lineage reuse and collision behavior.
+- `{emit_worklist}` (crud-tickets compatibility) — only explicit `true` is
   accepted; native sets always include `WORKLIST.md`.
-- `{projection}` (ticket-update) — `require` (default) | `repair`; repair is
-  limited to fields deterministically projected from authoritative tickets.
-- `{commit}` (ticket-update) — `none` (default) | `audit`; audit creates one
-  local commit containing or hashing the managed-state transaction.
+- `{projection}` (crud-tickets update) — `require` (default) | `repair`; repair
+  is limited to fields deterministically projected from authoritative tickets.
+- `{commit}` (crud-tickets update) — `none` (default) | `audit`; audit creates
+  one local commit containing or hashing the managed-state transaction.
+- `{operation}` (crud-tickets) — `create` | `update`; selects which half of the
+  ticket lifecycle runs, inferred from `{source}` or `{target}` when omitted.
 - `{allow_unpushed}` (soft-shutdown) — tolerate unpushed commits on the
   current branch without blocking shutdown. Default: `false`.

@@ -10,7 +10,7 @@ walkthrough).
 
 ### `interactive`
 - **Aliases:** `-i` / `--interactive` (critique, meta-prompt, wrap-up,
-  save-session-state, soft-shutdown, ticket-create),
+  save-session-state, soft-shutdown, crud-tickets),
   `--interactive-template` (prompt-template-library)
 - **Applies to:** command, skill
 - **Type:** boolean flag; bare token, no value (`key=value` form rejected
@@ -29,20 +29,20 @@ walkthrough).
   | save-session-state | asks before overwriting an existing `{output_path}` (otherwise an existing target aborts) |
   | soft-shutdown | asks about ambiguous session scope (otherwise unresolved scope is recorded as a blocker) |
   | prompt-template-library | presents the template catalog and lets the user pick, instead of auto-selecting by score |
-  | ticket-create | presents the validated ticket plan for approval before atomic publication (otherwise ambiguities go to Open Questions and the plan is not gated) |
+  | crud-tickets | presents the validated ticket plan for approval before atomic publication of a created set (otherwise ambiguities go to Open Questions and the plan is not gated) |
 
 - **Propagation:** meta-prompt passes the same flag setting to its spawned
   variant agents.
 - **Used by:** critique, meta-prompt, wrap-up, save-session-state,
-  soft-shutdown, prompt-template-library, ticket-create
+  soft-shutdown, prompt-template-library, crud-tickets
 
 ### `approval_mode`
-- **Aliases:** `mode` (ticket-execute, ticket-update,
+- **Aliases:** `mode` (ticket-execute, crud-tickets update,
   address-worklist-commit-loop compatibility command, agent-swarm),
   `approval` (designer)
 - **Applies to:** command, skill
 - **Type:** ticket-execute, the compatibility command, and designer:
-  `interactive` | `non-interactive` | `force-approve-all`; ticket-update:
+  `interactive` | `non-interactive` | `force-approve-all`; crud-tickets:
   `interactive` | `non-interactive`; agent-swarm:
   `default` | `preview` | `interactive` | `plan`.
 - **Default:** `interactive`; agent-swarm instead resolves the value from the
@@ -68,7 +68,7 @@ walkthrough).
   pairs it with [`stop_condition`](constraints.md#stop_condition) — the
   `user-signals-done` default requires `interactive`, and the two unattended
   cadences each require an explicit stop condition other than it.
-- **Used by:** ticket-execute, ticket-update,
+- **Used by:** ticket-execute, crud-tickets,
   address-worklist-commit-loop (relayed), designer, agent-swarm; reached
   through the `/ralph-design` preset, which presets it to `interactive`
 

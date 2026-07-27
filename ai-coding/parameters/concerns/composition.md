@@ -51,7 +51,7 @@ and style dimensions that bias drafting. This is the meta-programming concern
   `consensus` | `synthesize` | `tournament`. Supplies defaults for
   `{num_agents}`, `{model_mix}`, and `{selection_modes}` from the Pattern
   Catalog; user-set parameters always override preset defaults.
-- `{ticket_template}` (ticket-create) — path to the parameterized ticket
+- `{ticket_template}` (crud-tickets create) — path to the parameterized ticket
   template rendered once per ticket. Default: the skill's own
   `TICKET_TEMPLATE.md`. Read at invocation time (never inlined), like a
   `trait_map` card; a custom template may use any subset of the skill's
