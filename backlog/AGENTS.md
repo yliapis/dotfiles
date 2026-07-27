@@ -12,14 +12,17 @@ Every interaction with this directory and its tickets goes through the
 IDs, ordinals, frontmatter field types, and the `SECTION:DESCRIPTION` /
 `AC` marker structure, and raw edits corrupt them.
 
-| Intent | Command |
+`backlog --help` lists every command; each command's flags are authoritative
+in its own help menu, not here:
+
+| Intent | Help menu |
 |---|---|
-| Create a task | `backlog task create "Title" -d "Description" --ac "Criterion"` |
-| Edit fields / status | `backlog task edit tkt-N -s "In Progress"` |
-| List open work | `backlog task list -s "To Do" --plain` |
-| Read one task | `backlog task view tkt-N --plain` |
-| Search | `backlog search "term" --plain` |
-| Board projection | `backlog board` |
+| Create a task | `backlog task create --help` |
+| Edit fields, status, acceptance criteria | `backlog task edit --help` |
+| List open work | `backlog task list --help` |
+| Read one task | `backlog task view --help` |
+| Search | `backlog search --help` |
+| Board projection / export | `backlog board --help` |
 
 Pass `--plain` on read commands for non-interactive, agent-friendly output
 instead of the TUI.
