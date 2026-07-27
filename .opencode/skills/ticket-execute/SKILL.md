@@ -12,6 +12,12 @@ Use this skill only for local tickets created under the
 `ticket-operations/ticket` schema. It supersedes
 `address-worklist-commit-loop` for native ticket sets.
 
+A Backlog.md-managed set (a directory governed by a Backlog.md `config.yml`)
+is not a native set. Apply this skill's procedural contracts to such tickets,
+but perform every ticket read and lifecycle write through the `backlog` CLI
+(`backlog task list` / `view` / `edit`) per that directory's `AGENTS.md`;
+never hand-edit its task files.
+
 Ticket frontmatter is lifecycle authority. `WORKLIST.md` is a validated
 projection and selection surface; it never overrides a ticket.
 

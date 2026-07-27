@@ -12,6 +12,12 @@ Use this skill only for an existing local set whose tickets declare
 `ticket-operations/ticket` schema version `1` and whose managed `WORKLIST.md`
 declares `ticket-operations/worklist` schema version `1`.
 
+A Backlog.md-managed set (a directory governed by a Backlog.md `config.yml`)
+is not a native set. Apply this skill's transition and evidence rules to such
+tickets, but perform every change through the `backlog` CLI
+(`backlog task edit`) per that directory's `AGENTS.md`; never hand-edit its
+task files.
+
 Use `ticket-create` for a new set and `ticket-execute` to implement or verify a
 ticket. Do not activate this skill for tracker records, unchecked prose tasks,
 implementation edits, acceptance execution, or a request that merely asks what

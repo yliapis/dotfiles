@@ -15,6 +15,11 @@ Do not use it to produce the source analysis, operate GitHub/Jira/Linear, execut
 ticket work, or revise an existing ticket. Execution belongs to
 `ticket-execute`; lifecycle and definition changes belong to `ticket-update`.
 
+A Backlog.md-managed set (a directory governed by a Backlog.md `config.yml`)
+is not a native set. Do not render native ticket files or a `WORKLIST.md`
+into it; create each task through the `backlog` CLI (`backlog task create`)
+per that directory's `AGENTS.md`, and never hand-edit its task files.
+
 ## Task
 
 Capture one `{source}` snapshot, extract and normalize every work item, render
