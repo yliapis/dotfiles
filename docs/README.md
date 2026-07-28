@@ -6,6 +6,7 @@ Repository documentation and agent-generated analysis artifacts.
 
 | Path | Purpose |
 |---|---|
+| `papers/` | Paper explainers, one directory per paper, diagrams alongside. |
 | `reports/` | Committed critique, review, and analysis reports. |
 
 Work items live in the repo-root [Backlog.md](https://github.com/MrLesk/Backlog.md)
