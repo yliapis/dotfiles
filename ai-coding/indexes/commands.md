@@ -6,7 +6,7 @@ command and regenerate rather than editing this file.
 `make commands-index-check` fails when it has drifted.
 
 - **Source root:** `ai-coding/plugins/*/commands/`
-- **Count:** 9
+- **Count:** 10
 
 ## Parameter surface
 
@@ -26,14 +26,15 @@ command. Enumerate every row when no filter is given. Titles are cut to
 | 6 | `ralph-design` | `/ralph-design` | `ai-coding/plugins/design-suite/commands/ralph-design.md` | yes | Ralph Design |
 | 7 | `save-session-state` | `/save-session-state` | `ai-coding/plugins/session-state/commands/save-session-state.md` | yes | Save Session State |
 | 8 | `soft-shutdown` | `/soft-shutdown` | `ai-coding/plugins/session-state/commands/soft-shutdown.md` | yes | Soft Shutdown |
-| 9 | `wrap-up` | `/wrap-up` | `ai-coding/plugins/session-state/commands/wrap-up.md` | yes | Wrap Up |
+| 9 | `ticket-list` | `/ticket-list` | `ai-coding/plugins/ticket-operations/commands/ticket-list.md` | yes | Ticket List |
+| 10 | `wrap-up` | `/wrap-up` | `ai-coding/plugins/session-state/commands/wrap-up.md` | yes | Wrap Up |
 
 ## Slug list
 
 Comma-separated slugs for command parameters:
 
 ```text
-address-worklist-commit-loop, critique, designer, merge-commit-push, meta-prompt, ralph-design, save-session-state, soft-shutdown, wrap-up
+address-worklist-commit-loop, critique, designer, merge-commit-push, meta-prompt, ralph-design, save-session-state, soft-shutdown, ticket-list, wrap-up
 ```
 
 ## Path list
@@ -47,5 +48,6 @@ ai-coding/plugins/writing/commands/meta-prompt.md
 ai-coding/plugins/design-suite/commands/ralph-design.md
 ai-coding/plugins/session-state/commands/save-session-state.md
 ai-coding/plugins/session-state/commands/soft-shutdown.md
+ai-coding/plugins/ticket-operations/commands/ticket-list.md
 ai-coding/plugins/session-state/commands/wrap-up.md
 ```
