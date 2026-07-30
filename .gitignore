@@ -3,3 +3,7 @@ Brewfile.lock.json
 
 # local-only working notes and per-repo agent artifacts
 .ai-coding-artifacts/
+
+# Python bytecode from skill script smoke checks
+__pycache__/
+*.py[cod]
