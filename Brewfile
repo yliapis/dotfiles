@@ -125,6 +125,8 @@ brew "mas"
 
 # App Store build keeps the existing purchase; the `boom-3d` cask is the
 # separately-licensed direct-download build (sha256 :no_check).
+# install.sh skips this via HOMEBREW_BUNDLE_MAS_SKIP when already present
+# and not outdated (mas often re-downloads every brew bundle run otherwise).
 mas "Boom3D", id: 1233048948
 
 # via Cask

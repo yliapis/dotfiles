@@ -184,9 +184,39 @@ disable_brew_analytics() {
   brew analytics off
 }
 
+# Boom3D (mas id 1233048948): brew bundle + mas often re-downloads every run
+# when inventory detection fails. Skip the mas step when the app is already
+# present and not listed as outdated; keep the Brewfile entry so cleanup still
+# treats it as declared.
+boom3d_mas_skip_if_satisfied() {
+  local id="1233048948"
+  local app="/Applications/Boom 3D.app"
+  local present=0
+
+  if command -v mas >/dev/null 2>&1; then
+    if mas list 2>/dev/null | grep -q "$id"; then
+      present=1
+    fi
+    if [[ "$present" -eq 1 ]] || [[ -d "$app" ]]; then
+      if mas outdated 2>/dev/null | grep -q "$id"; then
+        return 1
+      fi
+      return 0
+    fi
+    return 1
+  fi
+
+  [[ -d "$app" ]]
+}
+
 run_brewfile() {
   echo "Running full brew install from Brewfile"
-  brew bundle --file="$DOTFILES_ROOT/Brewfile"
+  local mas_skip="${HOMEBREW_BUNDLE_MAS_SKIP:-}"
+  if boom3d_mas_skip_if_satisfied; then
+    mas_skip="${mas_skip:+$mas_skip }Boom3D"
+    echo "Boom3D already installed (and not outdated); skipping mas reinstall"
+  fi
+  HOMEBREW_BUNDLE_MAS_SKIP="$mas_skip" brew bundle --file="$DOTFILES_ROOT/Brewfile"
 }
 
 run_brewfile_if_gui() {
