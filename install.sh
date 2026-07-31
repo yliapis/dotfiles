@@ -184,37 +184,55 @@ disable_brew_analytics() {
   brew analytics off
 }
 
-# Boom3D (mas id 1233048948): brew bundle + mas often re-downloads every run
-# when inventory detection fails. Skip the mas step when the app is already
-# present and not listed as outdated; keep the Brewfile entry so cleanup still
-# treats it as declared.
-boom3d_mas_skip_if_satisfied() {
-  local id="1233048948"
-  local app="/Applications/Boom 3D.app"
-  local present=0
+# Emit space-separated mas app ids from the Brewfile that are already installed
+# and not outdated. brew bundle + mas often re-downloads every run when
+# inventory detection fails; HOMEBREW_BUNDLE_MAS_SKIP avoids that while keeping
+# Brewfile entries declared for cleanup. Ids (not names) so spaced app names
+# still match the skipper.
+mas_satisfied_skip_ids() {
+  local brewfile="$DOTFILES_ROOT/Brewfile"
+  local mas_list="" mas_outdated="" line id skips=()
+
+  [[ -f "$brewfile" ]] || return 0
 
   if command -v mas >/dev/null 2>&1; then
-    if mas list 2>/dev/null | grep -q "$id"; then
-      present=1
-    fi
-    if [[ "$present" -eq 1 ]] || [[ -d "$app" ]]; then
-      if mas outdated 2>/dev/null | grep -q "$id"; then
-        return 1
-      fi
-      return 0
-    fi
-    return 1
+    mas_list="$(mas list 2>/dev/null || true)"
+    mas_outdated="$(mas outdated 2>/dev/null || true)"
   fi
 
-  [[ -d "$app" ]]
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    [[ "$line" =~ ^[[:space:]]*mas[[:space:]]+ ]] || continue
+    id="$(sed -n 's/.*id:[[:space:]]*\([0-9]\{1,\}\).*/\1/p' <<<"$line")"
+    [[ -n "$id" ]] || continue
+
+    if printf '%s\n' "$mas_outdated" | grep -q "^${id}[[:space:]]"; then
+      continue
+    fi
+
+    if printf '%s\n' "$mas_list" | grep -q "^${id}[[:space:]]"; then
+      skips+=("$id")
+      continue
+    fi
+
+    # Fallback when mas inventory misses an installed App Store app.
+    if command -v mdfind >/dev/null 2>&1 \
+      && [[ -n "$(mdfind "kMDItemAppStoreAdamID == ${id}" 2>/dev/null)" ]]; then
+      skips+=("$id")
+    fi
+  done < "$brewfile"
+
+  (( ${#skips[@]} )) || return 0
+  printf '%s\n' "${skips[*]}"
 }
 
 run_brewfile() {
   echo "Running full brew install from Brewfile"
   local mas_skip="${HOMEBREW_BUNDLE_MAS_SKIP:-}"
-  if boom3d_mas_skip_if_satisfied; then
-    mas_skip="${mas_skip:+$mas_skip }Boom3D"
-    echo "Boom3D already installed (and not outdated); skipping mas reinstall"
+  local satisfied
+  satisfied="$(mas_satisfied_skip_ids)"
+  if [[ -n "$satisfied" ]]; then
+    mas_skip="${mas_skip:+$mas_skip }$satisfied"
+    echo "mas apps already installed (and not outdated); skipping: $satisfied"
   fi
   HOMEBREW_BUNDLE_MAS_SKIP="$mas_skip" brew bundle --file="$DOTFILES_ROOT/Brewfile"
 }
