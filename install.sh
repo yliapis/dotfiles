@@ -7,6 +7,7 @@
 #   ./install.sh --refresh            # maintenance refresh (make refresh)
 #   GUI_INSTALL=1 ./install.sh        # Linux: also run the Brewfile
 #   INSTALL_OLLAMA=0 ./install.sh     # skip ollama during bootstrap
+#   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
 #   CLEAR_CACHE=1 ./install.sh --refresh
 #
 # Modes:
@@ -26,6 +27,9 @@
 #   MODE=install          install | refresh. --refresh sets refresh.
 #   GUI_INSTALL=          Empty by default. On macOS the Brewfile always runs;
 #                         on Linux set to 1 (or pass positional 1) to run it.
+#   BREW_BUNDLE_MAS=      Unset by default. When 1, run Brewfile.mas (mas apps).
+#                         On install, empty/unset self-sets to 1; on refresh
+#                         stays unset unless you pass BREW_BUNDLE_MAS=1.
 #   INSTALL_OLLAMA=1      Bootstrap only: install ollama when missing.
 #   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
@@ -184,57 +188,21 @@ disable_brew_analytics() {
   brew analytics off
 }
 
-# Emit space-separated mas app ids from the Brewfile that are already installed
-# and not outdated. brew bundle + mas often re-downloads every run when
-# inventory detection fails; HOMEBREW_BUNDLE_MAS_SKIP avoids that while keeping
-# Brewfile entries declared for cleanup. Ids (not names) so spaced app names
-# still match the skipper.
-mas_satisfied_skip_ids() {
-  local brewfile="$DOTFILES_ROOT/Brewfile"
-  local mas_list="" mas_outdated="" line id skips=()
-
-  [[ -f "$brewfile" ]] || return 0
-
-  if command -v mas >/dev/null 2>&1; then
-    mas_list="$(mas list 2>/dev/null || true)"
-    mas_outdated="$(mas outdated 2>/dev/null || true)"
-  fi
-
-  while IFS= read -r line || [[ -n "$line" ]]; do
-    [[ "$line" =~ ^[[:space:]]*mas[[:space:]]+ ]] || continue
-    id="$(sed -n 's/.*id:[[:space:]]*\([0-9]\{1,\}\).*/\1/p' <<<"$line")"
-    [[ -n "$id" ]] || continue
-
-    if printf '%s\n' "$mas_outdated" | grep -q "^${id}[[:space:]]"; then
-      continue
-    fi
-
-    if printf '%s\n' "$mas_list" | grep -q "^${id}[[:space:]]"; then
-      skips+=("$id")
-      continue
-    fi
-
-    # Fallback when mas inventory misses an installed App Store app.
-    if command -v mdfind >/dev/null 2>&1 \
-      && [[ -n "$(mdfind "kMDItemAppStoreAdamID == ${id}" 2>/dev/null)" ]]; then
-      skips+=("$id")
-    fi
-  done < "$brewfile"
-
-  (( ${#skips[@]} )) || return 0
-  printf '%s\n' "${skips[*]}"
-}
-
 run_brewfile() {
   echo "Running full brew install from Brewfile"
-  local mas_skip="${HOMEBREW_BUNDLE_MAS_SKIP:-}"
-  local satisfied
-  satisfied="$(mas_satisfied_skip_ids)"
-  if [[ -n "$satisfied" ]]; then
-    mas_skip="${mas_skip:+$mas_skip }$satisfied"
-    echo "mas apps already installed (and not outdated); skipping: $satisfied"
+  brew bundle --file="$DOTFILES_ROOT/Brewfile"
+}
+
+run_brewfile_mas() {
+  if [[ "$BREW_BUNDLE_MAS" != "1" ]]; then
+    return 0
   fi
-  HOMEBREW_BUNDLE_MAS_SKIP="$mas_skip" brew bundle --file="$DOTFILES_ROOT/Brewfile"
+  if [[ "$OSTYPE" != darwin* ]]; then
+    echo "BREW_BUNDLE_MAS=1 but not macOS; skipping Brewfile.mas"
+    return 0
+  fi
+  echo "Running mas brew install from Brewfile.mas"
+  brew bundle --file="$DOTFILES_ROOT/Brewfile.mas"
 }
 
 run_brewfile_if_gui() {
@@ -269,7 +237,9 @@ upgrade_brew() {
 
 cleanup_brew_cache() {
   if [[ "$CLEAR_CACHE" == "1" ]]; then
-    brew bundle cleanup --force --file="$DOTFILES_ROOT/Brewfile"
+    # Union both brewfiles so mas apps are not treated as orphans.
+    brew bundle cleanup --force \
+      --file=<(cat "$DOTFILES_ROOT/Brewfile" "$DOTFILES_ROOT/Brewfile.mas")
   fi
 }
 
@@ -284,6 +254,7 @@ do_bootstrap() {
   ensure_homebrew
   disable_brew_analytics
   run_brewfile_if_gui
+  run_brewfile_mas
   copy_home_config
   ensure_dotfiles_shell_extras_source
   run_install_scripts
@@ -297,8 +268,11 @@ do_refresh() {
 
   if [[ "$RERUN_INSTALL" == "1" ]]; then
     do_bootstrap
-  elif [[ "$REFRESH_BREWFILE" == "1" ]]; then
-    run_brewfile
+  else
+    if [[ "$REFRESH_BREWFILE" == "1" ]]; then
+      run_brewfile
+    fi
+    run_brewfile_mas
   fi
 
   cleanup_brew_cache
@@ -318,5 +292,9 @@ do_refresh() {
 if [[ "$MODE" == "refresh" ]]; then
   do_refresh
 else
+  # install: empty/unset BREW_BUNDLE_MAS self-sets to 1; refresh leaves it unset.
+  if [[ -z "$BREW_BUNDLE_MAS" ]]; then
+    BREW_BUNDLE_MAS=1
+  fi
   do_bootstrap
 fi
