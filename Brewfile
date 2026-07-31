@@ -161,6 +161,8 @@ brew "anomalyco/tap/opencode", trusted: true
 brew "getagentseal/codeburn/codeburn", trusted: true
 # agent multiplexer for running multiple coding agents in one terminal
 brew "herdr"
+# self-improving AI agent that creates skills from experience
+brew "hermes-agent"
 cask "claude-code"
 cask "codex"
 cask "cursor"
