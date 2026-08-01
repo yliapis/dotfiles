@@ -115,9 +115,6 @@ brew "mypy"
 #     macOS Apps              #
 ###############################
 
-# mac app store cli (apps live in Brewfile.mas; see BREW_BUNDLE_MAS in install.sh)
-brew "mas"
-
 # via Cask
 
 cask_args appdir: "/Applications"
