@@ -109,6 +109,7 @@ brew "pyenv"
 # uv also drives scripts/install-doc-tools.sh (docling, markitdown, ...)
 brew "uv"
 brew "ruff"
+brew "ty"
 brew "mypy"
 
 ###############################
