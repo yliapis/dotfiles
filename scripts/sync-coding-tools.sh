@@ -93,9 +93,9 @@ Options:
   -h, --help            Show this help and exit.
 
 Environment (override tool home roots; defaults match historical paths):
-  SYNC_CODING_TOOLS_CURSOR_HOME    Cursor root     (default: ~/.cursor)
-  SYNC_CODING_TOOLS_CLAUDE_HOME    Claude root     (default: ~/.claude)
-  SYNC_CODING_TOOLS_OPENCODE_HOME  OpenCode root   (default: ~/.config/opencode)
+  SYNC_CODING_TOOLS_CURSOR_HOME    Cursor root    (default: ~/.cursor)
+  SYNC_CODING_TOOLS_CLAUDE_HOME    Claude root    (default: ~/.claude)
+  SYNC_CODING_TOOLS_OPENCODE_HOME  OpenCode root  (default: ~/.config/opencode)
 
   Under each root the script writes commands/, skills/, and agents/. Cursor
   also gets plugins/local/ai-coding; Claude gets
