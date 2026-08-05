@@ -100,6 +100,7 @@ brew "go"
 brew "lua"
 brew "node"
 brew "hashicorp/tap/terraform", trusted: true
+brew "opentofu"
 
 # set system python3 as 3.12
 brew "python@3.12"
