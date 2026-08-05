@@ -38,14 +38,12 @@ install:        ## Run initial dotfiles install (./install.sh)
 refresh:        ## Run ./install.sh --refresh
 	@./install.sh --refresh
 
-help:  ## Print targets and sync script CLI (GNU Make owns make -h / make --help)
+help:  ## Print Makefile targets (GNU Make owns make -h / make --help; use make sync-help for the sync script)
 	@printf 'Usage: make [TARGET]\n'
 	@printf '(make -h and make --help are handled by GNU Make itself; use make sync-help for the sync script only.)\n\nTargets:\n'
 	@awk 'BEGIN {FS = ":.*## "} \
 	      /^[a-zA-Z][a-zA-Z0-9_-]*:.*## / {printf "  %-20s %s\n", $$1, $$2}' \
 	      $(MAKEFILE_LIST)
-	@printf '\n--- scripts/sync-coding-tools.sh ---\n'
-	@$(SCRIPT) --help
 
 sync-help:      ## Print sync script usage (same as ./scripts/sync-coding-tools.sh -h / --help)
 	@$(SCRIPT) --help
