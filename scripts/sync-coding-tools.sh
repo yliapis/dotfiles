@@ -24,17 +24,17 @@
 # that carry none are synced without them.
 #
 # Targets (roots overridable via env; subpaths are fixed under each root):
-#   cursor    $DOTFILES_CURSOR_HOME/commands          (default: ~/.cursor)
-#             $DOTFILES_CURSOR_HOME/skills/<name>
-#             $DOTFILES_CURSOR_HOME/agents
-#             $DOTFILES_CURSOR_HOME/plugins/local/ai-coding
-#   claude    $DOTFILES_CLAUDE_HOME/commands          (default: ~/.claude)
-#             $DOTFILES_CLAUDE_HOME/skills/<name>
-#             $DOTFILES_CLAUDE_HOME/agents
-#             $DOTFILES_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles
-#   opencode  $DOTFILES_OPENCODE_HOME/commands        (default: ~/.config/opencode)
-#             $DOTFILES_OPENCODE_HOME/skills/<name>
-#             $DOTFILES_OPENCODE_HOME/agents
+#   cursor    $SYNC_CODING_TOOLS_CURSOR_HOME/commands          (default: ~/.cursor)
+#             $SYNC_CODING_TOOLS_CURSOR_HOME/skills/<name>
+#             $SYNC_CODING_TOOLS_CURSOR_HOME/agents
+#             $SYNC_CODING_TOOLS_CURSOR_HOME/plugins/local/ai-coding
+#   claude    $SYNC_CODING_TOOLS_CLAUDE_HOME/commands          (default: ~/.claude)
+#             $SYNC_CODING_TOOLS_CLAUDE_HOME/skills/<name>
+#             $SYNC_CODING_TOOLS_CLAUDE_HOME/agents
+#             $SYNC_CODING_TOOLS_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles
+#   opencode  $SYNC_CODING_TOOLS_OPENCODE_HOME/commands        (default: ~/.config/opencode)
+#             $SYNC_CODING_TOOLS_OPENCODE_HOME/skills/<name>
+#             $SYNC_CODING_TOOLS_OPENCODE_HOME/agents
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -55,9 +55,9 @@ BACKUP_ROOT="$HOME/.dotfiles-backup"
 LOG_FILE="$HOME/.cache/dotfiles/sync.log"
 
 # Per-tool home roots. Override to redirect sync destinations (e.g. tests).
-: "${DOTFILES_CURSOR_HOME:=$HOME/.cursor}"
-: "${DOTFILES_CLAUDE_HOME:=$HOME/.claude}"
-: "${DOTFILES_OPENCODE_HOME:=$HOME/.config/opencode}"
+: "${SYNC_CODING_TOOLS_CURSOR_HOME:=$HOME/.cursor}"
+: "${SYNC_CODING_TOOLS_CLAUDE_HOME:=$HOME/.claude}"
+: "${SYNC_CODING_TOOLS_OPENCODE_HOME:=$HOME/.config/opencode}"
 
 DRY_RUN=0
 VERBOSE=0
@@ -93,9 +93,9 @@ Options:
   -h, --help            Show this help and exit.
 
 Environment (override tool home roots; defaults match historical paths):
-  DOTFILES_CURSOR_HOME    Cursor root     (default: ~/.cursor)
-  DOTFILES_CLAUDE_HOME    Claude root     (default: ~/.claude)
-  DOTFILES_OPENCODE_HOME  OpenCode root   (default: ~/.config/opencode)
+  SYNC_CODING_TOOLS_CURSOR_HOME    Cursor root     (default: ~/.cursor)
+  SYNC_CODING_TOOLS_CLAUDE_HOME    Claude root     (default: ~/.claude)
+  SYNC_CODING_TOOLS_OPENCODE_HOME  OpenCode root   (default: ~/.config/opencode)
 
   Under each root the script writes commands/, skills/, and agents/. Cursor
   also gets plugins/local/ai-coding; Claude gets
@@ -158,9 +158,9 @@ done
 
 tool_home() {
   case "$1" in
-    cursor)   print -- "$DOTFILES_CURSOR_HOME" ;;
-    claude)   print -- "$DOTFILES_CLAUDE_HOME" ;;
-    opencode) print -- "$DOTFILES_OPENCODE_HOME" ;;
+    cursor)   print -- "$SYNC_CODING_TOOLS_CURSOR_HOME" ;;
+    claude)   print -- "$SYNC_CODING_TOOLS_CLAUDE_HOME" ;;
+    opencode) print -- "$SYNC_CODING_TOOLS_OPENCODE_HOME" ;;
     *) die "no home root for tool '$1'" ;;
   esac
 }
@@ -185,8 +185,8 @@ dest_agents_dir() {
 # Empty output means the tool has no plugin-marketplace concept to mirror.
 dest_plugin_dir() {
   case "$1" in
-    cursor)   print -- "$DOTFILES_CURSOR_HOME/plugins/local/ai-coding" ;;
-    claude)   print -- "$DOTFILES_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles" ;;
+    cursor)   print -- "$SYNC_CODING_TOOLS_CURSOR_HOME/plugins/local/ai-coding" ;;
+    claude)   print -- "$SYNC_CODING_TOOLS_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles" ;;
     opencode) print -- "" ;;
     *) die "no plugin dir for tool '$1'" ;;
   esac

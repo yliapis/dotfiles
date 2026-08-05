@@ -29,9 +29,9 @@ with `make mirrors` / `make skills-index` / `make commands-index` (a clean
 `git status` afterward means no drift); run the actual product with
 `make sync` (or `make dry-run` / `make status` first), which mirrors
 commands/skills/agents into the Cursor, Claude, and OpenCode home dirs
-(`DOTFILES_CURSOR_HOME`, `DOTFILES_CLAUDE_HOME`, `DOTFILES_OPENCODE_HOME`;
-defaults `~/.cursor`, `~/.claude`, `~/.config/opencode`) and appends an audit
-line to `~/.cache/dotfiles/sync.log`.
+(`SYNC_CODING_TOOLS_CURSOR_HOME`, `SYNC_CODING_TOOLS_CLAUDE_HOME`,
+`SYNC_CODING_TOOLS_OPENCODE_HOME`; defaults `~/.cursor`, `~/.claude`,
+`~/.config/opencode`) and appends an audit line to `~/.cache/dotfiles/sync.log`.
 
 ## Backlog.md ticket set
 
@@ -80,7 +80,7 @@ marketplace: `.cursor-plugin/marketplace.json` and
 `./ai-coding/plugins/<name>`, so a client reads the source tree with no mirror
 in between. Home-dir symlink sync remains available via
 `./scripts/sync-coding-tools.sh --mode symlink` (same
-`DOTFILES_*_HOME` roots as copy mode) and re-introduces the same symlink risk
+`SYNC_CODING_TOOLS_*_HOME` roots as copy mode) and re-introduces the same symlink risk
 at user scope, so confirm the client still lists the skills after running it.
 
 Agent frontmatter stays inside the intersection all three tools accept:
