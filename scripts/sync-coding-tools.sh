@@ -23,18 +23,18 @@
 # repo root is itself the marketplace root. Agents are optional: plugin sets
 # that carry none are synced without them.
 #
-# Targets:
-#   cursor    ~/.cursor/commands
-#             ~/.cursor/skills/<name>
-#             ~/.cursor/agents
-#             ~/.cursor/plugins/local/ai-coding
-#   claude    ~/.claude/commands
-#             ~/.claude/skills/<name>
-#             ~/.claude/agents
-#             ~/.claude/plugins/marketplaces/yliapis-dotfiles
-#   opencode  ~/.config/opencode/commands
-#             ~/.config/opencode/skills/<name>
-#             ~/.config/opencode/agents
+# Targets (roots overridable via env; subpaths are fixed under each root):
+#   cursor    $DOTFILES_CURSOR_HOME/commands          (default: ~/.cursor)
+#             $DOTFILES_CURSOR_HOME/skills/<name>
+#             $DOTFILES_CURSOR_HOME/agents
+#             $DOTFILES_CURSOR_HOME/plugins/local/ai-coding
+#   claude    $DOTFILES_CLAUDE_HOME/commands          (default: ~/.claude)
+#             $DOTFILES_CLAUDE_HOME/skills/<name>
+#             $DOTFILES_CLAUDE_HOME/agents
+#             $DOTFILES_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles
+#   opencode  $DOTFILES_OPENCODE_HOME/commands        (default: ~/.config/opencode)
+#             $DOTFILES_OPENCODE_HOME/skills/<name>
+#             $DOTFILES_OPENCODE_HOME/agents
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -53,6 +53,11 @@ SRC_AGENTS=("$SRC_PLUGINS"/*/agents/*.md(N))
 
 BACKUP_ROOT="$HOME/.dotfiles-backup"
 LOG_FILE="$HOME/.cache/dotfiles/sync.log"
+
+# Per-tool home roots. Override to redirect sync destinations (e.g. tests).
+: "${DOTFILES_CURSOR_HOME:=$HOME/.cursor}"
+: "${DOTFILES_CLAUDE_HOME:=$HOME/.claude}"
+: "${DOTFILES_OPENCODE_HOME:=$HOME/.config/opencode}"
 
 DRY_RUN=0
 VERBOSE=0
@@ -86,6 +91,16 @@ Options:
                         exists. Honors --dry-run, --targets, --verbose.
   -v, --verbose         Print every action; pass -v through to rsync.
   -h, --help            Show this help and exit.
+
+Environment (override tool home roots; defaults match historical paths):
+  DOTFILES_CURSOR_HOME    Cursor root     (default: ~/.cursor)
+  DOTFILES_CLAUDE_HOME    Claude root     (default: ~/.claude)
+  DOTFILES_OPENCODE_HOME  OpenCode root   (default: ~/.config/opencode)
+
+  Under each root the script writes commands/, skills/, and agents/. Cursor
+  also gets plugins/local/ai-coding; Claude gets
+  plugins/marketplaces/yliapis-dotfiles. OpenCode has no plugin destination.
+  Cursor skills stay at <root>/skills (never skills-cursor).
 
 Exit status:
   0  success
@@ -141,43 +156,37 @@ done
 
 # --- destinations --------------------------------------------------------
 
-dest_commands_dir() {
+tool_home() {
   case "$1" in
-    cursor)   print -- "$HOME/.cursor/commands" ;;
-    claude)   print -- "$HOME/.claude/commands" ;;
-    opencode) print -- "$HOME/.config/opencode/commands" ;;
-    *) die "no commands dir for tool '$1'" ;;
+    cursor)   print -- "$DOTFILES_CURSOR_HOME" ;;
+    claude)   print -- "$DOTFILES_CLAUDE_HOME" ;;
+    opencode) print -- "$DOTFILES_OPENCODE_HOME" ;;
+    *) die "no home root for tool '$1'" ;;
   esac
 }
 
-# Cursor skills go to ~/.cursor/skills, never ~/.cursor/skills-cursor: the
+dest_commands_dir() {
+  print -- "$(tool_home "$1")/commands"
+}
+
+# Cursor skills go to <cursor-home>/skills, never .../skills-cursor: the
 # shipped client registers skills-cursor as its own root with scope "builtin"
 # and source "builtin", so anything written there is presented as the client's
-# content rather than as the user's skills. ~/.cursor/skills is the root it
+# content rather than as the user's skills. <cursor-home>/skills is the root it
 # registers with scope "user", which is what a global sync of this repo wants.
 dest_skills_dir() {
-  case "$1" in
-    cursor)   print -- "$HOME/.cursor/skills" ;;
-    claude)   print -- "$HOME/.claude/skills" ;;
-    opencode) print -- "$HOME/.config/opencode/skills" ;;
-    *) die "no skills dir for tool '$1'" ;;
-  esac
+  print -- "$(tool_home "$1")/skills"
 }
 
 dest_agents_dir() {
-  case "$1" in
-    cursor)   print -- "$HOME/.cursor/agents" ;;
-    claude)   print -- "$HOME/.claude/agents" ;;
-    opencode) print -- "$HOME/.config/opencode/agents" ;;
-    *) die "no agents dir for tool '$1'" ;;
-  esac
+  print -- "$(tool_home "$1")/agents"
 }
 
 # Empty output means the tool has no plugin-marketplace concept to mirror.
 dest_plugin_dir() {
   case "$1" in
-    cursor)   print -- "$HOME/.cursor/plugins/local/ai-coding" ;;
-    claude)   print -- "$HOME/.claude/plugins/marketplaces/yliapis-dotfiles" ;;
+    cursor)   print -- "$DOTFILES_CURSOR_HOME/plugins/local/ai-coding" ;;
+    claude)   print -- "$DOTFILES_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles" ;;
     opencode) print -- "" ;;
     *) die "no plugin dir for tool '$1'" ;;
   esac
