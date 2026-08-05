@@ -76,9 +76,10 @@ edits without a regenerate step is to install this repo as a plugin
 marketplace: `.cursor-plugin/marketplace.json` and
 `.claude-plugin/marketplace.json` point each plugin at
 `./ai-coding/plugins/<name>`, so a client reads the source tree with no mirror
-in between. `make symlink` is the home-scope alternative and re-introduces the
-same symlink risk at user scope, so confirm the client still lists the skills
-after running it.
+in between. Home-dir symlink sync remains available via
+`./scripts/sync-coding-tools.sh --mode symlink` and re-introduces the same
+symlink risk at user scope, so confirm the client still lists the skills after
+running it.
 
 Agent frontmatter stays inside the intersection all three tools accept:
 `name`, `description`, and `mode: subagent`. Cursor ignores Claude-only fields,
