@@ -1,9 +1,9 @@
 # Makefile — thin convenience wrapper so `make install`, `make refresh`,
-# `make sync`, `make sync-cursor`, `make symlink`, `make mirrors`,
-# `make mirrors-check`, `make skills-index`, `make skills-index-check`,
-# `make commands-index`, `make commands-index-check`, `make dry-run`,
-# `make status`, `make unlink`, `make clean`, `make sync-help`, and `make help`
-# (default) all work without the user having to remember the flag set.
+# `make sync`, `make sync-cursor`, `make mirrors`, `make mirrors-check`,
+# `make skills-index`, `make skills-index-check`, `make commands-index`,
+# `make commands-index-check`, `make dry-run`, `make status`, `make unlink`,
+# `make clean`, `make sync-help`, and `make help` (default) all work without
+# the user having to remember the flag set.
 #
 # Three scripts do the work, and this Makefile only translates target names into
 # their invocations:
@@ -11,6 +11,8 @@
 #   scripts/sync-coding-tools.sh    home-dir sync: the single source of truth
 #                                   for copy-mode (rsync) and symlink-mode
 #                                   logic, the audit log, and --unlink.
+#                                   Symlink mode is CLI-only (--mode symlink);
+#                                   there is no make wrapper for it.
 #   scripts/sync-project-mirrors.sh repo-root project mirrors: regenerates
 #                                   {.cursor,.claude,.opencode}/{commands,
 #                                   skills,agents} from ai-coding/plugins/.
@@ -30,7 +32,7 @@ SCRIPT := ./scripts/sync-coding-tools.sh
 MIRROR_SCRIPT := ./scripts/sync-project-mirrors.sh
 INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
 
-.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode symlink symlink-cursor symlink-claude symlink-opencode dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
+.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
 
 install:        ## Run initial dotfiles install (./install.sh)
 	@./install.sh
@@ -77,18 +79,6 @@ commands-index: ## Regenerate ai-coding/indexes/commands.md from ai-coding/plugi
 
 commands-index-check: ## Fail if the commands index drifted from ai-coding/plugins (no writes)
 	@$(INDEX_SCRIPT) --kind commands --check
-
-symlink:        ## Symlink-sync everything (edits in the repo go live)
-	@$(SCRIPT) --mode symlink
-
-symlink-cursor: ## Symlink-sync only Cursor targets
-	@$(SCRIPT) --mode symlink --targets cursor
-
-symlink-claude: ## Symlink-sync only Claude targets
-	@$(SCRIPT) --mode symlink --targets claude
-
-symlink-opencode: ## Symlink-sync only OpenCode targets
-	@$(SCRIPT) --mode symlink --targets opencode
 
 dry-run:        ## Show what `make sync` would do (no filesystem writes)
 	@$(SCRIPT) --dry-run
