@@ -5,7 +5,7 @@ by `make skills-index`; edit the skill and regenerate rather than editing this
 file. `make skills-index-check` fails when it has drifted.
 
 - **Source root:** `ai-coding/plugins/*/skills/`
-- **Count:** 14
+- **Count:** 15
 
 ## Parameter surface
 
@@ -23,21 +23,22 @@ characters at a word boundary.
 | 4 | `designer` | `ai-coding/plugins/design-suite/skills/designer/SKILL.md` | no | Manually-invoked design controller that applies one or more design traits — declarative (YAML... |
 | 5 | `excalidraw-diagrams` | `ai-coding/plugins/excalidraw/skills/excalidraw-diagrams/SKILL.md` | no | Generate hand-drawn Excalidraw diagrams (architecture, flowcharts, sequence diagrams, sketches)... |
 | 6 | `file-dump` | `ai-coding/plugins/session-state/skills/file-dump/SKILL.md` | yes | Dump ad-hoc content from the current session — an analysis, review, report, comparison, plan,... |
-| 7 | `minimal-diffs` | `ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md` | no | Apply minimal, surgical changes when creating, editing, modifying, refactoring, or fixing any... |
-| 8 | `prompt-template-library` | `ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md` | yes | Pick a starting skeleton from the prompt template library when an agent is drafting a new... |
-| 9 | `simple-english` | `ai-coding/plugins/writing/skills/simple-english/SKILL.md` | no | Write or rewrite technical text with the rules of ASD-STE100 Simplified Technical English so it... |
-| 10 | `stop-slop` | `ai-coding/plugins/writing/skills/stop-slop/SKILL.md` | no | Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to... |
-| 11 | `ticket-crud` | `ai-coding/plugins/ticket-operations/skills/ticket-crud/SKILL.md` | yes | Create a new local Markdown ticket set and WORKLIST.md from an analysis, review, plan, or... |
-| 12 | `ticket-execute` | `ai-coding/plugins/ticket-operations/skills/ticket-execute/SKILL.md` | yes | Execute open runnable tickets from a native local Markdown ticket set, verify acceptance with... |
-| 13 | `trajectory-snapshot` | `ai-coding/plugins/session-state/skills/trajectory-snapshot/SKILL.md` | yes | Snapshot the current agent session's trajectory into a file at a chosen granularity — verbatim... |
-| 14 | `worktree-task` | `ai-coding/plugins/orchestration/skills/worktree-task/SKILL.md` | yes | Launch agents in isolated git worktrees to execute a task end-to-end, then present per-worktree... |
+| 7 | `flint-chart-author` | `ai-coding/plugins/flint-chart/skills/flint-chart-author/SKILL.md` | no | Use when: the user asks to make or render charts with flint-chart, visualize tabular data,... |
+| 8 | `minimal-diffs` | `ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md` | no | Apply minimal, surgical changes when creating, editing, modifying, refactoring, or fixing any... |
+| 9 | `prompt-template-library` | `ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md` | yes | Pick a starting skeleton from the prompt template library when an agent is drafting a new... |
+| 10 | `simple-english` | `ai-coding/plugins/writing/skills/simple-english/SKILL.md` | no | Write or rewrite technical text with the rules of ASD-STE100 Simplified Technical English so it... |
+| 11 | `stop-slop` | `ai-coding/plugins/writing/skills/stop-slop/SKILL.md` | no | Remove AI writing patterns from prose. Use when drafting, editing, or reviewing text to... |
+| 12 | `ticket-crud` | `ai-coding/plugins/ticket-operations/skills/ticket-crud/SKILL.md` | yes | Create a new local Markdown ticket set and WORKLIST.md from an analysis, review, plan, or... |
+| 13 | `ticket-execute` | `ai-coding/plugins/ticket-operations/skills/ticket-execute/SKILL.md` | yes | Execute open runnable tickets from a native local Markdown ticket set, verify acceptance with... |
+| 14 | `trajectory-snapshot` | `ai-coding/plugins/session-state/skills/trajectory-snapshot/SKILL.md` | yes | Snapshot the current agent session's trajectory into a file at a chosen granularity — verbatim... |
+| 15 | `worktree-task` | `ai-coding/plugins/orchestration/skills/worktree-task/SKILL.md` | yes | Launch agents in isolated git worktrees to execute a task end-to-end, then present per-worktree... |
 
 ## Slug list
 
 Comma-separated slugs for command parameters:
 
 ```text
-agent-swarm, conventional-commits, design-skill, designer, excalidraw-diagrams, file-dump, minimal-diffs, prompt-template-library, simple-english, stop-slop, ticket-crud, ticket-execute, trajectory-snapshot, worktree-task
+agent-swarm, conventional-commits, design-skill, designer, excalidraw-diagrams, file-dump, flint-chart-author, minimal-diffs, prompt-template-library, simple-english, stop-slop, ticket-crud, ticket-execute, trajectory-snapshot, worktree-task
 ```
 
 ## Path list
@@ -49,6 +50,7 @@ ai-coding/plugins/design-suite/skills/design-skill/SKILL.md
 ai-coding/plugins/design-suite/skills/designer/SKILL.md
 ai-coding/plugins/excalidraw/skills/excalidraw-diagrams/SKILL.md
 ai-coding/plugins/session-state/skills/file-dump/SKILL.md
+ai-coding/plugins/flint-chart/skills/flint-chart-author/SKILL.md
 ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md
 ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md
 ai-coding/plugins/writing/skills/simple-english/SKILL.md

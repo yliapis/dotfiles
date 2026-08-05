@@ -18,6 +18,12 @@
       "description": "Draw architecture, flow, and sequence diagrams with the Excalidraw MCP."
     },
     {
+      "name": "flint-chart",
+      "source": "./ai-coding/plugins/flint-chart",
+      "version": "0.1.0",
+      "description": "Author Flint chart specs (ChartAssemblyInput) and render charts through the flint-chart MCP."
+    },
+    {
       "name": "git-operations",
       "source": "./ai-coding/plugins/git-operations",
       "version": "0.1.0",
