@@ -99,6 +99,8 @@ brew "hyperfine"
 brew "go"
 brew "lua"
 brew "node"
+# Homebrew aliases npm → node; listed explicitly so npm is searchable here.
+brew "npm"
 brew "hashicorp/tap/terraform", trusted: true
 brew "opentofu"
 
