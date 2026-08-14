@@ -3,6 +3,7 @@ tap "anomalyco/tap"
 tap "darrylmorley/whatcable"
 tap "getagentseal/codeburn"
 tap "hashicorp/tap"
+tap "nicosuave/tap"
 
 ###############################
 #     cli tools               #
@@ -66,6 +67,7 @@ brew "tree"
 # network tools
 brew "net-tools" if OS.linux?
 brew "arp-scan"
+brew "cloudflared" # herdr-remote phone/Telegram tunnel
 brew "curl"
 brew "httpie"
 brew "mtr"
@@ -109,6 +111,7 @@ brew "python@3.12"
 brew "pipx"
 brew "pyenv"
 # uv also drives scripts/install-doc-tools.sh (docling, markitdown, ...)
+# and the herdr-remote relay/TUI/Telegram bot (Python 3.10+).
 brew "uv"
 brew "ruff"
 brew "ty"
@@ -152,6 +155,18 @@ brew "anomalyco/tap/opencode", trusted: true
 brew "getagentseal/codeburn/codeburn", trusted: true
 # agent multiplexer for running multiple coding agents in one terminal
 brew "herdr"
+# herdr plugins: scripts/install-herdr-plugins.sh (file-viewer, reviewr,
+# herdr-remote, memex). Associated tools already in this Brewfile:
+#   file-viewer renderers: glow, bat, git-delta
+#   reviewr PR tab: gh (GitHub). GitLab: brew "glab" — not added; relocate
+#   here if you use GitLab. Azure DevOps: `az` + azure-devops extension.
+#   rust/cargo: only if file-viewer's fetch-or-build falls back to source;
+#   relocate `brew "rust"` here if that happens regularly.
+# Herdi.app (herdr-remote macOS menu bar) is a GitHub release DMG, not a
+# formula. Install from https://github.com/dcolinmorgan/herdr-remote/releases
+# Relocate here if a cask appears.
+# memex CLI (also a herdr plugin). After brew: `memex setup` for skills.
+brew "nicosuave/tap/memex", trusted: true
 brew "hermes-agent"
 cask "claude-code"
 cask "codex"
