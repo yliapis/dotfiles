@@ -3,6 +3,7 @@ tap "anomalyco/tap"
 tap "darrylmorley/whatcable"
 tap "getagentseal/codeburn"
 tap "hashicorp/tap"
+tap "nicosuave/tap"
 
 ###############################
 #     cli tools               #
@@ -66,6 +67,7 @@ brew "tree"
 # network tools
 brew "net-tools" if OS.linux?
 brew "arp-scan"
+brew "cloudflared"
 brew "curl"
 brew "httpie"
 brew "mtr"
@@ -150,8 +152,8 @@ cask "vlc"
 # development tools
 brew "anomalyco/tap/opencode", trusted: true
 brew "getagentseal/codeburn/codeburn", trusted: true
-# agent multiplexer for running multiple coding agents in one terminal
 brew "herdr"
+brew "nicosuave/tap/memex", trusted: true
 brew "hermes-agent"
 cask "claude-code"
 cask "codex"
