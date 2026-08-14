@@ -34,5 +34,9 @@ if [ -n "$_dotfiles_shell" ]; then
   source <(fzf --"$_dotfiles_shell")
   # starship prompt
   eval "$(starship init "$_dotfiles_shell")"
+  # worktrunk: directory switching + completions (wt config shell install)
+  if command -v wt >/dev/null 2>&1; then
+    eval "$(wt config shell init "$_dotfiles_shell")"
+  fi
 fi
 unset _dotfiles_shell
