@@ -1,5 +1,6 @@
 
 tap "anomalyco/tap"
+tap "darrylmorley/whatcable"
 tap "getagentseal/codeburn"
 tap "hashicorp/tap"
 
@@ -188,6 +189,7 @@ cask "protonvpn"
 cask "raycast"
 cask "stats"
 cask "the-unarchiver"
+cask "darrylmorley/whatcable/whatcable", trusted: true
 
 ###############################
 
