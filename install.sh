@@ -47,6 +47,15 @@ RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
 
+# Homebrew >= 6.0 upgrades `auto_updates true` casks on a plain `brew upgrade`
+# (and through `brew bundle`). Those apps ship their own updaters, and some need
+# root to swap themselves out: Docker Desktop's cask uninstall deletes files
+# under /Library/PrivilegedHelperTools, so brew shells out to sudo. An unattended
+# refresh has no tty to answer the password prompt, and the upgrade then dies
+# *after* the app artifact is moved out of /Applications, leaving the machine
+# with no Docker Desktop at all. Let the self-updating casks update themselves.
+export HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh)
@@ -60,6 +69,20 @@ while [[ $# -gt 0 ]]; do
 done
 
 GUI_INSTALL=${1:-$GUI_INSTALL}
+
+REFRESH_FAILURES=()
+
+# Run one refresh step, recording a failure instead of aborting: a refresh is a
+# maintenance sweep, so a broken upgrade should not skip the sync behind it.
+# do_refresh reports the collected names and exits non-zero.
+run_step() {
+  local label=$1
+  shift
+  "$@" && return 0
+  echo "Error: $label failed"
+  REFRESH_FAILURES+=("$label")
+  return 0
+}
 
 run_install_scripts() {
   if [ ! -d "$DOTFILES_ROOT/scripts" ]; then
@@ -231,8 +254,12 @@ sync_coding_tools() {
 }
 
 upgrade_brew() {
-  brew upgrade
-  brew upgrade --cask --greedy
+  run_step "brew upgrade" brew upgrade
+  # --greedy-latest, not --greedy: HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS above
+  # does not apply to --greedy, which would drag the self-updating casks back in.
+  # --greedy-latest still covers `version :latest` casks, which brew cannot
+  # version-compare and would otherwise never upgrade.
+  run_step "brew upgrade --cask" brew upgrade --cask --greedy-latest
 }
 
 cleanup_brew_cache() {
@@ -270,21 +297,26 @@ do_refresh() {
     do_bootstrap
   else
     if [[ "$REFRESH_BREWFILE" == "1" ]]; then
-      run_brewfile
+      run_step "brew bundle" run_brewfile
     fi
-    run_brewfile_mas
+    run_step "brew bundle (mas)" run_brewfile_mas
   fi
 
-  cleanup_brew_cache
+  run_step "brew bundle cleanup" cleanup_brew_cache
   upgrade_brew
-  sync_coding_tools
+  run_step "sync-coding-tools.sh" sync_coding_tools
 
   if [[ "$REFRESH_SCRIPTS" == "1" ]]; then
-    run_install_scripts
+    run_step "install scripts" run_install_scripts
   fi
 
   # TODO: add snap refresh script
   # TODO: add system refresh
+
+  if (( ${#REFRESH_FAILURES[@]} )); then
+    echo "dotfiles refresh finished with failures: ${REFRESH_FAILURES[*]}"
+    exit 1
+  fi
 
   echo "dotfiles refresh complete"
 }
