@@ -152,7 +152,6 @@ cask "vlc"
 # development tools
 brew "anomalyco/tap/opencode", trusted: true
 brew "getagentseal/codeburn/codeburn", trusted: true
-# agent multiplexer for running multiple coding agents in one terminal
 brew "herdr"
 brew "nicosuave/tap/memex", trusted: true
 brew "hermes-agent"
