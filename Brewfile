@@ -67,7 +67,7 @@ brew "tree"
 # network tools
 brew "net-tools" if OS.linux?
 brew "arp-scan"
-brew "cloudflared" # herdr-remote phone/Telegram tunnel
+brew "cloudflared"
 brew "curl"
 brew "httpie"
 brew "mtr"
