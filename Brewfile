@@ -75,6 +75,7 @@ brew "nmap"
 brew "openssh"
 brew "openssl@3"
 brew "rclone"
+brew "tailscale" if OS.linux?
 brew "telnet"
 brew "wget"
 
@@ -190,6 +191,7 @@ cask "ledger-wallet"
 cask "rectangle"
 cask "pearcleaner"
 cask "protonvpn"
+cask "tailscale-app" if OS.mac?
 cask "raycast"
 cask "stats"
 cask "the-unarchiver"
