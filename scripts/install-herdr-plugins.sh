@@ -23,11 +23,13 @@ echo "[install-herdr-plugins] installing herdr plugins"
 
 install_plugin() {
   local spec="$1"
-  echo "[install-herdr-plugins] herdr plugin install --yes $spec"
-  herdr plugin install --yes "$spec"
+  echo "[install-herdr-plugins] herdr plugin install $spec --yes"
+  herdr plugin install "$spec" --yes
 }
 
-install_plugin smarzban/herdr-file-viewer
-install_plugin persiyanov/herdr-reviewr
-install_plugin dcolinmorgan/herdr-remote
-install_plugin nicosuave/memex
+failed=0
+install_plugin smarzban/herdr-file-viewer || failed=1
+install_plugin persiyanov/herdr-reviewr || failed=1
+install_plugin dcolinmorgan/herdr-remote || failed=1
+install_plugin nicosuave/memex || failed=1
+exit "$failed"

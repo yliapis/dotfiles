@@ -88,11 +88,16 @@ run_install_scripts() {
   if [ ! -d "$DOTFILES_ROOT/scripts" ]; then
     return 0
   fi
+  local failed=0
   for script in "$DOTFILES_ROOT/scripts"/install-*.sh; do
     [ -f "$script" ] || continue
     echo "running $(basename "$script")"
-    bash "$script"
+    if ! bash "$script"; then
+      echo "Error: $(basename "$script") failed"
+      failed=1
+    fi
   done
+  return "$failed"
 }
 
 copy_home_config() {
