@@ -1,9 +1,10 @@
 ---
 id: TKT-008
 title: Skill auto-attach is never verified against a real client
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-26 18:12'
+updated_date: '2026-08-15 03:49'
 labels:
   - docs
   - 'estimate:S'
@@ -42,6 +43,12 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 A committed procedure states how to confirm a client lists all 15 skills
-- [ ] #2 One recorded observation shows a client listing them, from the Cursor skills panel or from a fresh cloud agent run that reports its skill list
+- [x] #1 A committed procedure states how to confirm a client lists all 15 skills
+- [x] #2 One recorded observation shows a client listing them, from the Cursor skills panel or from a fresh cloud agent run that reports its skill list
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Added docs/skill-auto-attach-verification.md: a per-client procedure to confirm all 15 project skills are listed, plus a recorded 2026-08-15 observation from this Claude Code cloud-agent run (CLAUDE_CODE_REMOTE=true) offering all 15. Indexed it in docs/README.md.
+<!-- SECTION:FINAL_SUMMARY:END -->
