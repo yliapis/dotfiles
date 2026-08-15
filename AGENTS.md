@@ -3,8 +3,8 @@
 ## Cursor Cloud specific instructions
 
 Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
-`ai-coding/` commands, skills, and agents into the Cursor, Claude, and OpenCode
-home locations.
+`ai-coding/` commands, skills, and agents into the Cursor, Claude, OpenCode, and
+Codex home locations (Codex takes skills and a marketplace only).
 
 Cloud agent setup lives in `ai-coding/hooks/`. Both wired-up providers run the
 provider-agnostic `ai-coding/hooks/cloud-agent-bootstrap.sh` at VM boot to
@@ -31,7 +31,9 @@ with `make mirrors` / `make skills-index` / `make commands-index` (a clean
 commands/skills/agents into the Cursor, Claude, and OpenCode home dirs
 (`SYNC_CODING_TOOLS_CURSOR_HOME`, `SYNC_CODING_TOOLS_CLAUDE_HOME`,
 `SYNC_CODING_TOOLS_OPENCODE_HOME`; defaults `~/.cursor`, `~/.claude`,
-`~/.config/opencode`) and appends an audit line to `~/.cache/dotfiles/sync.log`.
+`~/.config/opencode`) plus skills and the marketplace into the Codex home dir
+(`SYNC_CODING_TOOLS_CODEX_HOME`; default `~/.agents`; `make sync-codex` for
+Codex alone) and appends an audit line to `~/.cache/dotfiles/sync.log`.
 
 ## Backlog.md ticket set
 
@@ -47,9 +49,12 @@ the `ticket-crud` and `ticket-execute` skills and states the execution contract.
 Repo-root `.cursor/{commands,skills,agents}/`,
 `.claude/{commands,skills,agents}/`, and `.opencode/{commands,skills,agents}/`
 are flattened per-item mirrors of
-`ai-coding/plugins/*/{commands,skills,agents}`. `ai-coding/plugins/` is the only
+`ai-coding/plugins/*/{commands,skills,agents}`. Codex reads a tool-neutral
+`.agents/skills/` tree — skills only; it has no repo-root commands path and reads
+subagents only from home as TOML, so it gets no commands or agents mirror (see
+[`.agents/README.md`](.agents/README.md)). `ai-coding/plugins/` is the only
 place to edit; every mirror entry is generated. After adding, renaming, or
-removing a command, skill, or agent, regenerate all nine mirrors from the repo
+removing a command, skill, or agent, regenerate all ten mirrors from the repo
 root:
 
 ```sh
@@ -61,7 +66,7 @@ Both wrap `scripts/sync-project-mirrors.sh`, which needs only bash and
 coreutils. Two plugins claiming one flattened name abort the run instead of
 shadowing each other.
 
-The same script generates a tenth mirror on different rules: `.claude/hooks/`
+The same script generates an eleventh mirror on different rules: `.claude/hooks/`
 from the flat, non-plugin-scoped `ai-coding/hooks/*.sh`, and only for Claude
 Code, since it is the one tool that discovers hooks by path inside its config
 directory. Cursor reads the same source through an arbitrary path in
@@ -75,10 +80,11 @@ shipped skill-discovery implementation resolves a link and drops the entry when
 the real path leaves the scanned directory, so a symlinked mirror is invisible
 to it; `make mirrors-check` reports one as drift. The escape hatch for live
 edits without a regenerate step is to install this repo as a plugin
-marketplace: `.cursor-plugin/marketplace.json` and
-`.claude-plugin/marketplace.json` point each plugin at
-`./ai-coding/plugins/<name>`, so a client reads the source tree with no mirror
-in between. Home-dir symlink sync remains available via
+marketplace: `.cursor-plugin/marketplace.json`,
+`.claude-plugin/marketplace.json`, and Codex's `.agents/plugins/marketplace.json`
+point each plugin at `./ai-coding/plugins/<name>` (Codex also reads the
+per-plugin `.codex-plugin/plugin.json`), so a client reads the source tree with
+no mirror in between. Home-dir symlink sync remains available via
 `./scripts/sync-coding-tools.sh --mode symlink` (same
 `SYNC_CODING_TOOLS_*_HOME` roots as copy mode) and re-introduces the same symlink risk
 at user scope, so confirm the client still lists the skills after running it.
@@ -88,6 +94,8 @@ Agent frontmatter stays inside the intersection all three tools accept:
 while OpenCode folds unrecognized keys into provider model options and fails its
 config load on a known key with the wrong type (Claude's comma-separated
 `tools:` string, or a `color:` name outside its theme enum). Anything
-tool-specific belongs in the body instructions instead.
+tool-specific belongs in the body instructions instead. Codex is not one of the
+three: it reads subagents only from home as TOML, so agents are not synced to it
+(skills carry the shared instructions instead).
 
 See `README.md` for more information.

@@ -11,3 +11,4 @@
 .opencode/commands/** linguist-generated=true
 .opencode/skills/** linguist-generated=true
 .opencode/agents/** linguist-generated=true
+.agents/skills/** linguist-generated=true

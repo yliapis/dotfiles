@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# sync-project-mirrors.sh — regenerate the nine repo-root project mirrors that
-# Cursor, Claude Code, and OpenCode read when this repository is the workspace.
+# sync-project-mirrors.sh — regenerate the ten repo-root project mirrors that
+# Cursor, Claude Code, OpenCode, and Codex read when this repository is the
+# workspace.
 #
 # Sources (the only place a maintainer edits):
 #   ai-coding/plugins/<plugin>/commands/*.md           slash commands
@@ -10,7 +11,15 @@
 #
 # Mirrors (generated, never edited by hand):
 #   {.cursor,.claude,.opencode}/{commands,skills,agents}
+#   .agents/skills                                     Codex, skills only
 #   .claude/hooks
+#
+# Codex is the odd tool out: it reads skills from .agents/skills/ (walking up
+# to the repo root), but has no repo-root path for commands (project prompts
+# are unimplemented; its home prompts are deprecated in favor of skills) and
+# reads subagents only from home as TOML, incompatible with the shared markdown
+# agents. So Codex gets one mirror, .agents/skills, and no commands or agents.
+# See .agents/README.md for the full research trail.
 #
 # Hooks are the one kind that is not plugin-scoped and not mirrored to all
 # three tools. They come from a single flat directory, and only Claude Code
@@ -40,10 +49,12 @@ REPO_ROOT="$(dirname -- "$SCRIPT_DIR")"
 
 SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
 SRC_HOOKS="$REPO_ROOT/ai-coding/hooks"
-TOOLS="cursor claude opencode"
+TOOLS="cursor claude opencode codex"
 KINDS="commands skills agents"
-# Kinds a given tool receives. Everything gets the plugin-scoped three; only
-# Claude Code discovers hooks from its config directory.
+# Kinds a given tool receives. cursor/claude/opencode get the plugin-scoped
+# three, and Claude Code also gets hooks from its config directory. Codex is
+# skills-only and mirrors to a tool-neutral .agents/ root (see tool_root,
+# tool_kinds, and the header note).
 HOOK_TOOLS="claude"
 
 MODE="write"
@@ -55,10 +66,10 @@ usage() {
 Usage: $PROG [options]
 
 Regenerate the repo-root project mirrors from ai-coding/: the nine
-{.cursor,.claude,.opencode}/{commands,skills,agents} trees from
-ai-coding/plugins/, and .claude/hooks from ai-coding/hooks/. Mirror entries are
-byte-identical copies of their source, never symlinks. Idempotent; a mirror
-already in sync is left untouched.
+{.cursor,.claude,.opencode}/{commands,skills,agents} trees and the Codex
+.agents/skills tree from ai-coding/plugins/, and .claude/hooks from
+ai-coding/hooks/. Mirror entries are byte-identical copies of their source,
+never symlinks. Idempotent; a mirror already in sync is left untouched.
 
 Options:
       --check       Report drift and exit non-zero if any mirror differs from
@@ -136,9 +147,19 @@ kind_sources() {
 
 relpath() { printf '%s\n' "${1#"$REPO_ROOT"/}"; }
 
+# Repo-root mirror directory for a tool. Cursor/Claude/OpenCode use .<tool>;
+# Codex reads a tool-neutral .agents/ tree instead of a .codex/ one.
+tool_root() {
+  case "$1" in
+    codex) printf '.agents\n' ;;
+    *)     printf '.%s\n' "$1" ;;
+  esac
+}
+
 # Kinds mirrored for one tool: the plugin-scoped three, plus hooks for the
-# tools that read them from their config directory.
+# tools that read them from their config directory. Codex is skills-only.
 tool_kinds() {
+  if [ "$1" = codex ]; then printf 'skills\n'; return; fi
   printf '%s' "$KINDS"
   case " $HOOK_TOOLS " in
     *" $1 "*) printf ' hooks' ;;
@@ -241,7 +262,7 @@ apply() {
 
 for tool in $TOOLS; do
   for kind in $(tool_kinds "$tool"); do
-    dest_dir="$REPO_ROOT/.$tool/$kind"
+    dest_dir="$REPO_ROOT/$(tool_root "$tool")/$kind"
     names="$TMP_RUN/$tool.$kind.names"
     kind_sources "$kind" | cut -f1 >"$names"
 

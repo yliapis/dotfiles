@@ -32,7 +32,7 @@ SCRIPT := ./scripts/sync-coding-tools.sh
 MIRROR_SCRIPT := ./scripts/sync-project-mirrors.sh
 INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
 
-.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
+.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode sync-codex dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
 
 install:        ## Run initial dotfiles install (./install.sh)
 	@./install.sh
@@ -61,6 +61,9 @@ sync-claude:    ## Copy-sync only Claude targets
 
 sync-opencode:  ## Copy-sync only OpenCode targets
 	@$(SCRIPT) --targets opencode
+
+sync-codex:     ## Copy-sync only Codex targets (skills + marketplace)
+	@$(SCRIPT) --targets codex
 
 mirrors:        ## Regenerate the repo-root project mirrors from ai-coding/plugins
 	@$(MIRROR_SCRIPT)

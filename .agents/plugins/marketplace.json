@@ -1,0 +1,57 @@
+{
+  "name": "yliapis-dotfiles",
+  "owner": { "name": "yliapis" },
+  "metadata": {
+    "description": "Personal AI coding tools shared across Cursor, Claude Code, OpenCode, and Codex."
+  },
+  "plugins": [
+    {
+      "name": "design-suite",
+      "source": "./ai-coding/plugins/design-suite",
+      "version": "0.1.0",
+      "description": "Compose design traits against a target (designer, with declarative, deterministic, and concise trait cards) and author new ones (design-skill)."
+    },
+    {
+      "name": "excalidraw",
+      "source": "./ai-coding/plugins/excalidraw",
+      "version": "0.1.0",
+      "description": "Draw architecture, flow, and sequence diagrams with the Excalidraw MCP."
+    },
+    {
+      "name": "flint-chart",
+      "source": "./ai-coding/plugins/flint-chart",
+      "version": "0.1.0",
+      "description": "Author Flint chart specs (ChartAssemblyInput) and render charts through the flint-chart MCP."
+    },
+    {
+      "name": "git-operations",
+      "source": "./ai-coding/plugins/git-operations",
+      "version": "0.1.0",
+      "description": "Minimal diffs, Conventional Commits, and safe merge/push workflows."
+    },
+    {
+      "name": "orchestration",
+      "source": "./ai-coding/plugins/orchestration",
+      "version": "0.1.0",
+      "description": "Parallel agent swarms and isolated git-worktree task execution."
+    },
+    {
+      "name": "session-state",
+      "source": "./ai-coding/plugins/session-state",
+      "version": "0.1.0",
+      "description": "Trajectory snapshots, file dumps, session save/shutdown/wrap-up."
+    },
+    {
+      "name": "ticket-operations",
+      "source": "./ai-coding/plugins/ticket-operations",
+      "version": "0.4.0",
+      "description": "Create, execute, and update local Markdown tickets."
+    },
+    {
+      "name": "writing",
+      "source": "./ai-coding/plugins/writing",
+      "version": "0.1.0",
+      "description": "De-slop prose, prompt template library, meta-prompt, critique."
+    }
+  ]
+}

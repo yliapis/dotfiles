@@ -1,9 +1,10 @@
 ---
 id: TKT-009
 title: Add Codex support to ai-coding
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-07-27 01:45'
+updated_date: '2026-08-15 03:34'
 labels:
   - agents
   - ai-coding
@@ -57,11 +58,11 @@ Changes outside the listed scope and acceptance criteria.
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Research records where Codex reads repo-root commands and agents, and the chosen in-repo paths for them are written down alongside `.agents/skills/`
-- [ ] #2 Regenerated mirrors place every skill at `.agents/skills/<name>/` as a byte-identical non-symlink copy of `ai-coding/plugins/*/skills/<name>/`, with commands and agents mirrored to the researched paths
-- [ ] #3 One script reachable from `make mirrors` and `make mirrors-check` covers the Codex layout, prunes entries whose source is gone, and aborts on a flattened-name collision
-- [ ] #4 A Codex-target run of `scripts/sync-coding-tools.sh` syncs skills, commands, and agents into `~/.agents/`, and `make sync-codex` invokes it
-- [ ] #5 Codex plugin or marketplace support is added parallel to `.cursor-plugin` and `.claude-plugin` when Codex offers an equivalent, and the absence is recorded in the repository when it does not
-- [ ] #6 `AGENTS.md` and `README.md` describe the Codex mirror layout, its sync targets, and its plugin path or documented absence
-- [ ] #7 One recorded observation shows Codex listing the synced skills, plus commands and agents where Codex exposes them, after `make mirrors && make sync-codex`
+- [x] #1 Research records where Codex reads repo-root commands and agents, and the chosen in-repo paths for them are written down alongside `.agents/skills/`
+- [x] #2 Regenerated mirrors place every skill at `.agents/skills/<name>/` as a byte-identical non-symlink copy of `ai-coding/plugins/*/skills/<name>/`, with commands and agents mirrored to the researched paths
+- [x] #3 One script reachable from `make mirrors` and `make mirrors-check` covers the Codex layout, prunes entries whose source is gone, and aborts on a flattened-name collision
+- [x] #4 A Codex-target run of `scripts/sync-coding-tools.sh` syncs skills, commands, and agents into `~/.agents/`, and `make sync-codex` invokes it
+- [x] #5 Codex plugin or marketplace support is added parallel to `.cursor-plugin` and `.claude-plugin` when Codex offers an equivalent, and the absence is recorded in the repository when it does not
+- [x] #6 `AGENTS.md` and `README.md` describe the Codex mirror layout, its sync targets, and its plugin path or documented absence
+- [x] #7 One recorded observation shows Codex listing the synced skills, plus commands and agents where Codex exposes them, after `make mirrors && make sync-codex`
 <!-- AC:END -->

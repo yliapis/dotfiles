@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 # sync-coding-tools.sh — mirror the commands, skills, and agents carried by the
 # ai-coding plugins (plus marketplace metadata) from this dotfiles repo into
-# the home-dir locations used by Cursor, Claude Code, and OpenCode.
+# the home-dir locations used by Cursor, Claude Code, OpenCode, and Codex.
 #
 # Two modes:
 #   copy     (default) rsync, deterministic, source-of-truth is the dotfiles
@@ -15,13 +15,16 @@
 #   ai-coding/plugins/<plugin>/skills/<name>/SKILL.md  skills
 #   ai-coding/plugins/<plugin>/agents/*.md             subagent definitions
 #   .cursor-plugin/marketplace.json (Cursor),
-#   .claude-plugin/marketplace.json (Claude) + ai-coding/plugins/
+#   .claude-plugin/marketplace.json (Claude),
+#   .agents/plugins/marketplace.json (Codex) + ai-coding/plugins/
 #                                                      marketplace metadata
 #
 # Commands, skills, and agents from every plugin are flattened into one
 # destination directory per tool; the marketplace is mirrored whole, since the
 # repo root is itself the marketplace root. Agents are optional: plugin sets
-# that carry none are synced without them.
+# that carry none are synced without them. Codex is the exception: it takes
+# skills and the marketplace only, never commands or agents (see the codex
+# entry under Targets and .agents/README.md).
 #
 # Targets (roots overridable via env; subpaths are fixed under each root):
 #   cursor    $SYNC_CODING_TOOLS_CURSOR_HOME/commands          (default: ~/.cursor)
@@ -35,6 +38,11 @@
 #   opencode  $SYNC_CODING_TOOLS_OPENCODE_HOME/commands        (default: ~/.config/opencode)
 #             $SYNC_CODING_TOOLS_OPENCODE_HOME/skills/<name>
 #             $SYNC_CODING_TOOLS_OPENCODE_HOME/agents
+#   codex     $SYNC_CODING_TOOLS_CODEX_HOME/skills/<name>      (default: ~/.agents)
+#             $SYNC_CODING_TOOLS_CODEX_HOME/plugins/yliapis-dotfiles
+#             (skills + marketplace only; no commands or agents. Codex has no
+#              repo/home commands path that is not deprecated, and its subagents
+#              are home-only TOML, incompatible with the shared markdown agents.)
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -58,20 +66,25 @@ LOG_FILE="$HOME/.cache/dotfiles/sync.log"
 : "${SYNC_CODING_TOOLS_CURSOR_HOME:=$HOME/.cursor}"
 : "${SYNC_CODING_TOOLS_CLAUDE_HOME:=$HOME/.claude}"
 : "${SYNC_CODING_TOOLS_OPENCODE_HOME:=$HOME/.config/opencode}"
+# Codex reads skills from ~/.agents/skills and a personal marketplace from
+# ~/.agents/plugins; this tool-neutral .agents root is distinct from Codex's own
+# CODEX_HOME (~/.codex), whose skills path is a deprecated compatibility location.
+: "${SYNC_CODING_TOOLS_CODEX_HOME:=$HOME/.agents}"
 
 DRY_RUN=0
 VERBOSE=0
 UNLINK=0
 MODE="copy"
-TARGETS="cursor,claude,opencode"
+TARGETS="cursor,claude,opencode,codex"
 
 usage() {
   cat <<EOF
 Usage: ${SCRIPT_PATH:t} [options]
 
 Mirror ai-coding commands, skills, and agents from this dotfiles repo into the
-home locations used by Cursor, Claude Code, and OpenCode. Idempotent; safe to
-re-run.
+home locations used by Cursor, Claude Code, OpenCode, and Codex. Idempotent;
+safe to re-run. Codex takes skills and the marketplace only (no commands or
+agents).
 
 Modes:
   copy         (default) rsync-based; deterministic snapshot of the repo at
@@ -82,7 +95,7 @@ Modes:
 
 Options:
   -n, --dry-run         Show actions without writing.
-      --targets <list>  Comma-separated subset of: cursor,claude,opencode
+      --targets <list>  Comma-separated subset of: cursor,claude,opencode,codex
                         (default: all).
       --mode <m>        copy | symlink (default: copy).
       --unlink          Reverse a previous sync: remove symlinks that point
@@ -96,11 +109,14 @@ Environment (override tool home roots; defaults match historical paths):
   SYNC_CODING_TOOLS_CURSOR_HOME    Cursor root    (default: ~/.cursor)
   SYNC_CODING_TOOLS_CLAUDE_HOME    Claude root    (default: ~/.claude)
   SYNC_CODING_TOOLS_OPENCODE_HOME  OpenCode root  (default: ~/.config/opencode)
+  SYNC_CODING_TOOLS_CODEX_HOME     Codex root     (default: ~/.agents)
 
   Under each root the script writes commands/, skills/, and agents/. Cursor
   also gets plugins/local/ai-coding; Claude gets
   plugins/marketplaces/yliapis-dotfiles. OpenCode has no plugin destination.
-  Cursor skills stay at <root>/skills (never skills-cursor).
+  Cursor skills stay at <root>/skills (never skills-cursor). Codex writes only
+  skills/ and plugins/yliapis-dotfiles (its marketplace bundle); it has no
+  commands or agents destination.
 
 Exit status:
   0  success
@@ -144,8 +160,8 @@ TOOLS=()
 for tool in ${(s:,:)TARGETS}; do
   [[ -z "$tool" ]] && continue
   case "$tool" in
-    cursor|claude|opencode) TOOLS+=("$tool") ;;
-    *) die "unknown target '$tool' (expected: cursor, claude, opencode)" ;;
+    cursor|claude|opencode|codex) TOOLS+=("$tool") ;;
+    *) die "unknown target '$tool' (expected: cursor, claude, opencode, codex)" ;;
   esac
 done
 (( ${#TOOLS[@]} > 0 )) || die "no targets selected"
@@ -161,6 +177,7 @@ tool_home() {
     cursor)   print -- "$SYNC_CODING_TOOLS_CURSOR_HOME" ;;
     claude)   print -- "$SYNC_CODING_TOOLS_CLAUDE_HOME" ;;
     opencode) print -- "$SYNC_CODING_TOOLS_OPENCODE_HOME" ;;
+    codex)    print -- "$SYNC_CODING_TOOLS_CODEX_HOME" ;;
     *) die "no home root for tool '$1'" ;;
   esac
 }
@@ -188,6 +205,7 @@ dest_plugin_dir() {
     cursor)   print -- "$SYNC_CODING_TOOLS_CURSOR_HOME/plugins/local/ai-coding" ;;
     claude)   print -- "$SYNC_CODING_TOOLS_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles" ;;
     opencode) print -- "" ;;
+    codex)    print -- "$SYNC_CODING_TOOLS_CODEX_HOME/plugins/yliapis-dotfiles" ;;
     *) die "no plugin dir for tool '$1'" ;;
   esac
 }
@@ -197,9 +215,18 @@ plugin_meta_subdir() {
     cursor)   print -- ".cursor-plugin" ;;
     claude)   print -- ".claude-plugin" ;;
     opencode) print -- "" ;;
+    codex)    print -- ".agents/plugins" ;;
     *) die "no plugin meta subdir for tool '$1'" ;;
   esac
 }
+
+# Codex reads skills and a plugin marketplace, but not commands or agents: its
+# custom prompts are home-only and deprecated in favor of skills, and its
+# subagents are home-only TOML, incompatible with the shared markdown agents.
+# See .agents/README.md. These predicates gate the commands/agents sync so a
+# codex target writes skills and the marketplace bundle only.
+tool_syncs_commands() { [[ "$1" != codex ]]; }
+tool_syncs_agents()   { [[ "$1" != codex ]]; }
 
 # --- audit log ------------------------------------------------------------
 
@@ -244,15 +271,21 @@ copy_sync_tool() {
   plugin_dst="$(dest_plugin_dir "$tool")"
   meta_subdir="$(plugin_meta_subdir "$tool")"
 
-  print -- "==> $tool commands -> $cmds_dst"
-  mkdir -p "$cmds_dst"
-  run_rsync "${SRC_COMMANDS[@]}" "$cmds_dst/"
+  if tool_syncs_commands "$tool"; then
+    print -- "==> $tool commands -> $cmds_dst"
+    mkdir -p "$cmds_dst"
+    run_rsync "${SRC_COMMANDS[@]}" "$cmds_dst/"
+  else
+    print -- "==> $tool commands (skipped: Codex has no non-deprecated commands path; use skills)"
+  fi
 
   print -- "==> $tool skills   -> $skills_dst"
   mkdir -p "$skills_dst"
   run_rsync "${SRC_SKILLS[@]}" "$skills_dst"/
 
-  if (( ${#SRC_AGENTS[@]} )); then
+  if ! tool_syncs_agents "$tool"; then
+    print -- "==> $tool agents   (skipped: Codex subagents are home-only TOML, incompatible)"
+  elif (( ${#SRC_AGENTS[@]} )); then
     print -- "==> $tool agents   -> $agents_dst"
     mkdir -p "$agents_dst"
     run_rsync "${SRC_AGENTS[@]}" "$agents_dst/"
@@ -337,11 +370,15 @@ symlink_sync_tool() {
   agents_dst="$(dest_agents_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
 
-  print -- "==> $tool commands -> $cmds_dst  (symlink)"
-  local f
-  for f in "${SRC_COMMANDS[@]}"; do
-    link_one "$f" "$cmds_dst/${f:t}"
-  done
+  if tool_syncs_commands "$tool"; then
+    print -- "==> $tool commands -> $cmds_dst  (symlink)"
+    local f
+    for f in "${SRC_COMMANDS[@]}"; do
+      link_one "$f" "$cmds_dst/${f:t}"
+    done
+  else
+    print -- "==> $tool commands (skipped: Codex has no non-deprecated commands path; use skills)"
+  fi
 
   print -- "==> $tool skills   -> $skills_dst  (symlink)"
   local d
@@ -349,7 +386,9 @@ symlink_sync_tool() {
     link_one "$d" "$skills_dst/${d:t}"
   done
 
-  if (( ${#SRC_AGENTS[@]} )); then
+  if ! tool_syncs_agents "$tool"; then
+    print -- "==> $tool agents   (skipped: Codex subagents are home-only TOML, incompatible)"
+  elif (( ${#SRC_AGENTS[@]} )); then
     print -- "==> $tool agents   -> $agents_dst  (symlink)"
     local a
     for a in "${SRC_AGENTS[@]}"; do
@@ -436,11 +475,15 @@ unlink_tool() {
   agents_dst="$(dest_agents_dir "$tool")"
   plugin_dst="$(dest_plugin_dir "$tool")"
 
-  print -- "==> $tool commands <- $cmds_dst"
-  local f
-  for f in "${SRC_COMMANDS[@]}"; do
-    unlink_one "$cmds_dst/${f:t}" "${f:t}" "$f"
-  done
+  if tool_syncs_commands "$tool"; then
+    print -- "==> $tool commands <- $cmds_dst"
+    local f
+    for f in "${SRC_COMMANDS[@]}"; do
+      unlink_one "$cmds_dst/${f:t}" "${f:t}" "$f"
+    done
+  else
+    print -- "==> $tool commands (skipped: Codex has none)"
+  fi
 
   print -- "==> $tool skills   <- $skills_dst"
   local d
@@ -448,7 +491,9 @@ unlink_tool() {
     unlink_one "$skills_dst/${d:t}" "${d:t}" "$d"
   done
 
-  if (( ${#SRC_AGENTS[@]} )); then
+  if ! tool_syncs_agents "$tool"; then
+    print -- "==> $tool agents   (skipped: Codex has none)"
+  elif (( ${#SRC_AGENTS[@]} )); then
     print -- "==> $tool agents   <- $agents_dst"
     local a
     for a in "${SRC_AGENTS[@]}"; do
