@@ -6,6 +6,11 @@
   },
   "plugins": [
     {
+      "name": "artifact-researcher",
+      "source": "./ai-coding/plugins/artifact-researcher",
+      "description": "Analyze single or multiple artifacts: architecture, inventory, comparative, deep-dive, collection."
+    },
+    {
       "name": "design-suite",
       "source": "./ai-coding/plugins/design-suite",
       "description": "Compose design traits against a target (designer, with declarative, deterministic, and concise trait cards) and author new ones (design-skill)."

@@ -6,6 +6,12 @@
   },
   "plugins": [
     {
+      "name": "artifact-researcher",
+      "source": "./ai-coding/plugins/artifact-researcher",
+      "version": "0.1.0",
+      "description": "Analyze single or multiple artifacts: architecture, inventory, comparative, deep-dive, collection."
+    },
+    {
       "name": "design-suite",
       "source": "./ai-coding/plugins/design-suite",
       "version": "0.1.0",

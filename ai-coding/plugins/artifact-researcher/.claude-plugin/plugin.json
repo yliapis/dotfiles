@@ -1,0 +1,8 @@
+{
+  "name": "artifact-researcher",
+  "version": "0.1.0",
+  "description": "Analyze single or multiple artifacts: architecture, inventory, comparative, deep-dive, collection.",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT"
+}
