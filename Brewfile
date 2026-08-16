@@ -3,6 +3,7 @@ tap "anomalyco/tap", trusted: { formula: "opencode" }
 tap "darrylmorley/whatcable", trusted: { cask: "whatcable" } if OS.mac?
 tap "getagentseal/codeburn", trusted: { formula: "codeburn" }
 tap "hashicorp/tap", trusted: { formula: "terraform" }
+tap "janekbaraniewski/tap", trusted: { formula: "openusage" }
 tap "nicosuave/tap", trusted: { formula: "memex" }
 
 ###############################
@@ -158,6 +159,7 @@ brew "getagentseal/codeburn/codeburn", trusted: true
 brew "herdr"
 brew "nicosuave/tap/memex", trusted: true
 brew "hermes-agent"
+brew "janekbaraniewski/tap/openusage", trusted: true
 cask "claude-code"
 cask "codex"
 cask "cursor"
