@@ -28,8 +28,9 @@
 #   GUI_INSTALL=          Empty by default. On macOS the Brewfile always runs;
 #                         on Linux set to 1 (or pass positional 1) to run it.
 #   BREW_BUNDLE_MAS=      Unset by default. When 1, run Brewfile.mas (mas apps).
-#                         On install, empty/unset self-sets to 1; on refresh
-#                         stays unset unless you pass BREW_BUNDLE_MAS=1.
+#                         On macOS install, empty/unset self-sets to 1; on
+#                         Linux install and on refresh it stays unset unless
+#                         you pass BREW_BUNDLE_MAS=1.
 #   INSTALL_OLLAMA=1      Bootstrap only: install ollama when missing.
 #   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
@@ -72,9 +73,8 @@ GUI_INSTALL=${1:-$GUI_INSTALL}
 
 REFRESH_FAILURES=()
 
-# Run one refresh step, recording a failure instead of aborting: a refresh is a
-# maintenance sweep, so a broken upgrade should not skip the sync behind it.
-# do_refresh reports the collected names and exits non-zero.
+# Run one step, recording a failure instead of aborting so later steps still
+# run. do_bootstrap and do_refresh report the collected names and exit non-zero.
 run_step() {
   local label=$1
   shift
@@ -276,7 +276,7 @@ cleanup_brew_cache() {
 }
 
 do_bootstrap() {
-  echo "begining dotfiles install"
+  echo "beginning dotfiles install"
 
   detect_platform
   detect_shell
@@ -285,12 +285,17 @@ do_bootstrap() {
   ensure_profile_file
   ensure_homebrew
   disable_brew_analytics
-  run_brewfile_if_gui
-  run_brewfile_mas
+  run_step "brew bundle" run_brewfile_if_gui
+  run_step "brew bundle (mas)" run_brewfile_mas
   copy_home_config
   ensure_dotfiles_shell_extras_source
   run_install_scripts
   ensure_ollama
+
+  if (( ${#REFRESH_FAILURES[@]} )); then
+    echo "dotfiles install finished with failures: ${REFRESH_FAILURES[*]}"
+    exit 1
+  fi
 
   echo "dotfiles install complete"
 }
@@ -329,8 +334,8 @@ do_refresh() {
 if [[ "$MODE" == "refresh" ]]; then
   do_refresh
 else
-  # install: empty/unset BREW_BUNDLE_MAS self-sets to 1; refresh leaves it unset.
-  if [[ -z "$BREW_BUNDLE_MAS" ]]; then
+  # install: empty/unset BREW_BUNDLE_MAS self-sets to 1 on macOS only.
+  if [[ -z "$BREW_BUNDLE_MAS" && "$OSTYPE" == darwin* ]]; then
     BREW_BUNDLE_MAS=1
   fi
   do_bootstrap

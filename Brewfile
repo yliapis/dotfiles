@@ -1,9 +1,9 @@
 
-tap "anomalyco/tap"
-tap "darrylmorley/whatcable"
-tap "getagentseal/codeburn"
-tap "hashicorp/tap"
-tap "nicosuave/tap"
+tap "anomalyco/tap", trusted: { formula: "opencode" }
+tap "darrylmorley/whatcable", trusted: { cask: "whatcable" } if OS.mac?
+tap "getagentseal/codeburn", trusted: { formula: "codeburn" }
+tap "hashicorp/tap", trusted: { formula: "terraform" }
+tap "nicosuave/tap", trusted: { formula: "memex" }
 
 ###############################
 #     cli tools               #
@@ -76,7 +76,7 @@ brew "openssh"
 brew "openssl@3"
 brew "rclone"
 brew "tailscale" if OS.linux?
-brew "telnet"
+brew "telnet" if OS.mac?
 brew "wget"
 
 # system monitoring / top alternatives
@@ -195,7 +195,7 @@ cask "tailscale-app" if OS.mac?
 cask "raycast"
 cask "stats"
 cask "the-unarchiver"
-cask "darrylmorley/whatcable/whatcable", trusted: true
+cask "darrylmorley/whatcable/whatcable", trusted: true if OS.mac?
 
 ###############################
 
