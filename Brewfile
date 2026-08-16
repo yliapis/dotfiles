@@ -124,8 +124,6 @@ brew "mypy"
 ###############################
 
 # via Cask
-# GUI casks are macOS-only (`if OS.mac?`) so Linux `GUI_INSTALL=1` does not
-# request them. CLI casks that Homebrew ships on Linux stay unguarded.
 
 cask_args appdir: "/Applications" if OS.mac?
 
