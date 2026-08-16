@@ -124,33 +124,35 @@ brew "mypy"
 ###############################
 
 # via Cask
+# GUI casks are macOS-only (`if OS.mac?`) so Linux `GUI_INSTALL=1` does not
+# request them. CLI casks that Homebrew ships on Linux stay unguarded.
 
-cask_args appdir: "/Applications"
+cask_args appdir: "/Applications" if OS.mac?
 
 # web browers
-cask "arc"
-cask "brave-browser"
-cask "google-chrome"
+cask "arc" if OS.mac?
+cask "brave-browser" if OS.mac?
+cask "google-chrome" if OS.mac?
 
 # communication
-cask 'discord'
-cask "slack"
-cask "signal"
-cask "telegram"
-cask "zoom"
+cask 'discord' if OS.mac?
+cask "slack" if OS.mac?
+cask "signal" if OS.mac?
+cask "telegram" if OS.mac?
+cask "zoom" if OS.mac?
 
 # productivity & media
-cask "chatgpt"
-cask "claude"
-cask "dropbox"
-cask "linear"
-cask "microsoft-office"
-cask "notion"
-cask "notion-calendar"
-cask "spotify"
-cask "steam"
-cask "tad"
-cask "vlc"
+cask "chatgpt" if OS.mac?
+cask "claude" if OS.mac?
+cask "dropbox" if OS.mac?
+cask "linear" if OS.mac?
+cask "microsoft-office" if OS.mac?
+cask "notion" if OS.mac?
+cask "notion-calendar" if OS.mac?
+cask "spotify" if OS.mac?
+cask "steam" if OS.mac?
+cask "tad" if OS.mac?
+cask "vlc" if OS.mac?
 
 # development tools
 brew "anomalyco/tap/opencode", trusted: true
@@ -162,15 +164,15 @@ cask "claude-code"
 cask "codex"
 cask "cursor"
 cask "devin-cli"
-cask "docker-desktop"
-cask "iterm2"
-cask "warp"
-cask "github"
-cask "postman"
-cask "postico"
-cask "sublime-text"
-cask "sublime-merge"
-cask "visual-studio-code"
+cask "docker-desktop" if OS.mac?
+cask "iterm2" if OS.mac?
+cask "warp" if OS.mac?
+cask "github" if OS.mac?
+cask "postman" if OS.mac?
+cask "postico" if OS.mac?
+cask "sublime-text" if OS.mac?
+cask "sublime-merge" if OS.mac?
+cask "visual-studio-code" if OS.mac?
 # cloud
 brew "awscli"
 brew "helm"
@@ -178,23 +180,23 @@ brew "k9s"
 brew "kubernetes-cli"
 cask "gcloud-cli"
 # raspberry pi
-cask "raspberry-pi-imager"
+cask "raspberry-pi-imager" if OS.mac?
 # fonts
 cask "font-jetbrains-mono-nerd-font"
 
 # utilities
-cask "apparency"
-cask "cyberduck"
-cask "daisydisk"
-cask "keepingyouawake"
-cask "ledger-wallet"
-cask "rectangle"
-cask "pearcleaner"
-cask "protonvpn"
+cask "apparency" if OS.mac?
+cask "cyberduck" if OS.mac?
+cask "daisydisk" if OS.mac?
+cask "keepingyouawake" if OS.mac?
+cask "ledger-wallet" if OS.mac?
+cask "rectangle" if OS.mac?
+cask "pearcleaner" if OS.mac?
+cask "protonvpn" if OS.mac?
 cask "tailscale-app" if OS.mac?
-cask "raycast"
-cask "stats"
-cask "the-unarchiver"
+cask "raycast" if OS.mac?
+cask "stats" if OS.mac?
+cask "the-unarchiver" if OS.mac?
 cask "darrylmorley/whatcable/whatcable", trusted: true if OS.mac?
 
 ###############################
