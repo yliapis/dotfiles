@@ -101,6 +101,7 @@ brew "backlog-md"
 brew "pre-commit"
 brew "yamllint"
 brew "hyperfine"
+brew "llama.cpp"
 
 # languages
 brew "go"
