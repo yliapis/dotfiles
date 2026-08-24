@@ -167,6 +167,7 @@ cask "codex"
 cask "cursor"
 cask "devin-cli"
 cask "docker-desktop" if OS.mac?
+cask "utm" if OS.mac?
 cask "iterm2" if OS.mac?
 cask "warp" if OS.mac?
 cask "github" if OS.mac?
