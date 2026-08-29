@@ -88,6 +88,7 @@ brew "htop"
 brew "glances"
 brew "gtop"
 brew "nvtop"
+brew "macmon" if OS.mac?
 
 # development tooling
 brew "make"
