@@ -7,6 +7,7 @@
 #   ./install.sh --refresh            # maintenance refresh (make refresh)
 #   GUI_INSTALL=1 ./install.sh        # Linux: also run the Brewfile
 #   INSTALL_OLLAMA=0 ./install.sh     # skip ollama during bootstrap
+#   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
 #   CLEAR_CACHE=1 ./install.sh --refresh
 #
@@ -31,6 +32,10 @@
 #                         On macOS install, empty/unset self-sets to 1; on
 #                         Linux install and on refresh it stays unset unless
 #                         you pass BREW_BUNDLE_MAS=1.
+#   HERDR_PLUGIN_INSTALL=0
+#                         Opt in to scripts/install-herdr-plugins.sh when 1;
+#                         off by default in both modes. The script stays
+#                         runnable directly regardless of this setting.
 #   INSTALL_OLLAMA=1      Bootstrap only: install ollama when missing.
 #   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
@@ -47,6 +52,7 @@ CLEAR_CACHE=${CLEAR_CACHE:-0}
 RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
+HERDR_PLUGIN_INSTALL=${HERDR_PLUGIN_INSTALL:-0}
 
 # Homebrew >= 6.0 upgrades `auto_updates true` casks on a plain `brew upgrade`
 # (and through `brew bundle`). Those apps ship their own updaters, and some need
@@ -91,6 +97,10 @@ run_install_scripts() {
   local failed=0
   for script in "$DOTFILES_ROOT/scripts"/install-*.sh; do
     [ -f "$script" ] || continue
+    if [ "$script" = "$DOTFILES_ROOT/scripts/install-herdr-plugins.sh" ] && [ "$HERDR_PLUGIN_INSTALL" != "1" ]; then
+      echo "HERDR_PLUGIN_INSTALL not set to 1; skipping $(basename "$script")"
+      continue
+    fi
     echo "running $(basename "$script")"
     if ! bash "$script"; then
       echo "Error: $(basename "$script") failed"
