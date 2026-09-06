@@ -163,7 +163,9 @@ brew "herdr"
 brew "nicosuave/tap/memex", trusted: true
 brew "hermes-agent"
 brew "janekbaraniewski/tap/openusage", trusted: true
-cask "claude-code"
+# @latest tracks the Claude Code latest channel instead of stable;
+# it conflicts with the plain claude-code cask, so only one can be installed.
+cask "claude-code@latest"
 cask "codex"
 cask "cursor"
 cask "devin-cli"
