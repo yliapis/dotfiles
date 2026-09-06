@@ -159,6 +159,7 @@ cask "vlc" if OS.mac?
 # development tools
 brew "anomalyco/tap/opencode", trusted: true
 brew "getagentseal/codeburn/codeburn", trusted: true
+brew "ccusage"
 brew "herdr"
 brew "nicosuave/tap/memex", trusted: true
 brew "hermes-agent"
