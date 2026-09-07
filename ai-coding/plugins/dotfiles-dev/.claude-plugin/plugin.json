@@ -1,0 +1,8 @@
+{
+  "name": "dotfiles-dev",
+  "version": "0.1.0",
+  "description": "Maintenance skills for this dotfiles repo: package manifests (Brewfile, snap, mas, uv).",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT"
+}
