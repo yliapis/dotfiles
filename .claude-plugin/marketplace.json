@@ -18,6 +18,12 @@
       "description": "Compose design traits against a target (designer, with declarative, deterministic, and concise trait cards) and author new ones (design-skill)."
     },
     {
+      "name": "dotfiles-dev",
+      "source": "./ai-coding/plugins/dotfiles-dev",
+      "version": "0.1.0",
+      "description": "Maintenance skills for this dotfiles repo: package manifests (Brewfile, snap, mas, uv)."
+    },
+    {
       "name": "excalidraw",
       "source": "./ai-coding/plugins/excalidraw",
       "version": "0.1.0",
