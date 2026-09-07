@@ -6,6 +6,7 @@ Repository documentation and agent-generated analysis artifacts.
 
 | Path | Purpose |
 |---|---|
+| `pr-template.md` | Body for agent-opened PRs (`gh pr create`). Referenced from [AGENTS.md](../AGENTS.md). |
 | `reports/` | Committed critique, review, and analysis reports. |
 
 Work items live in the repo-root [Backlog.md](https://github.com/MrLesk/Backlog.md)

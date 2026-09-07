@@ -13,9 +13,9 @@ package manifests in this repository, verify each change the way recent
 Brewfile PRs did, then finish in `{mode}`. `{mode}=pr` (default) opens a
 GitHub PR, merges it into `main`, and stops.
 
-This skill is for the `yliapis/dotfiles` repo only. It composes
-`conventional-commits` and `minimal-diffs` from the `git-operations` plugin.
-Read [references/managers.md](references/managers.md) before the first edit.
+This skill is for the `yliapis/dotfiles` repo only. Read
+[references/managers.md](references/managers.md) before the first edit.
+Use `conventional-commits` and `minimal-diffs` when those skills are present.
 
 ## Parameters
 
@@ -54,21 +54,20 @@ Unknown parameters or invalid values abort before side effects.
       each `delete` target is present in its manifest.
 - [ ] Edit only the planned manifest lines (and a tap line that the last
       consumer of that tap required). No drive-by reordering or retargeting.
-- [ ] Re-run verification after the edit: exact line presence/absence, OS-gate
-      eval via [scripts/eval-brewfile-os.py](scripts/eval-brewfile-os.py) for
-      Brewfile changes, and the same API checks as the plan.
+- [ ] Re-run verification after the edit: exact line presence/absence and
+      the same API checks as the plan.
 - [ ] `{dry_run}=true` writes nothing.
-- [ ] `{mode}=pr` produces one Conventional Commit, one GitHub PR from a
-      branch off `origin/main`, a squash-merge into `main`, and a Done report
-      that names the PR URL and the merge commit SHA. A blocked merge is not
+- [ ] `{mode}=pr` produces one commit, one GitHub PR from a branch off
+      `origin/main`, a squash-merge into `main`, and a Done report that
+      names the PR URL and the merge commit SHA. A blocked merge is not
       Done: report the PR URL and the merge error, then stop.
 - [ ] `{mode}=local` produces the same commit contract without push, PR, or
       merge.
 
 ## Guardrails
 
-- MUST compose `conventional-commits` and `minimal-diffs`. If either skill
-  is missing, stop before editing.
+- Use `conventional-commits` and `minimal-diffs` when those skills are
+  present. Do not abort if they are missing.
 - MUST NOT invent a new manifest file. If the resolved manager has no file
   in [references/managers.md](references/managers.md), abort and name the
   gap (apt is upgrade-only in `install.sh`; there is no apt package list).
@@ -83,9 +82,6 @@ Unknown parameters or invalid values abort before side effects.
 - MUST NOT force-push, amend, or merge with `--admin`. On merge failure,
   leave the PR open and stop.
 - MUST NOT commit unrelated paths (including untracked docs).
-- MUST NOT create a Backlog.md ticket unless the user asked or one already
-  exists for this change. When a ticket exists, add `Ticket-Id: TKT-NNN`
-  to the commit body.
 - Scope: one package-set → one commit → (in `pr`) one merged PR. Out of
   scope: rewriting `install.sh`, adding package managers, or changing
   sync/mirror tooling.
@@ -93,8 +89,7 @@ Unknown parameters or invalid values abort before side effects.
 ## Workflow
 
 1. **Preflight.** Confirm repo identity. Parse `{packages}`. Resolve
-   `{mode}` (`pr`) and `{dry_run}` (`false`). Require
-   `conventional-commits` and `minimal-diffs`. For `{mode}=pr`, require
+   `{mode}` (`pr`) and `{dry_run}` (`false`). For `{mode}=pr`, require
    `gh` and a clean worktree (`git status --porcelain` empty of unrelated
    paths). Fetch `origin/main`.
 2. **Classify.** For each record, follow Kind Resolution and OS Gates in
@@ -106,27 +101,16 @@ Unknown parameters or invalid values abort before side effects.
 4. **Branch.** `{mode}=pr`: create `chore/packages-<slug>` from
    `origin/main`. `{mode}=local`: use the current branch when it is not
    `main`; otherwise create the same slug branch locally.
-5. **Edit.** Apply each record with a minimal diff. Keep section
-   placement and tap `trusted:` syntax from the reference. On `delete`,
-   drop the tap line only when this package was its last consumer.
-6. **Verify.** Grep the exact lines. For Brewfile edits, run:
-
-   ```sh
-   python3 ai-coding/plugins/dotfiles-dev/skills/manage-packages/scripts/eval-brewfile-os.py \
-     --file Brewfile --os linux --kind cask
-   python3 ai-coding/plugins/dotfiles-dev/skills/manage-packages/scripts/eval-brewfile-os.py \
-     --file Brewfile --os mac --kind cask
-   ```
-
-   Re-check APIs. A Linux eval MUST NOT request a new `if OS.mac?` package.
-   A macOS eval MUST request it. Cross-platform formulae stay unguarded.
-7. **Commit.** One Conventional Commit for the set. Scope `brew`, `mas`,
-   `snap`, `uv`, or `vscode` when every record shares that manager;
-   otherwise `packages`. Recent brew subjects look like
-   `chore(brew): add utm cask`. Body: why, tap/gate choice, and
-   Acceptance / Verification bullets when the change is non-trivial.
+5. **Edit.** Apply each record. Keep section placement and tap `trusted:`
+   syntax from the reference. On `delete`, drop the tap line only when
+   this package was its last consumer.
+6. **Verify.** Grep the exact lines and re-check APIs. A new macOS-only
+   package keeps `if OS.mac?`. Cross-platform formulae stay unguarded.
+7. **Commit.** One commit for the set. When `conventional-commits` is
+   present, scope `brew`, `mas`, `snap`, `uv`, or `vscode` when every
+   record shares that manager; otherwise `packages`.
 8. **PR mode.** Push `-u origin HEAD`. Open the PR with `gh pr create`
-   using the PR template in the reference. Then:
+   using `docs/pr-template.md`. Then:
 
    ```sh
    gh pr merge --squash --delete-branch
@@ -152,7 +136,7 @@ Repo-relative paths and the line-level change, or `none (dry-run)`.
 ### Verification
 
 Commands run, exit status, and the facts they proved (token, tap,
-`disabled`/`deprecated`, bottles or platform, Linux vs macOS eval).
+`disabled`/`deprecated`, bottles or platform).
 
 ### Git
 

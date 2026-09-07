@@ -7,7 +7,7 @@ Read this from `SKILL.md` before the first edit. Paths are repo-relative.
 | Manager | Manifest | When to use |
 |---|---|---|
 | `brew` | `Brewfile` | Homebrew formulae, casks, taps, and `vscode` extensions that live in the Brewfile |
-| `mas` | `Brewfile.mas` | Mac App Store apps installed only when `BREW_BUNDLE_MAS=1` |
+| `mas` | `Brewfile.mas` | Homebrew + Mac App Store (`brew bundle` runs `mas` lines); installed when `BREW_BUNDLE_MAS=1` |
 | `snap` | `scripts/snap-installs.sh` | Ubuntu snap lines (`sudo snap install …`) |
 | `uv` | `scripts/install-doc-tools.sh` | `uv tool install` specs |
 | `vscode` | `Brewfile` (`vscode "…"` lines) | VS Code / Cursor extension ids |
@@ -138,43 +138,6 @@ Do not add a snap when the user asked for Homebrew.
 `scripts/install-doc-tools.sh` installs via `install_uv_tool <spec>`.
 Add or remove one call. Leave commented opt-in tools commented unless
 the user asks to enable them.
-
-## Commit and PR shape
-
-Recent merged PRs used `chore(brew): add <token> <kind>` and squash-merge
-(`(#80)` in the main subject). Match that:
-
-```
-chore(brew): add utm cask
-
-Install the official Homebrew cask for UTM so brew
-bundle provisions the free hypervisor GUI on macOS.
-```
-
-PR body (no extra marketing):
-
-````markdown
-Adds the official Homebrew <kind> for <name> so `brew bundle` installs it.
-
-```sh
-brew install [--cask] <name>
-```
-
-<tap / gate / mas-vs-cask rationale>
-
-## Verification
-
-Cloud VMs do not have Homebrew, so this was checked with a Brewfile
-OS-gate parse and the live formulae.brew.sh API:
-
-- exact line
-- tap / no extra tap
-- Linux eval vs macOS eval
-- API: token, tap, disabled, deprecated, version, platform
-````
-
-For snap / uv / vscode, swap the install command and API. Keep the
-Verification heading.
 
 ## Historical loop (what this skill encodes)
 

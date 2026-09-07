@@ -90,4 +90,9 @@ config load on a known key with the wrong type (Claude's comma-separated
 `tools:` string, or a `color:` name outside its theme enum). Anything
 tool-specific belongs in the body instructions instead.
 
+## Pull requests
+
+Agent-opened PRs use the body in [`docs/pr-template.md`](docs/pr-template.md).
+Commit subjects follow the `conventional-commits` skill.
+
 See `README.md` for more information.
