@@ -29,6 +29,9 @@ install_uv_tool docling-slim || failed=1
 # MarkItDown (Microsoft, MIT) — broadest format coverage (Office/audio/YT/etc.)
 install_uv_tool 'markitdown[all]' || failed=1
 
+# gpustat (wookayin, MIT) — NVIDIA GPU status/usage monitor.
+install_uv_tool gpustat || failed=1
+
 # Marker (datalab-to, GPL) — opt-in; max-accuracy fallback, pulls ~2GB of
 # PyTorch + Surya models on first run. Uncomment if you regularly hit
 # tough PDFs where docling struggles.
