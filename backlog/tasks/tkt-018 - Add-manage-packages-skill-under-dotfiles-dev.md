@@ -4,7 +4,7 @@ title: Add manage-packages skill under dotfiles-dev
 status: Done
 assignee: []
 created_date: '2026-09-07 00:31'
-updated_date: '2026-09-07 00:32'
+updated_date: '2026-09-07 01:11'
 labels: []
 dependencies: []
 priority: medium
@@ -17,7 +17,7 @@ ordinal: 17000
 <!-- SECTION:DESCRIPTION:BEGIN -->
 Add a dotfiles-dev plugin for this repo with a manage-packages skill that applies add, delete, or update operations to Brewfile, Brewfile.mas, snap installs, and other package manifests.
 
-Default mode opens a GitHub PR, merges it into main, and stops. The skill encodes the existing Brewfile PR loop: resolve formula vs cask vs mas, OS-gate GUI packages, verify via formulae.brew.sh (or the manager API) plus a Brewfile OS-gate eval, then commit as chore(brew)/equivalent.
+Default mode opens a GitHub PR, merges it into main, and stops. The skill encodes the existing Brewfile PR loop: resolve formula vs cask vs mas, OS-gate GUI packages, verify via formulae.brew.sh (or the manager API), then commit as chore(brew)/equivalent.
 <!-- SECTION:DESCRIPTION:END -->
 
 ## Acceptance Criteria
@@ -48,8 +48,6 @@ Verified on feat/dotfiles-dev-manage-packages.
 - AC3: {mode} defaults to pr; workflow step 8 runs gh pr merge --squash --delete-branch and treats a successful squash into main as Done.
 - AC4: both marketplace.json files register name=dotfiles-dev source=./ai-coding/plugins/dotfiles-dev (cursor line 19, claude line 21).
 - AC5: make mirrors-check: 89 in_sync, mirrors match; make skills-index-check: 17 skills, index matches.
-
-eval-brewfile-os.py Linux casks: claude-code@latest, codex, cursor, devin-cli, gcloud-cli, font-jetbrains-mono-nerd-font.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
