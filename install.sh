@@ -8,17 +8,16 @@
 #   GUI_INSTALL=1 ./install.sh        # Linux: also run the Brewfile
 #   INSTALL_OLLAMA=0 ./install.sh     # skip ollama during bootstrap
 #   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
-#   APT_UPGRADE=0 ./install.sh        # Linux: skip apt update/upgrade
+#   APT_UPGRADE=1 ./install.sh        # Linux: also run apt update/upgrade
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
 #   CLEAR_CACHE=1 ./install.sh --refresh
 #
 # Modes:
-#   install   (default) platform/shell detect, apt upgrades, Homebrew,
-#                       optional Brewfile, copy home-config/, wire shell
-#                       extras, run scripts/install-*.sh, optional ollama.
-#   refresh   (--refresh) optional brew bundle / full re-bootstrap, brew and
-#                       apt upgrades, sync-coding-tools.sh, optional
-#                       install-*.sh.
+#   install   (default) platform/shell detect, Homebrew, optional Brewfile,
+#                       copy home-config/, wire shell extras, run
+#                       scripts/install-*.sh, optional ollama.
+#   refresh   (--refresh) optional brew bundle / full re-bootstrap, brew
+#                       upgrades, sync-coding-tools.sh, optional install-*.sh.
 #
 # Flags:
 #   --refresh             Set MODE=refresh (maintenance path above).
@@ -38,9 +37,9 @@
 #                         Opt in to scripts/install-herdr-plugins.sh when 1;
 #                         off by default in both modes. The script stays
 #                         runnable directly regardless of this setting.
-#   APT_UPGRADE=1         Both modes, Linux only: apt-get update plus
-#                         apt-get upgrade. Set to 0 to skip. No-op where
-#                         apt-get is absent, macOS included.
+#   APT_UPGRADE=0         Both modes, Linux only: apt-get update plus
+#                         apt-get upgrade when 1. No-op where apt-get is
+#                         absent, macOS included.
 #   INSTALL_OLLAMA=1      Bootstrap only: install ollama when missing.
 #   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
@@ -58,7 +57,7 @@ RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
 HERDR_PLUGIN_INSTALL=${HERDR_PLUGIN_INSTALL:-0}
-APT_UPGRADE=${APT_UPGRADE:-1}
+APT_UPGRADE=${APT_UPGRADE:-0}
 
 # Homebrew >= 6.0 upgrades `auto_updates true` casks on a plain `brew upgrade`
 # (and through `brew bundle`). Those apps ship their own updaters, and some need
