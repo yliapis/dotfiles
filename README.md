@@ -4,7 +4,6 @@ run installation with the following command:
 
 ```sh
 source install.sh
-# or: make install   # also runs the Brewfile
 ```
 
 Refresh mode (brew upgrades, coding-tools sync, re-run `install-*.sh`):
