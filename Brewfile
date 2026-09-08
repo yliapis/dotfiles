@@ -102,7 +102,7 @@ brew "backlog-md"
 brew "pre-commit"
 brew "yamllint"
 brew "hyperfine"
-brew "llama.cpp"
+brew "llama.cpp" if OS.mac?
 
 # languages
 brew "go"
