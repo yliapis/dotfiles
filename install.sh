@@ -7,7 +7,7 @@
 #   ./install.sh --refresh            # maintenance refresh (make refresh)
 #   BREW_BUNDLE=1 ./install.sh        # Linux: also run the Brewfile
 #   GUI_INSTALL=1 ./install.sh        # deprecated alias for BREW_BUNDLE=1
-#   INSTALL_OLLAMA=0 ./install.sh     # skip ollama during bootstrap
+#   INSTALL_OLLAMA=1 ./install.sh     # also install ollama when missing
 #   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
 #   APT_UPGRADE=1 ./install.sh        # Linux: also run apt update/upgrade
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
@@ -16,7 +16,7 @@
 # Modes:
 #   install   (default) platform/shell detect, Homebrew, optional Brewfile,
 #                       copy home-config/, wire shell extras, run
-#                       scripts/install-*.sh, optional ollama.
+#                       scripts/install-*.sh.
 #   refresh   (--refresh) optional brew bundle / full re-bootstrap, brew
 #                       upgrades, sync-coding-tools.sh, optional install-*.sh.
 #
@@ -43,7 +43,8 @@
 #   APT_UPGRADE=0         Both modes, Linux only: apt-get update plus
 #                         apt-get upgrade when 1. No-op where apt-get is
 #                         absent, macOS included.
-#   INSTALL_OLLAMA=1      Bootstrap only: install ollama when missing.
+#   INSTALL_OLLAMA=0      Bootstrap only: install ollama when missing
+#                         when 1.
 #   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
 #                         of just brew bundle.
@@ -54,7 +55,7 @@ DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 MODE=${MODE:-install}
 BREW_BUNDLE=${BREW_BUNDLE:-${GUI_INSTALL:-}}
-INSTALL_OLLAMA=${INSTALL_OLLAMA:-1}
+INSTALL_OLLAMA=${INSTALL_OLLAMA:-0}
 CLEAR_CACHE=${CLEAR_CACHE:-0}
 RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
@@ -286,6 +287,7 @@ run_brewfile_if_enabled() {
 
 ensure_ollama() {
   if [ "$INSTALL_OLLAMA" != "1" ]; then
+    echo "INSTALL_OLLAMA not set to 1; skipping ollama"
     return 0
   fi
   if command -v ollama &> /dev/null; then
