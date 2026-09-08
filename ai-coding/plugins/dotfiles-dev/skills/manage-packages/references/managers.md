@@ -56,7 +56,8 @@ Brewfile uses postfix `if OS.mac?` / `if OS.linux?` (see TKT-013).
 | macOS GUI app (cask or tap that needs `/Applications`) | `if OS.mac?` |
 | Formula that requires macOS (or arm64-only macOS, e.g. `macmon`) | `if OS.mac?` |
 | Linux-only formula (`net-tools`) | `if OS.linux?` |
-| Cross-platform formula with mac + linux bottles (`pv`, `llama.cpp`) | none |
+| Cross-platform formula with mac + linux bottles (`pv`) | none |
+| Formula that Linux installs another way (`llama.cpp`) | `if OS.mac?` |
 | Linux-capable CLI cask | none |
 
 CLI casks that stay unguarded so Linux `BREW_BUNDLE=1` still gets them:
@@ -90,7 +91,8 @@ curl -fsS "https://pypi.org/pypi/${DIST}/json"
 Record from Homebrew JSON: `name` or `token`, `tap`, `disabled`,
 `deprecated`, `version` / `stable`, bottles or `os_requirements`.
 A Linux bottle (`x86_64_linux` or `arm64_linux`) means the formula
-stays unguarded unless the formula itself requires macOS.
+stays unguarded unless the formula itself requires macOS or Linux
+installs it another way (`llama.cpp` → `scripts/install-llama.cpp.sh`).
 
 When `brew` is on PATH, `brew info` / `brew search` / `brew bundle list
 --file=…` may supplement the API. They do not replace it.
@@ -129,7 +131,7 @@ Map that to `action=update` with `to=disable` plus a reason in the body.
 
 Double quotes are the Brewfile default. Do not restyle neighbors.
 
-## Snap, uv, and Linux Tailscale
+## Snap, uv, and Linux official installers
 
 `scripts/snap-installs.sh` is a linear list of `sudo snap install` lines
 (`--classic` when the snap requires it). Insert next to related snaps.
@@ -139,6 +141,10 @@ Linux Tailscale is `scripts/install-tailscale.sh`, which runs
 https://tailscale.com/install.sh (apt on Ubuntu). Do not add
 `brew "tailscale"`. macOS uses `cask "tailscale-app" if OS.mac?`.
 
+Linux llama.cpp is `scripts/install-llama.cpp.sh`, which runs
+https://llama.app/install.sh (probes CUDA, then ROCm, Vulkan, CPU).
+Keep `brew "llama.cpp" if OS.mac?`. Do not leave that formula unguarded.
+
 `scripts/install-doc-tools.sh` installs via `install_uv_tool <spec>`.
 Add or remove one call. Leave commented opt-in tools commented unless
 the user asks to enable them.
@@ -147,8 +153,9 @@ the user asks to enable them.
 
 | Change | Pattern |
 |---|---|
-| Add core formula (`pv`, `llama.cpp`, `ty`) | Unguarded `brew "name"` in the matching CLI section; API bottles include mac + linux |
+| Add core formula (`pv`, `ty`) | Unguarded `brew "name"` in the matching CLI section; API bottles include mac + linux |
 | Add macOS-only formula (`macmon`) | `brew "name" if OS.mac?` |
+| Linux official install.sh (`tailscale`, `llama.cpp`) | `scripts/install-<name>.sh`; brew/cask only on macOS |
 | Add GUI cask (`utm`, `crystalfetch`) | `cask "name" if OS.mac?`; no tap when homebrew/cask ships it |
 | Add CLI cask (`devin-cli`, `codex`) | Unguarded `cask "name"` next to other agent CLIs |
 | Add third-party formula (`openusage`) | Trusted tap + fully-qualified `brew "tap/name", trusted: true` |
