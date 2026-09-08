@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# sync-project-mirrors.sh — regenerate the nine repo-root project mirrors that
-# Cursor, Claude Code, and OpenCode read when this repository is the workspace.
+# sync-project-mirrors.sh — regenerate the repo-root project mirrors that
+# Cursor, Claude Code, OpenCode, the cross-platform .agents tree, and Codex
+# read when this repository is the workspace.
 #
 # Sources (the only place a maintainer edits):
 #   ai-coding/plugins/<plugin>/commands/*.md           slash commands
@@ -9,11 +10,11 @@
 #   ai-coding/hooks/*.sh                               cloud agent hooks
 #
 # Mirrors (generated, never edited by hand):
-#   {.cursor,.claude,.opencode}/{commands,skills,agents}
+#   {.cursor,.claude,.opencode,.agents,.codex}/{commands,skills,agents}
 #   .claude/hooks
 #
 # Hooks are the one kind that is not plugin-scoped and not mirrored to all
-# three tools. They come from a single flat directory, and only Claude Code
+# tools. They come from a single flat directory, and only Claude Code
 # discovers them by path: .claude/settings.json names .claude/hooks/
 # session-start.sh. Cursor reads the same source through .cursor/
 # environment.json, which takes an arbitrary path and so needs no mirror.
@@ -40,7 +41,7 @@ REPO_ROOT="$(dirname -- "$SCRIPT_DIR")"
 
 SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
 SRC_HOOKS="$REPO_ROOT/ai-coding/hooks"
-TOOLS="cursor claude opencode"
+TOOLS="cursor claude opencode agents codex"
 KINDS="commands skills agents"
 # Kinds a given tool receives. Everything gets the plugin-scoped three; only
 # Claude Code discovers hooks from its config directory.
@@ -54,8 +55,8 @@ usage() {
   cat <<EOF
 Usage: $PROG [options]
 
-Regenerate the repo-root project mirrors from ai-coding/: the nine
-{.cursor,.claude,.opencode}/{commands,skills,agents} trees from
+Regenerate the repo-root project mirrors from ai-coding/: the
+{.cursor,.claude,.opencode,.agents,.codex}/{commands,skills,agents} trees from
 ai-coding/plugins/, and .claude/hooks from ai-coding/hooks/. Mirror entries are
 byte-identical copies of their source, never symlinks. Idempotent; a mirror
 already in sync is left untouched.

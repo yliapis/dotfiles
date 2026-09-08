@@ -1,7 +1,8 @@
 #!/usr/bin/env zsh
 # sync-coding-tools.sh — mirror the commands, skills, and agents carried by the
 # ai-coding plugins (plus marketplace metadata) from this dotfiles repo into
-# the home-dir locations used by Cursor, Claude Code, and OpenCode.
+# the home-dir locations used by Cursor, Claude Code, OpenCode, the
+# cross-platform .agents tree, and Codex.
 #
 # Two modes:
 #   copy     (default) rsync, deterministic, source-of-truth is the dotfiles
@@ -35,6 +36,12 @@
 #   opencode  $SYNC_CODING_TOOLS_OPENCODE_HOME/commands        (default: ~/.config/opencode)
 #             $SYNC_CODING_TOOLS_OPENCODE_HOME/skills/<name>
 #             $SYNC_CODING_TOOLS_OPENCODE_HOME/agents
+#   agents    $SYNC_CODING_TOOLS_AGENTS_HOME/commands          (default: ~/.agents)
+#             $SYNC_CODING_TOOLS_AGENTS_HOME/skills/<name>
+#             $SYNC_CODING_TOOLS_AGENTS_HOME/agents
+#   codex     $SYNC_CODING_TOOLS_CODEX_HOME/commands           (default: ~/.codex)
+#             $SYNC_CODING_TOOLS_CODEX_HOME/skills/<name>
+#             $SYNC_CODING_TOOLS_CODEX_HOME/agents
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -58,20 +65,22 @@ LOG_FILE="$HOME/.cache/dotfiles/sync.log"
 : "${SYNC_CODING_TOOLS_CURSOR_HOME:=$HOME/.cursor}"
 : "${SYNC_CODING_TOOLS_CLAUDE_HOME:=$HOME/.claude}"
 : "${SYNC_CODING_TOOLS_OPENCODE_HOME:=$HOME/.config/opencode}"
+: "${SYNC_CODING_TOOLS_AGENTS_HOME:=$HOME/.agents}"
+: "${SYNC_CODING_TOOLS_CODEX_HOME:=$HOME/.codex}"
 
 DRY_RUN=0
 VERBOSE=0
 UNLINK=0
 MODE="copy"
-TARGETS="cursor,claude,opencode"
+TARGETS="cursor,claude,opencode,agents,codex"
 
 usage() {
   cat <<EOF
 Usage: ${SCRIPT_PATH:t} [options]
 
 Mirror ai-coding commands, skills, and agents from this dotfiles repo into the
-home locations used by Cursor, Claude Code, and OpenCode. Idempotent; safe to
-re-run.
+home locations used by Cursor, Claude Code, OpenCode, the cross-platform
+.agents tree, and Codex. Idempotent; safe to re-run.
 
 Modes:
   copy         (default) rsync-based; deterministic snapshot of the repo at
@@ -82,7 +91,8 @@ Modes:
 
 Options:
   -n, --dry-run         Show actions without writing.
-      --targets <list>  Comma-separated subset of: cursor,claude,opencode
+      --targets <list>  Comma-separated subset of:
+                        cursor,claude,opencode,agents,codex
                         (default: all).
       --mode <m>        copy | symlink (default: copy).
       --unlink          Reverse a previous sync: remove symlinks that point
@@ -96,11 +106,13 @@ Environment (override tool home roots; defaults match historical paths):
   SYNC_CODING_TOOLS_CURSOR_HOME    Cursor root    (default: ~/.cursor)
   SYNC_CODING_TOOLS_CLAUDE_HOME    Claude root    (default: ~/.claude)
   SYNC_CODING_TOOLS_OPENCODE_HOME  OpenCode root  (default: ~/.config/opencode)
+  SYNC_CODING_TOOLS_AGENTS_HOME    .agents root   (default: ~/.agents)
+  SYNC_CODING_TOOLS_CODEX_HOME     Codex root     (default: ~/.codex)
 
   Under each root the script writes commands/, skills/, and agents/. Cursor
   also gets plugins/local/ai-coding; Claude gets
-  plugins/marketplaces/yliapis-dotfiles. OpenCode has no plugin destination.
-  Cursor skills stay at <root>/skills (never skills-cursor).
+  plugins/marketplaces/yliapis-dotfiles. OpenCode, .agents, and Codex have no
+  plugin destination. Cursor skills stay at <root>/skills (never skills-cursor).
 
 Exit status:
   0  success
@@ -144,8 +156,8 @@ TOOLS=()
 for tool in ${(s:,:)TARGETS}; do
   [[ -z "$tool" ]] && continue
   case "$tool" in
-    cursor|claude|opencode) TOOLS+=("$tool") ;;
-    *) die "unknown target '$tool' (expected: cursor, claude, opencode)" ;;
+    cursor|claude|opencode|agents|codex) TOOLS+=("$tool") ;;
+    *) die "unknown target '$tool' (expected: cursor, claude, opencode, agents, codex)" ;;
   esac
 done
 (( ${#TOOLS[@]} > 0 )) || die "no targets selected"
@@ -161,6 +173,8 @@ tool_home() {
     cursor)   print -- "$SYNC_CODING_TOOLS_CURSOR_HOME" ;;
     claude)   print -- "$SYNC_CODING_TOOLS_CLAUDE_HOME" ;;
     opencode) print -- "$SYNC_CODING_TOOLS_OPENCODE_HOME" ;;
+    agents)   print -- "$SYNC_CODING_TOOLS_AGENTS_HOME" ;;
+    codex)    print -- "$SYNC_CODING_TOOLS_CODEX_HOME" ;;
     *) die "no home root for tool '$1'" ;;
   esac
 }
@@ -187,7 +201,7 @@ dest_plugin_dir() {
   case "$1" in
     cursor)   print -- "$SYNC_CODING_TOOLS_CURSOR_HOME/plugins/local/ai-coding" ;;
     claude)   print -- "$SYNC_CODING_TOOLS_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles" ;;
-    opencode) print -- "" ;;
+    opencode|agents|codex) print -- "" ;;
     *) die "no plugin dir for tool '$1'" ;;
   esac
 }
@@ -196,7 +210,7 @@ plugin_meta_subdir() {
   case "$1" in
     cursor)   print -- ".cursor-plugin" ;;
     claude)   print -- ".claude-plugin" ;;
-    opencode) print -- "" ;;
+    opencode|agents|codex) print -- "" ;;
     *) die "no plugin meta subdir for tool '$1'" ;;
   esac
 }

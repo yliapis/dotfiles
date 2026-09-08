@@ -45,7 +45,7 @@ Same parsing rules as [../designer/SKILL.md](../designer/SKILL.md):
 **Persistence:**
 
 - `persistence` — `chat` | `codebase`. Default `codebase` (the artifact IS the deliverable).
-- `artifact_path` — repo-relative path. Default `ai-coding/plugins/design-suite/skills/designer/traits/<trait_name>.md`. Required when `persistence=codebase`; rejected when `persistence=chat`. The default targets the plugin source, never a generated mirror under `.cursor/`, `.claude/`, or `.opencode/`; a card written into a mirror is overwritten or pruned on the next `make mirrors`.
+- `artifact_path` — repo-relative path. Default `ai-coding/plugins/design-suite/skills/designer/traits/<trait_name>.md`. Required when `persistence=codebase`; rejected when `persistence=chat`. The default targets the plugin source, never a generated mirror under `.cursor/`, `.claude/`, `.opencode/`, `.agents/`, or `.codex/`; a card written into a mirror is overwritten or pruned on the next `make mirrors`.
 - `use_worktree` — boolean. Default `true` when `persistence=codebase`; MUST be `false` when `persistence=chat`. When `true`, the disk write happens inside a dedicated worktree forked from the current branch; the calling working tree is never touched.
 
 **Safety:**
@@ -115,7 +115,7 @@ A short bullet list reminding the user of the steps NOT done by this skill:
 
 - Add a row to [../designer/SKILL.md](../designer/SKILL.md)'s `## Trait Map` pairing `<trait_name>` with `./traits/<trait_name>.md`.
 - Review and merge the worktree branch.
-- Run `make mirrors` so the new card reaches the nine project mirrors.
+- Run `make mirrors` so the new card reaches the fifteen project mirrors.
 
 ## Guardrails
 
@@ -168,7 +168,7 @@ A valid `design-skill` invocation MUST satisfy every rule below.
 - **Mode-description compatibility.** `description` is required in `mode=propose`; optional in `mode=walkthrough` (collected at round 0 if not pinned).
 - **Mode-max_iterations compatibility.** `max_iterations` is set only when `mode=walkthrough`.
 - **Persistence-path compatibility.** `artifact_path` is set if and only if `persistence=codebase`. `use_worktree=true` requires `persistence=codebase`. `force=true` requires `persistence=codebase`.
-- **Artifact path repo-relative.** `artifact_path` is repo-relative under `ai-coding/plugins/design-suite/skills/designer/traits/`; generated mirrors (`.cursor/`, `.claude/`, `.opencode/`), `~/`, `$HOME`, absolute paths outside the repo, and machine-specific home directories are rejected before any read or write.
+- **Artifact path repo-relative.** `artifact_path` is repo-relative under `ai-coding/plugins/design-suite/skills/designer/traits/`; generated mirrors (`.cursor/`, `.claude/`, `.opencode/`, `.agents/`, `.codex/`), `~/`, `$HOME`, absolute paths outside the repo, and machine-specific home directories are rejected before any read or write.
 - **No clobber without force.** When `persistence=codebase` and `<artifact_path>` already exists, abort unless `force=true`.
 - **Template available.** [./TEMPLATE.md](./TEMPLATE.md) is readable from the canonical path before any draft is generated.
 - **No unknown knobs.** Every `key=...` token's key is in the knob inventory.

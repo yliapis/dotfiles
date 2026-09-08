@@ -3,8 +3,8 @@
 ## Cursor Cloud specific instructions
 
 Dotfiles + AI-coding tooling repo. Shell scripts install dotfiles and mirror
-`ai-coding/` commands, skills, and agents into the Cursor, Claude, and OpenCode
-home locations.
+`ai-coding/` commands, skills, and agents into the Cursor, Claude, OpenCode,
+`.agents`, and Codex home locations.
 
 Cloud agent setup lives in `ai-coding/hooks/`. Both wired-up providers run the
 provider-agnostic `ai-coding/hooks/cloud-agent-bootstrap.sh` at VM boot to
@@ -28,10 +28,13 @@ rejects with SC1071); test with the drift checks `make mirrors-check`,
 with `make mirrors` / `make skills-index` / `make commands-index` (a clean
 `git status` afterward means no drift); run the actual product with
 `make sync` (or `make dry-run` / `make status` first), which mirrors
-commands/skills/agents into the Cursor, Claude, and OpenCode home dirs
+commands/skills/agents into the Cursor, Claude, OpenCode, `.agents`, and Codex
+home dirs
 (`SYNC_CODING_TOOLS_CURSOR_HOME`, `SYNC_CODING_TOOLS_CLAUDE_HOME`,
-`SYNC_CODING_TOOLS_OPENCODE_HOME`; defaults `~/.cursor`, `~/.claude`,
-`~/.config/opencode`) and appends an audit line to `~/.cache/dotfiles/sync.log`.
+`SYNC_CODING_TOOLS_OPENCODE_HOME`, `SYNC_CODING_TOOLS_AGENTS_HOME`,
+`SYNC_CODING_TOOLS_CODEX_HOME`; defaults `~/.cursor`, `~/.claude`,
+`~/.config/opencode`, `~/.agents`, `~/.codex`) and appends an audit line to
+`~/.cache/dotfiles/sync.log`.
 
 ## Backlog.md ticket set
 
@@ -45,12 +48,27 @@ the `ticket-crud` and `ticket-execute` skills and states the execution contract.
 ## Project command/skill/agent mirrors
 
 Repo-root `.cursor/{commands,skills,agents}/`,
-`.claude/{commands,skills,agents}/`, and `.opencode/{commands,skills,agents}/`
+`.claude/{commands,skills,agents}/`, `.opencode/{commands,skills,agents}/`,
+`.agents/{commands,skills,agents}/`, and `.codex/{commands,skills,agents}/`
 are flattened per-item mirrors of
 `ai-coding/plugins/*/{commands,skills,agents}`. `ai-coding/plugins/` is the only
 place to edit; every mirror entry is generated. After adding, renaming, or
-removing a command, skill, or agent, regenerate all nine mirrors from the repo
-root:
+removing a command, skill, or agent, regenerate all fifteen mirrors from the
+repo root:
+
+`.agents/` is the cross-platform Agent Skills tree. Codex reads repo skills
+from `.agents/skills` (current working directory up to the repository root)
+and user skills from `$HOME/.agents/skills`. Cursor skill-discovery also
+enumerates `.agents/skills`.
+
+`.codex/` is the OpenAI Codex home (`CODEX_HOME`, default `~/.codex`). Official
+repo skills stay in `.agents/skills`. `$CODEX_HOME/skills` is a deprecated
+compatibility location; some clients still scan `.codex/skills`. Codex has no
+repo-root `commands/` or `agents/` discovery like Cursor, Claude Code, or
+OpenCode. Custom prompts (deprecated) live in `~/.codex/prompts` (user-only).
+The trees still emit `commands/` and `agents/` so the folders match the other
+AI capability trees. Codex has no plugin-marketplace equivalent of
+`.cursor-plugin` or `.claude-plugin`.
 
 ```sh
 make mirrors        # regenerate, pruning entries whose source is gone
@@ -61,7 +79,7 @@ Both wrap `scripts/sync-project-mirrors.sh`, which needs only bash and
 coreutils. Two plugins claiming one flattened name abort the run instead of
 shadowing each other.
 
-The same script generates a tenth mirror on different rules: `.claude/hooks/`
+The same script generates one extra mirror on different rules: `.claude/hooks/`
 from the flat, non-plugin-scoped `ai-coding/hooks/*.sh`, and only for Claude
 Code, since it is the one tool that discovers hooks by path inside its config
 directory. Cursor reads the same source through an arbitrary path in
@@ -83,7 +101,8 @@ in between. Home-dir symlink sync remains available via
 `SYNC_CODING_TOOLS_*_HOME` roots as copy mode) and re-introduces the same symlink risk
 at user scope, so confirm the client still lists the skills after running it.
 
-Agent frontmatter stays inside the intersection all three tools accept:
+Agent frontmatter stays inside the intersection Cursor, Claude Code, and
+OpenCode accept:
 `name`, `description`, and `mode: subagent`. Cursor ignores Claude-only fields,
 while OpenCode folds unrecognized keys into provider model options and fails its
 config load on a known key with the wrong type (Claude's comma-separated
