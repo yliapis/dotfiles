@@ -77,7 +77,6 @@ brew "nmap"
 brew "openssh"
 brew "openssl@3"
 brew "rclone"
-brew "tailscale" if OS.linux?
 brew "telnet" if OS.mac?
 brew "wget"
 

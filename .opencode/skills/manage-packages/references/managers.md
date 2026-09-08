@@ -55,7 +55,7 @@ Brewfile uses postfix `if OS.mac?` / `if OS.linux?` (see TKT-013).
 |---|---|
 | macOS GUI app (cask or tap that needs `/Applications`) | `if OS.mac?` |
 | Formula that requires macOS (or arm64-only macOS, e.g. `macmon`) | `if OS.mac?` |
-| Linux-only formula (`net-tools`, `tailscale` formula) | `if OS.linux?` |
+| Linux-only formula (`net-tools`) | `if OS.linux?` |
 | Cross-platform formula with mac + linux bottles (`pv`, `llama.cpp`) | none |
 | Linux-capable CLI cask | none |
 
@@ -129,11 +129,15 @@ Map that to `action=update` with `to=disable` plus a reason in the body.
 
 Double quotes are the Brewfile default. Do not restyle neighbors.
 
-## Snap and uv
+## Snap, uv, and Linux Tailscale
 
 `scripts/snap-installs.sh` is a linear list of `sudo snap install` lines
 (`--classic` when the snap requires it). Insert next to related snaps.
 Do not add a snap when the user asked for Homebrew.
+
+Linux Tailscale is `scripts/install-tailscale.sh`, which runs
+https://tailscale.com/install.sh (apt on Ubuntu). Do not add
+`brew "tailscale"`. macOS uses `cask "tailscale-app" if OS.mac?`.
 
 `scripts/install-doc-tools.sh` installs via `install_uv_tool <spec>`.
 Add or remove one call. Leave commented opt-in tools commented unless
