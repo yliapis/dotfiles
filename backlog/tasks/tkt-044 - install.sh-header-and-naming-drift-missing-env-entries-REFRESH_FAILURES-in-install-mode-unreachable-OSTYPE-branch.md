@@ -6,6 +6,7 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-08 19:31'
+updated_date: '2026-09-08 21:40'
 labels:
   - install
   - 'estimate:XS'
@@ -22,6 +23,8 @@ references:
   - 'install.sh:1-60'
   - 'install.sh:85'
   - 'install.sh:152-155'
+  - >-
+    docs/reports/bootstrap-critique-agent-swarm-5-claude-opus-5-1m-2026-08-16T18-46-48Z.md:225
 priority: low
 type: chore
 ordinal: 42000
@@ -55,4 +58,5 @@ Opus bootstrap critique 2026-08-16 (minor 3/5, nit 5/5 and 4/5, divergent 1/5).
 - [ ] #2 The failure accumulator has a mode-neutral name and the summaries print the right mode
 - [ ] #3 The unreachable OSTYPE branch is removed or its message no longer recommends sourcing
 - [ ] #4 The mode summary lists every side effect of each mode and states the zsh prerequisite
+- [ ] #5 The header (or README) states the supported platform and shell matrix
 <!-- AC:END -->

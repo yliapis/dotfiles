@@ -6,12 +6,14 @@ title: >-
 status: To Do
 assignee: []
 created_date: '2026-09-08 19:31'
+updated_date: '2026-09-08 21:40'
 labels:
   - ai-coding
   - parameters
   - 'estimate:M'
   - critique-fable-2026-07-12
   - critique-composer-2026-07-12
+  - critique-visual-2026-07-24
 dependencies: []
 references:
   - >-
@@ -23,6 +25,9 @@ references:
   - 'ai-coding/parameters/coverage.md:1-12'
   - 'ai-coding/parameters/README.md:88'
   - 'ai-coding/parameters/TASKS.md:31'
+  - 'docs/reports/repo-critique-visualizations-2026-07-24.html:437-480'
+  - 'docs/reports/repo-critique-visualizations-2026-07-24.html:565'
+  - 'ai-coding/parameters/TASKS.md:24-250'
 priority: medium
 type: docs
 ordinal: 38000
@@ -55,4 +60,5 @@ Fable 2026-07-12 (minor, "wiki drift, recurred"), Composer 2026-07-12 (major 2/1
 - [ ] #1 Every relative link in ai-coding/parameters/coverage.md and README.md resolves to an existing file
 - [ ] #2 Either every skill and command that declares parameters has a coverage.md entry and a no-write drift check exists and passes, or the tree is explicitly labeled archival and coverage.md no longer claims completeness
 - [ ] #3 README.md:88 (trait_map) and the .cursor/{commands,skills} layout sentence match the current tree
+- [ ] #4 Open items in ai-coding/parameters/TASKS.md (tasks 3-11) are migrated to backlog tickets or closed by the archival decision, and TASKS.md is removed or marked frozen
 <!-- AC:END -->

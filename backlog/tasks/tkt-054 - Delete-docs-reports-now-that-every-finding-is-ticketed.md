@@ -4,6 +4,7 @@ title: Delete docs/reports now that every finding is ticketed
 status: To Do
 assignee: []
 created_date: '2026-09-08 19:31'
+updated_date: '2026-09-08 21:40'
 labels:
   - docs
   - reports
@@ -20,7 +21,7 @@ ordinal: 52000
 ## Description
 
 <!-- SECTION:DESCRIPTION:BEGIN -->
-`docs/reports/` holds seven Markdown critique/design reports and one HTML visualization. Every actionable finding in them was re-verified against `main` at 225cbf2 on 2026-09-08 and either carried into a Backlog.md ticket, closed by an existing ticket, or recorded below as intentionally not actioned. The reports are duplicate provenance and can go.
+`docs/reports/` holds seven Markdown reports and one HTML report. Every actionable finding in them was re-verified against `main` at 225cbf2 on 2026-09-08 and either carried into a Backlog.md ticket, closed by an existing ticket, or recorded below as intentionally not actioned. The reports are duplicate provenance and can go.
 
 ### Files
 
@@ -31,9 +32,9 @@ ordinal: 52000
 - `repo-critique-moonshotai-kimi-k3-2026-07-26T21-59-17Z-618ef9cd.md`
 - `repo-critique-openai-gpt-5.6-terra-pro-2026-07-31T23-24-17Z.md`
 - `bootstrap-critique-agent-swarm-5-claude-opus-5-1m-2026-08-16T18-46-48Z.md`
-- `repo-critique-visualizations-2026-07-24.html` (dashboard over the critiques; no separate findings)
+- `repo-critique-visualizations-2026-07-24.html`: a standalone visual critique of the repo at ef390d7 with six findings and six recommendations. Finding 06 (install.sh hazards) maps to TKT-025, TKT-030, TKT-042, TKT-043 and the fixed ollama pipe (TKT-023); findings 01, 02, 03 and recommendations 2, 3, 4, 6 map to TKT-055, TKT-056, TKT-057, TKT-058; finding 05 and recommendation 5 map to TKT-040 (TASKS.md burn-down) and this ticket.
 
-Tickets keep `docs/reports/...:line` references as provenance; after deletion they resolve through git history only (`git log --all -- docs/reports`).
+Tickets keep `docs/reports/...:line` references as provenance; after deletion they resolve through git history only (`git log --all -- docs/reports`). Each deletion commit carries the finding-to-ticket map for the report it removes.
 
 ### Findings already fixed before ticketing (no ticket)
 
@@ -47,9 +48,12 @@ Tickets keep `docs/reports/...:line` references as provenance; after deletion th
 - `.vimrc` `silent! colorscheme`: standard optional-colorscheme idiom.
 - `.claude-plugin/marketplace.json` `0.1.0` versions with no bump policy: one plugin is already at 0.4.0; a bump policy is a process choice.
 - Two marketplace manifests no longer byte-identical: `.cursor-plugin` and `.claude-plugin` use distinct client schemas.
-- `sync-coding-tools.sh` is zsh-only: zsh is a declared prerequisite installed by the cloud bootstrap and the Brewfile; the header-hygiene ticket makes it explicit.
+- `sync-coding-tools.sh` is zsh-only: zsh is a declared prerequisite installed by the cloud bootstrap and the Brewfile; TKT-044 makes it explicit.
 - "Cross-skill structural schemas" (orchestration vs prose skills): no concrete location or defect.
 - `ralph-design` refine-round snapshot gap: the command now delegates round structure and snapshots to the designer skill; not reproducible from the command text.
+- Plugin loader path resolution after copy sync (Composer open question): the copy now mirrors the repo-root marketplace layout exactly, so it resolves iff the repo-root marketplace does; live verification rides on the TKT-008 procedure.
+- Visual critique finding 04 (commit cadence) and its "credit where due" section: observations with no action.
+- Methodology, run ledgers, swarm event logs, prior-art tables, and open questions about unaudited trees: informational.
 
 ### Scope
 

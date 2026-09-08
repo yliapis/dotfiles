@@ -4,6 +4,7 @@ title: copy_home_config overwrites $HOME files with no backup and no reversal pa
 status: To Do
 assignee: []
 created_date: '2026-09-08 19:31'
+updated_date: '2026-09-08 21:40'
 labels:
   - install
   - home-config
@@ -11,6 +12,7 @@ labels:
   - critique-fable-2026-07-12
   - critique-composer-2026-07-12
   - critique-opus-2026-08-16
+  - critique-visual-2026-07-24
 dependencies: []
 references:
   - >-
@@ -22,7 +24,8 @@ references:
   - >-
     docs/reports/bootstrap-critique-agent-swarm-5-claude-opus-5-1m-2026-08-16T18-46-48Z.md:219
   - 'install.sh:118-126'
-priority: low
+  - 'docs/reports/repo-critique-visualizations-2026-07-24.html:481-545'
+priority: medium
 type: fix
 ordinal: 41000
 ---

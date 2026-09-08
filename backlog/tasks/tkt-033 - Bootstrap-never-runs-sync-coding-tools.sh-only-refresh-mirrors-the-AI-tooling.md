@@ -4,6 +4,7 @@ title: Bootstrap never runs sync-coding-tools.sh; only refresh mirrors the AI to
 status: To Do
 assignee: []
 created_date: '2026-09-08 19:30'
+updated_date: '2026-09-08 21:40'
 labels:
   - install
   - sync
@@ -49,3 +50,12 @@ Composer swarm 2026-07-12 (major, 2/10: "documented setup contract is incomplete
 - [ ] #2 The header mode summary lists the sync step
 - [ ] #3 make help text for install reflects that the home-dir mirrors are populated
 <!-- AC:END -->
+
+## Comments
+
+<!-- COMMENTS:BEGIN -->
+created: 2026-09-08 21:40
+---
+Overlaps TKT-024 on branch cursor/sync-coding-tools-env-64b9 (unmerged as of 2026-09-08), which adds a SYNC_CODING_TOOLS gate, calls sync_coding_tools from do_bootstrap, and has make install pass SYNC_CODING_TOOLS=1. When that branch merges, re-check these acceptance criteria; this ticket then likely closes as already satisfied.
+---
+<!-- COMMENTS:END -->

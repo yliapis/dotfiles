@@ -4,6 +4,7 @@ title: install.sh is written to be executed but README tells users to source it
 status: To Do
 assignee: []
 created_date: '2026-09-08 19:30'
+updated_date: '2026-09-08 21:40'
 labels:
   - install
   - readme
@@ -11,6 +12,7 @@ labels:
   - critique-composer-2026-07-12
   - critique-kimi-2026-07-26
   - critique-opus-2026-08-16
+  - critique-visual-2026-07-24
 dependencies: []
 references:
   - >-
@@ -29,6 +31,7 @@ references:
     docs/reports/bootstrap-critique-agent-swarm-5-claude-opus-5-1m-2026-08-16T18-46-48Z.md:223-224
   - 'README.md:6'
   - 'install.sh:51'
+  - 'docs/reports/repo-critique-visualizations-2026-07-24.html:481-545'
 priority: high
 type: fix
 ordinal: 23000
