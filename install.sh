@@ -9,15 +9,17 @@
 #   GUI_INSTALL=1 ./install.sh        # deprecated alias for BREW_BUNDLE=1
 #   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
 #   APT_UPGRADE=1 ./install.sh        # Linux: also run apt update/upgrade
+#   SYNC_CODING_TOOLS=1 ./install.sh  # also run sync-coding-tools.sh
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
 #   CLEAR_CACHE=1 ./install.sh --refresh
 #
 # Modes:
 #   install   (default) platform/shell detect, Homebrew, optional Brewfile,
 #                       copy home-config/, wire shell extras, run
-#                       scripts/install-*.sh.
+#                       scripts/install-*.sh, optional sync-coding-tools.sh.
 #   refresh   (--refresh) optional brew bundle / full re-bootstrap, brew
-#                       upgrades, sync-coding-tools.sh, optional install-*.sh.
+#                       upgrades, optional sync-coding-tools.sh, optional
+#                       install-*.sh.
 #
 # Flags:
 #   --refresh             Set MODE=refresh (maintenance path above).
@@ -39,6 +41,9 @@
 #                         Opt in to scripts/install-herdr-plugins.sh when 1;
 #                         off by default in both modes. The script stays
 #                         runnable directly regardless of this setting.
+#   SYNC_CODING_TOOLS=0   Both modes: run scripts/sync-coding-tools.sh when 1.
+#                         Off by default. make install and make refresh pass
+#                         SYNC_CODING_TOOLS=1 unless you override it.
 #   APT_UPGRADE=0         Both modes, Linux only: apt-get update plus
 #                         apt-get upgrade when 1. No-op where apt-get is
 #                         absent, macOS included.
@@ -57,6 +62,7 @@ RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
 HERDR_PLUGIN_INSTALL=${HERDR_PLUGIN_INSTALL:-0}
+SYNC_CODING_TOOLS=${SYNC_CODING_TOOLS:-0}
 APT_UPGRADE=${APT_UPGRADE:-0}
 
 # Homebrew >= 6.0 upgrades `auto_updates true` casks on a plain `brew upgrade`
@@ -282,6 +288,10 @@ run_brewfile_if_enabled() {
 }
 
 sync_coding_tools() {
+  if [[ "$SYNC_CODING_TOOLS" != "1" ]]; then
+    echo "SYNC_CODING_TOOLS not set to 1; skipping sync-coding-tools.sh"
+    return 0
+  fi
   if [[ -x "$DOTFILES_ROOT/scripts/sync-coding-tools.sh" ]]; then
     "$DOTFILES_ROOT/scripts/sync-coding-tools.sh"
   fi
@@ -320,6 +330,7 @@ do_bootstrap() {
   copy_home_config
   ensure_dotfiles_shell_extras_source
   run_install_scripts
+  run_step "sync-coding-tools.sh" sync_coding_tools
 
   if (( ${#REFRESH_FAILURES[@]} )); then
     echo "dotfiles install finished with failures: ${REFRESH_FAILURES[*]}"

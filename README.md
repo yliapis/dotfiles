@@ -6,11 +6,21 @@ run installation with the following command:
 source install.sh
 ```
 
-Refresh mode (brew upgrades, coding-tools sync, re-run `install-*.sh`):
+Refresh mode (brew upgrades, re-run `install-*.sh`):
 
 ```sh
 ./install.sh --refresh
 # or: make refresh
+```
+
+Coding-tools sync is off unless `SYNC_CODING_TOOLS` is `1`.
+`make install` and `make refresh` set `SYNC_CODING_TOOLS=1`.
+A direct `./install.sh` run does not.
+
+If you want to skip the sync:
+
+```sh
+make refresh SYNC_CODING_TOOLS=0
 ```
 
 ## Makefile

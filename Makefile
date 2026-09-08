@@ -34,14 +34,15 @@ SCRIPT := ./scripts/sync-coding-tools.sh
 MIRROR_SCRIPT := ./scripts/sync-project-mirrors.sh
 INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
 BREW_BUNDLE ?= 1
+SYNC_CODING_TOOLS ?= 1
 
 .PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode sync-agents dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
 
-install:        ## Run initial dotfiles install (./install.sh; Brewfile on)
-	@BREW_BUNDLE="$(BREW_BUNDLE)" ./install.sh
+install:        ## Run initial dotfiles install (./install.sh; Brewfile on; coding-tools sync on)
+	@BREW_BUNDLE="$(BREW_BUNDLE)" SYNC_CODING_TOOLS="$(SYNC_CODING_TOOLS)" ./install.sh
 
-refresh:        ## Run ./install.sh --refresh
-	@./install.sh --refresh
+refresh:        ## Run ./install.sh --refresh (coding-tools sync on)
+	@SYNC_CODING_TOOLS="$(SYNC_CODING_TOOLS)" ./install.sh --refresh
 
 help:  ## Print Makefile targets (GNU Make owns make -h / make --help; use make sync-help for the sync script)
 	@printf 'Usage: make [TARGET]\n'
