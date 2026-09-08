@@ -1,0 +1,128 @@
+{
+  "name": "yliapis-dotfiles",
+  "interface": {
+    "displayName": "yliapis-dotfiles"
+  },
+  "plugins": [
+    {
+      "name": "artifact-researcher",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/artifact-researcher"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "design-suite",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/design-suite"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "dotfiles-dev",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/dotfiles-dev"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "excalidraw",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/excalidraw"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "flint-chart",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/flint-chart"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "git-operations",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/git-operations"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "orchestration",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/orchestration"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "session-state",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/session-state"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "ticket-operations",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/ticket-operations"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    },
+    {
+      "name": "writing",
+      "source": {
+        "source": "local",
+        "path": "./ai-coding/plugins/writing"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

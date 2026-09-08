@@ -1,0 +1,9 @@
+{
+  "name": "writing",
+  "version": "0.1.0",
+  "description": "De-slop prose, Simplified Technical English, prompt template library, meta-prompt, critique.",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/"
+}

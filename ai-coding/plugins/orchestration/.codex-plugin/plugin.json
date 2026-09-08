@@ -1,0 +1,9 @@
+{
+  "name": "orchestration",
+  "version": "0.1.0",
+  "description": "Parallel agent swarms and isolated git-worktree task execution.",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/"
+}
