@@ -1,5 +1,5 @@
 # Makefile — thin convenience wrapper so `make install`, `make refresh`,
-# `make sync`, `make sync-cursor`, `make sync-agents`, `make sync-codex`,
+# `make sync`, `make sync-cursor`, `make sync-agents`,
 # `make mirrors`, `make mirrors-check`, `make skills-index`,
 # `make skills-index-check`, `make commands-index`,
 # `make commands-index-check`, `make dry-run`, `make status`, `make unlink`,
@@ -15,8 +15,8 @@
 #                                   Symlink mode is CLI-only (--mode symlink);
 #                                   there is no make wrapper for it.
 #   scripts/sync-project-mirrors.sh repo-root project mirrors: regenerates
-#                                   {.cursor,.claude,.opencode,.agents,
-#                                   .codex}/{commands,skills,agents} from
+#                                   {.cursor,.claude,.opencode}/{commands,
+#                                   skills,agents} and .agents/skills from
 #                                   ai-coding/plugins/.
 #   scripts/gen-artifact-index.sh   ai-coding/indexes/<kind>.md: regenerates the
 #                                   skills or commands census from
@@ -34,7 +34,7 @@ SCRIPT := ./scripts/sync-coding-tools.sh
 MIRROR_SCRIPT := ./scripts/sync-project-mirrors.sh
 INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
 
-.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode sync-agents sync-codex dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
+.PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode sync-agents dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
 
 install:        ## Run initial dotfiles install (./install.sh)
 	@./install.sh
@@ -64,11 +64,8 @@ sync-claude:    ## Copy-sync only Claude targets
 sync-opencode:  ## Copy-sync only OpenCode targets
 	@$(SCRIPT) --targets opencode
 
-sync-agents:    ## Copy-sync only the cross-platform .agents targets
+sync-agents:    ## Copy-sync only the cross-platform .agents skills
 	@$(SCRIPT) --targets agents
-
-sync-codex:     ## Copy-sync only Codex targets
-	@$(SCRIPT) --targets codex
 
 mirrors:        ## Regenerate the repo-root project mirrors from ai-coding/plugins
 	@$(MIRROR_SCRIPT)

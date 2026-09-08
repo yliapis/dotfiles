@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # sync-project-mirrors.sh — regenerate the repo-root project mirrors that
-# Cursor, Claude Code, OpenCode, the cross-platform .agents tree, and Codex
+# Cursor, Claude Code, OpenCode, and the cross-platform .agents tree
 # read when this repository is the workspace.
 #
 # Sources (the only place a maintainer edits):
@@ -10,7 +10,8 @@
 #   ai-coding/hooks/*.sh                               cloud agent hooks
 #
 # Mirrors (generated, never edited by hand):
-#   {.cursor,.claude,.opencode,.agents,.codex}/{commands,skills,agents}
+#   {.cursor,.claude,.opencode}/{commands,skills,agents}
+#   .agents/skills
 #   .claude/hooks
 #
 # Hooks are the one kind that is not plugin-scoped and not mirrored to all
@@ -41,11 +42,15 @@ REPO_ROOT="$(dirname -- "$SCRIPT_DIR")"
 
 SRC_PLUGINS="$REPO_ROOT/ai-coding/plugins"
 SRC_HOOKS="$REPO_ROOT/ai-coding/hooks"
-TOOLS="cursor claude opencode agents codex"
+TOOLS="cursor claude opencode agents"
 KINDS="commands skills agents"
-# Kinds a given tool receives. Everything gets the plugin-scoped three; only
-# Claude Code discovers hooks from its config directory.
+# Kinds a given tool receives. Everything gets the plugin-scoped three unless
+# listed in SKILL_ONLY_TOOLS. Only Claude Code discovers hooks from its
+# config directory. RETIRED_TOOLS names former dest roots this script still
+# prunes (kind dirs only; never hand-written config).
+SKILL_ONLY_TOOLS="agents"
 HOOK_TOOLS="claude"
+RETIRED_TOOLS="codex"
 
 MODE="write"
 DRY_RUN=0
@@ -56,8 +61,8 @@ usage() {
 Usage: $PROG [options]
 
 Regenerate the repo-root project mirrors from ai-coding/: the
-{.cursor,.claude,.opencode,.agents,.codex}/{commands,skills,agents} trees from
-ai-coding/plugins/, and .claude/hooks from ai-coding/hooks/. Mirror entries are
+{.cursor,.claude,.opencode}/{commands,skills,agents} trees and .agents/skills
+from ai-coding/plugins/, and .claude/hooks from ai-coding/hooks/. Mirror entries are
 byte-identical copies of their source, never symlinks. Idempotent; a mirror
 already in sync is left untouched.
 
@@ -137,10 +142,13 @@ kind_sources() {
 
 relpath() { printf '%s\n' "${1#"$REPO_ROOT"/}"; }
 
-# Kinds mirrored for one tool: the plugin-scoped three, plus hooks for the
-# tools that read them from their config directory.
+# Kinds mirrored for one tool: the plugin-scoped three, or skills only, plus
+# hooks for the tools that read them from their config directory.
 tool_kinds() {
-  printf '%s' "$KINDS"
+  case " $SKILL_ONLY_TOOLS " in
+    *" $1 "*) printf 'skills' ;;
+    *) printf '%s' "$KINDS" ;;
+  esac
   case " $HOOK_TOOLS " in
     *" $1 "*) printf ' hooks' ;;
   esac
@@ -269,6 +277,39 @@ for tool in $TOOLS; do
       apply prune "" "$existing"
     done < <(find "$dest_dir" -mindepth 1 -maxdepth 1 | LC_ALL=C sort)
   done
+
+  # Drop kind dirs this tool no longer receives (e.g. .agents/commands after
+  # agents became skills-only). Never touch hand-written siblings such as
+  # .cursor/environment.json or .claude/settings.json.
+  wanted_kinds="$TMP_RUN/$tool.wanted-kinds"
+  tool_kinds "$tool" | tr ' ' '\n' | sed '/^$/d' >"$wanted_kinds"
+  if [ -d "$REPO_ROOT/.$tool" ]; then
+    while IFS= read -r existing; do
+      [ -n "$existing" ] || continue
+      [ -d "$existing" ] || continue
+      name="$(basename -- "$existing")"
+      case "$name" in
+        commands|skills|agents|hooks) ;;
+        *) continue ;;
+      esac
+      if grep -Fxq -- "$name" "$wanted_kinds"; then continue; fi
+      pruned=$((pruned + 1))
+      apply prune "" "$existing"
+    done < <(find "$REPO_ROOT/.$tool" -mindepth 1 -maxdepth 1 | LC_ALL=C sort)
+  fi
+done
+
+# Drop generated kind dirs under tool roots that left TOOLS.
+for tool in $RETIRED_TOOLS; do
+  for kind in $KINDS hooks; do
+    dest="$REPO_ROOT/.$tool/$kind"
+    [ -e "$dest" ] || [ -L "$dest" ] || continue
+    pruned=$((pruned + 1))
+    apply prune "" "$dest"
+  done
+  if [ "$MODE" = "write" ] && [ "$DRY_RUN" -eq 0 ]; then
+    rmdir -- "$REPO_ROOT/.$tool" 2>/dev/null || true
+  fi
 done
 
 printf '%s: created=%d updated=%d pruned=%d in_sync=%d\n' \
