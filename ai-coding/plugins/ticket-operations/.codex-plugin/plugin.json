@@ -2,26 +2,8 @@
   "name": "ticket-operations",
   "version": "0.4.0",
   "description": "Create, execute, and update local Markdown tickets.",
-  "author": {
-    "name": "yliapis"
-  },
+  "author": { "name": "yliapis" },
   "repository": "https://github.com/yliapis/dotfiles",
   "license": "MIT",
-  "skills": "./skills/",
-  "interface": {
-    "displayName": "Ticket Operations",
-    "shortDescription": "Create, execute, and update local tickets.",
-    "longDescription": "Create local Markdown tickets, execute them with evidence, and update lifecycle state.",
-    "developerName": "yliapis",
-    "category": "Productivity",
-    "capabilities": [
-      "Read",
-      "Write"
-    ],
-    "defaultPrompt": [
-      "Create tickets from this analysis",
-      "Execute the next open ticket",
-      "Update ticket status with evidence"
-    ]
-  }
+  "skills": "./skills/"
 }

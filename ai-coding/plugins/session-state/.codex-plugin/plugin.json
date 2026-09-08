@@ -2,26 +2,8 @@
   "name": "session-state",
   "version": "0.1.0",
   "description": "Trajectory snapshots, file dumps, session save/shutdown/wrap-up.",
-  "author": {
-    "name": "yliapis"
-  },
+  "author": { "name": "yliapis" },
   "repository": "https://github.com/yliapis/dotfiles",
   "license": "MIT",
-  "skills": "./skills/",
-  "interface": {
-    "displayName": "Session State",
-    "shortDescription": "Snapshot, dump, and wrap up sessions.",
-    "longDescription": "Snapshot session trajectories, dump analysis files, and save or wrap up session state.",
-    "developerName": "yliapis",
-    "category": "Productivity",
-    "capabilities": [
-      "Read",
-      "Write"
-    ],
-    "defaultPrompt": [
-      "Snapshot this session trajectory",
-      "Dump this analysis to a file",
-      "Wrap up and save session state"
-    ]
-  }
+  "skills": "./skills/"
 }

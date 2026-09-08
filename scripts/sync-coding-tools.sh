@@ -16,8 +16,7 @@
 #   ai-coding/plugins/<plugin>/skills/<name>/SKILL.md  skills
 #   ai-coding/plugins/<plugin>/agents/*.md             subagent definitions
 #   .cursor-plugin/marketplace.json (Cursor),
-#   .claude-plugin/marketplace.json (Claude),
-#   .agents/plugins/marketplace.json (Codex) + ai-coding/plugins/
+#   .claude-plugin/marketplace.json (Claude) + ai-coding/plugins/
 #                                                      marketplace metadata
 #
 # Commands, skills, and agents from every plugin are flattened into one
@@ -40,7 +39,6 @@
 #   agents    $SYNC_CODING_TOOLS_AGENTS_HOME/skills/<name>     (default: ~/.agents)
 #             Codex and other .agents clients read skills only; commands
 #             and agents are not synced here.
-#             $SYNC_CODING_TOOLS_AGENTS_HOME/plugins/marketplaces/yliapis-dotfiles
 #
 # Run `sync-coding-tools.sh --help` for the full CLI.
 
@@ -78,7 +76,7 @@ Usage: ${SCRIPT_PATH:t} [options]
 
 Mirror ai-coding commands, skills, and agents from this dotfiles repo into the
 home locations used by Cursor, Claude Code, OpenCode, and the cross-platform
-.agents tree (skills plus the Codex plugin marketplace). Idempotent; safe to re-run.
+.agents tree. Idempotent; safe to re-run.
 
 Modes:
   copy         (default) rsync-based; deterministic snapshot of the repo at
@@ -107,12 +105,11 @@ Environment (override tool home roots; defaults match historical paths):
   SYNC_CODING_TOOLS_AGENTS_HOME    .agents root   (default: ~/.agents)
 
   Under each Cursor, Claude, and OpenCode root the script writes commands/,
-  skills/, and agents/. The .agents root receives skills/ (Codex and
-  other .agents clients discover skills there) and a Codex plugin
-  marketplace at plugins/marketplaces/yliapis-dotfiles. Cursor also gets
+  skills/, and agents/. The .agents root receives skills/ only (Codex and
+  other .agents clients discover skills there). Cursor also gets
   plugins/local/ai-coding; Claude gets
-  plugins/marketplaces/yliapis-dotfiles. OpenCode has no plugin destination.
-  Cursor skills stay at <root>/skills (never skills-cursor).
+  plugins/marketplaces/yliapis-dotfiles. OpenCode and .agents have no
+  plugin destination. Cursor skills stay at <root>/skills (never skills-cursor).
 
 Exit status:
   0  success
@@ -212,8 +209,7 @@ dest_plugin_dir() {
   case "$1" in
     cursor)   print -- "$SYNC_CODING_TOOLS_CURSOR_HOME/plugins/local/ai-coding" ;;
     claude)   print -- "$SYNC_CODING_TOOLS_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles" ;;
-    agents)   print -- "$SYNC_CODING_TOOLS_AGENTS_HOME/plugins/marketplaces/yliapis-dotfiles" ;;
-    opencode) print -- "" ;;
+    opencode|agents) print -- "" ;;
     *) die "no plugin dir for tool '$1'" ;;
   esac
 }
@@ -222,8 +218,7 @@ plugin_meta_subdir() {
   case "$1" in
     cursor)   print -- ".cursor-plugin" ;;
     claude)   print -- ".claude-plugin" ;;
-    agents)   print -- ".agents/plugins" ;;
-    opencode) print -- "" ;;
+    opencode|agents) print -- "" ;;
     *) die "no plugin meta subdir for tool '$1'" ;;
   esac
 }

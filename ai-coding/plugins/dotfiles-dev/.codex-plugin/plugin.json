@@ -2,26 +2,8 @@
   "name": "dotfiles-dev",
   "version": "0.1.0",
   "description": "Maintenance skills for this dotfiles repo: package manifests (Brewfile, snap, mas, uv).",
-  "author": {
-    "name": "yliapis"
-  },
+  "author": { "name": "yliapis" },
   "repository": "https://github.com/yliapis/dotfiles",
   "license": "MIT",
-  "skills": "./skills/",
-  "interface": {
-    "displayName": "Dotfiles Dev",
-    "shortDescription": "Maintain package manifests in this repo.",
-    "longDescription": "Add, remove, or retarget packages in the Brewfile, snap, mas, uv, and VS Code manifests.",
-    "developerName": "yliapis",
-    "category": "Productivity",
-    "capabilities": [
-      "Read",
-      "Write"
-    ],
-    "defaultPrompt": [
-      "Add a Homebrew formula to the Brewfile",
-      "Update a package pin in this repo",
-      "Show how this package is declared"
-    ]
-  }
+  "skills": "./skills/"
 }

@@ -4,7 +4,7 @@ title: Add Codex plugin marketplace when Codex offers one
 status: Done
 assignee: []
 created_date: '2026-09-08 01:55'
-updated_date: '2026-09-08 17:28'
+updated_date: '2026-09-08 18:16'
 labels:
   - codex
   - marketplace
@@ -73,10 +73,12 @@ Evidence:
 - HEAD e0eee157a28117c19057e0ce0eecc79dc7b8002d tree 24fb4866e0ed40ea1947f0fa4412d212542fe77d
 
 AC2: After AC1, AGENTS.md and README.md describe `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`. grep for "no plugin-marketplace equivalent" in those files is empty.
+
+PR narrowed after review: dest_plugin_dir / home-dir marketplace sync was reverted. Codex already loads skills from .agents/skills and $HOME/.agents/skills. Remaining change is in-repo plugin packaging only: per-plugin .codex-plugin/plugin.json (cursor/claude shape plus skills) and .agents/plugins/marketplace.json. No root .codex-plugin/ folder. scripts/sync-coding-tools.sh and Makefile match main.
 <!-- SECTION:NOTES:END -->
 
 ## Final Summary
 
 <!-- SECTION:FINAL_SUMMARY:BEGIN -->
-Codex plugin marketplace is in the repo: per-plugin `.codex-plugin/plugin.json`, repo catalog `.agents/plugins/marketplace.json`, and home-dir dest_plugin_dir on the agents target.
+In-repo Codex plugin packaging only: per-plugin `.codex-plugin/plugin.json` and `.agents/plugins/marketplace.json`. Skills still load from `.agents/skills`. No root `.codex-plugin/` folder and no home-dir dest_plugin_dir.
 <!-- SECTION:FINAL_SUMMARY:END -->
