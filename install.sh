@@ -7,7 +7,6 @@
 #   ./install.sh --refresh            # maintenance refresh (make refresh)
 #   BREW_BUNDLE=1 ./install.sh        # Linux: also run the Brewfile
 #   GUI_INSTALL=1 ./install.sh        # deprecated alias for BREW_BUNDLE=1
-#   INSTALL_OLLAMA=1 ./install.sh     # also install ollama when missing
 #   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
 #   APT_UPGRADE=1 ./install.sh        # Linux: also run apt update/upgrade
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
@@ -43,8 +42,6 @@
 #   APT_UPGRADE=0         Both modes, Linux only: apt-get update plus
 #                         apt-get upgrade when 1. No-op where apt-get is
 #                         absent, macOS included.
-#   INSTALL_OLLAMA=0      Bootstrap only: install ollama when missing
-#                         when 1.
 #   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
 #                         of just brew bundle.
@@ -55,7 +52,6 @@ DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 MODE=${MODE:-install}
 BREW_BUNDLE=${BREW_BUNDLE:-${GUI_INSTALL:-}}
-INSTALL_OLLAMA=${INSTALL_OLLAMA:-0}
 CLEAR_CACHE=${CLEAR_CACHE:-0}
 RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
@@ -285,18 +281,6 @@ run_brewfile_if_enabled() {
   fi
 }
 
-ensure_ollama() {
-  if [ "$INSTALL_OLLAMA" != "1" ]; then
-    echo "INSTALL_OLLAMA not set to 1; skipping ollama"
-    return 0
-  fi
-  if command -v ollama &> /dev/null; then
-    return 0
-  fi
-  echo "ollama not installed, installing"
-  curl -fsSL https://ollama.com/install.sh | $SHELL
-}
-
 sync_coding_tools() {
   if [[ -x "$DOTFILES_ROOT/scripts/sync-coding-tools.sh" ]]; then
     "$DOTFILES_ROOT/scripts/sync-coding-tools.sh"
@@ -336,7 +320,6 @@ do_bootstrap() {
   copy_home_config
   ensure_dotfiles_shell_extras_source
   run_install_scripts
-  ensure_ollama
 
   if (( ${#REFRESH_FAILURES[@]} )); then
     echo "dotfiles install finished with failures: ${REFRESH_FAILURES[*]}"

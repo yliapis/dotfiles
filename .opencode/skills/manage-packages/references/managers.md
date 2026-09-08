@@ -57,7 +57,7 @@ Brewfile uses postfix `if OS.mac?` / `if OS.linux?` (see TKT-013).
 | Formula that requires macOS (or arm64-only macOS, e.g. `macmon`) | `if OS.mac?` |
 | Linux-only formula (`net-tools`) | `if OS.linux?` |
 | Cross-platform formula with mac + linux bottles (`pv`) | none |
-| Formula that Linux installs another way (`llama.cpp`) | `if OS.mac?` |
+| Formula that Linux installs another way (`llama.cpp`, `ollama`) | `if OS.mac?` |
 | Linux-capable CLI cask | none |
 
 CLI casks that stay unguarded so Linux `BREW_BUNDLE=1` still gets them:
@@ -92,7 +92,8 @@ Record from Homebrew JSON: `name` or `token`, `tap`, `disabled`,
 `deprecated`, `version` / `stable`, bottles or `os_requirements`.
 A Linux bottle (`x86_64_linux` or `arm64_linux`) means the formula
 stays unguarded unless the formula itself requires macOS or Linux
-installs it another way (`llama.cpp` → `scripts/install-llama.cpp.sh`).
+installs it another way (`llama.cpp` → `scripts/install-llama.cpp.sh`,
+`ollama` → `scripts/install-ollama.sh`).
 
 When `brew` is on PATH, `brew info` / `brew search` / `brew bundle list
 --file=…` may supplement the API. They do not replace it.
@@ -145,6 +146,11 @@ Linux llama.cpp is `scripts/install-llama.cpp.sh`, which runs
 https://llama.app/install.sh (probes CUDA, then ROCm, Vulkan, CPU).
 Keep `brew "llama.cpp" if OS.mac?`. Do not leave that formula unguarded.
 
+Linux Ollama is `scripts/install-ollama.sh`, which runs
+https://ollama.com/install.sh (NVIDIA CUDA). Keep
+`brew "ollama" if OS.mac?`. Do not add `cask "ollama-app"` or leave
+the formula unguarded.
+
 `scripts/install-doc-tools.sh` installs via `install_uv_tool <spec>`.
 Add or remove one call. Leave commented opt-in tools commented unless
 the user asks to enable them.
@@ -155,7 +161,7 @@ the user asks to enable them.
 |---|---|
 | Add core formula (`pv`, `ty`) | Unguarded `brew "name"` in the matching CLI section; API bottles include mac + linux |
 | Add macOS-only formula (`macmon`) | `brew "name" if OS.mac?` |
-| Linux official install.sh (`tailscale`, `llama.cpp`) | `scripts/install-<name>.sh`; brew/cask only on macOS |
+| Linux official install.sh (`tailscale`, `llama.cpp`, `ollama`) | `scripts/install-<name>.sh`; brew/cask only on macOS |
 | Add GUI cask (`utm`, `crystalfetch`) | `cask "name" if OS.mac?`; no tap when homebrew/cask ships it |
 | Add CLI cask (`devin-cli`, `codex`) | Unguarded `cask "name"` next to other agent CLIs |
 | Add third-party formula (`openusage`) | Trusted tap + fully-qualified `brew "tap/name", trusted: true` |
