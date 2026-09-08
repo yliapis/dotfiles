@@ -1,0 +1,27 @@
+{
+  "name": "design-suite",
+  "version": "0.1.0",
+  "description": "Compose design traits against a target (designer, with declarative, deterministic, and concise trait cards) and author new ones (design-skill).",
+  "author": {
+    "name": "yliapis"
+  },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Design Suite",
+    "shortDescription": "Compose design traits against a target.",
+    "longDescription": "Apply designer traits (declarative, deterministic, concise) to a target, or author a new trait card.",
+    "developerName": "yliapis",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Apply the designer skill to this target",
+      "Author a new design trait card",
+      "Walk through a named design trait"
+    ]
+  }
+}

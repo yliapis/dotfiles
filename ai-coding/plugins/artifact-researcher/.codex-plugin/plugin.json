@@ -1,0 +1,27 @@
+{
+  "name": "artifact-researcher",
+  "version": "0.1.0",
+  "description": "Analyze single or multiple artifacts: architecture, inventory, comparative, deep-dive, collection.",
+  "author": {
+    "name": "yliapis"
+  },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Artifact Researcher",
+    "shortDescription": "Analyze repos, collections, and docs.",
+    "longDescription": "Analyze one artifact or a collection: architecture, inventory, comparison, and control-path deep dives.",
+    "developerName": "yliapis",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Analyze this repository and write Architecture.md",
+      "Inventory this collection of related repos",
+      "Compare these two artifacts side by side"
+    ]
+  }
+}

@@ -1,9 +1,11 @@
 ---
 id: TKT-020
 title: Add Codex plugin marketplace when Codex offers one
-status: To Do
-assignee: []
+status: In Progress
+assignee:
+  - '@yliapis'
 created_date: '2026-09-08 01:55'
+updated_date: '2026-09-08 17:27'
 labels:
   - codex
   - marketplace
@@ -13,6 +15,7 @@ references:
   - .cursor-plugin/marketplace.json
   - .claude-plugin/marketplace.json
   - 'https://developers.openai.com/codex/skills'
+  - 'https://developers.openai.com/plugins/build/plugins'
 priority: low
 type: feat
 ordinal: 19000
@@ -39,3 +42,19 @@ Out of Scope: inventing a Codex marketplace; mapping commands to ~/.codex/prompt
 - [ ] #1 When Codex documents a plugin or marketplace layout equivalent to .cursor-plugin or .claude-plugin, add the matching manifest and wire dest_plugin_dir in scripts/sync-coding-tools.sh
 - [ ] #2 Until then, AGENTS.md and README.md keep recording that Codex has no plugin-marketplace equivalent
 <!-- AC:END -->
+
+## Implementation Plan
+
+<!-- SECTION:PLAN:BEGIN -->
+Official Codex plugin packaging (https://developers.openai.com/plugins/build/plugins) now documents:
+
+- Per plugin: `.codex-plugin/plugin.json` with skills path and interface metadata
+- Repo marketplace: `.agents/plugins/marketplace.json` with local `source.path` entries
+
+Implementation:
+
+1. Add `.codex-plugin/plugin.json` next to each existing `.cursor-plugin` / `.claude-plugin` manifest
+2. Add `.agents/plugins/marketplace.json` pointing at `./ai-coding/plugins/<name>`
+3. Wire `dest_plugin_dir` / `plugin_meta_subdir` for the `agents` target in `scripts/sync-coding-tools.sh`
+4. Update AGENTS.md and README.md so they describe the Codex marketplace instead of its absence
+<!-- SECTION:PLAN:END -->

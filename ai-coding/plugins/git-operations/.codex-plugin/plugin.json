@@ -1,0 +1,27 @@
+{
+  "name": "git-operations",
+  "version": "0.1.0",
+  "description": "Minimal diffs, Conventional Commits, and safe merge/push workflows.",
+  "author": {
+    "name": "yliapis"
+  },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Git Operations",
+    "shortDescription": "Minimal diffs and Conventional Commits.",
+    "longDescription": "Apply minimal diffs, format Conventional Commits, and run safe merge and push workflows.",
+    "developerName": "yliapis",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Commit this change with Conventional Commits",
+      "Apply a minimal diff for this fix",
+      "Merge, commit, and push this branch"
+    ]
+  }
+}

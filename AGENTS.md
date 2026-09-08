@@ -29,7 +29,7 @@ with `make mirrors` / `make skills-index` / `make commands-index` (a clean
 `git status` afterward means no drift); run the actual product with
 `make sync` (or `make dry-run` / `make status` first), which mirrors
 commands/skills/agents into the Cursor, Claude, and OpenCode home dirs, and
-skills into the `.agents` home dir
+skills plus the Codex plugin marketplace into the `.agents` home dir
 (`SYNC_CODING_TOOLS_CURSOR_HOME`, `SYNC_CODING_TOOLS_CLAUDE_HOME`,
 `SYNC_CODING_TOOLS_OPENCODE_HOME`, `SYNC_CODING_TOOLS_AGENTS_HOME`;
 defaults `~/.cursor`, `~/.claude`, `~/.config/opencode`, `~/.agents`) and
@@ -59,8 +59,9 @@ skills from `.agents/skills` (current working directory up to the repository
 root) and user skills from `$HOME/.agents/skills`. Cursor skill-discovery also
 enumerates `.agents/skills`. Codex has no repo-root `commands/` or `agents/`
 discovery. `$CODEX_HOME/skills` (`~/.codex/skills`) is a deprecated
-compatibility location and is not generated here. Codex has no
-plugin-marketplace equivalent of `.cursor-plugin` or `.claude-plugin`.
+compatibility location and is not generated here. Each plugin carries
+`.codex-plugin/plugin.json`. The Codex repo marketplace is
+`.agents/plugins/marketplace.json`.
 
 ```sh
 make mirrors        # regenerate, pruning entries whose source is gone
@@ -85,10 +86,10 @@ shipped skill-discovery implementation resolves a link and drops the entry when
 the real path leaves the scanned directory, so a symlinked mirror is invisible
 to it; `make mirrors-check` reports one as drift. The escape hatch for live
 edits without a regenerate step is to install this repo as a plugin
-marketplace: `.cursor-plugin/marketplace.json` and
-`.claude-plugin/marketplace.json` point each plugin at
-`./ai-coding/plugins/<name>`, so a client reads the source tree with no mirror
-in between. Home-dir symlink sync remains available via
+marketplace: `.cursor-plugin/marketplace.json`,
+`.claude-plugin/marketplace.json`, and `.agents/plugins/marketplace.json`
+point each plugin at `./ai-coding/plugins/<name>`, so a client reads the
+source tree with no mirror in between. Home-dir symlink sync remains available via
 `./scripts/sync-coding-tools.sh --mode symlink` (same
 `SYNC_CODING_TOOLS_*_HOME` roots as copy mode) and re-introduces the same symlink risk
 at user scope, so confirm the client still lists the skills after running it.

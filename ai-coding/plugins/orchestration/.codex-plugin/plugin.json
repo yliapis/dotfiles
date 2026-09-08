@@ -1,0 +1,27 @@
+{
+  "name": "orchestration",
+  "version": "0.1.0",
+  "description": "Parallel agent swarms and isolated git-worktree task execution.",
+  "author": {
+    "name": "yliapis"
+  },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Orchestration",
+    "shortDescription": "Parallel swarms and isolated worktrees.",
+    "longDescription": "Run parallel agent swarms and execute tasks in isolated git worktrees.",
+    "developerName": "yliapis",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Run an agent swarm on this task",
+      "Execute this task in an isolated worktree",
+      "Plan a parallel agent topology"
+    ]
+  }
+}

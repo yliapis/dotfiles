@@ -1,0 +1,27 @@
+{
+  "name": "flint-chart",
+  "version": "0.1.0",
+  "description": "Author Flint chart specs (ChartAssemblyInput) and render charts through the flint-chart MCP.",
+  "author": {
+    "name": "yliapis"
+  },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Flint Chart",
+    "shortDescription": "Author and render Flint chart specs.",
+    "longDescription": "Author ChartAssemblyInput specs and render charts through the flint-chart MCP.",
+    "developerName": "yliapis",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Author a Flint chart spec from this table",
+      "Render this data through flint-chart",
+      "Validate this ChartAssemblyInput"
+    ]
+  }
+}

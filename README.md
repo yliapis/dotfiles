@@ -34,8 +34,8 @@ the workspace.
 `.agents/skills/` is the official Codex and cross-platform Agent Skills root
 (repo skills here; user skills in `$HOME/.agents/skills`).
 `$CODEX_HOME/skills` is a deprecated compatibility location and is not
-generated. Codex has no plugin-marketplace equivalent of `.cursor-plugin`
-or `.claude-plugin`.
+generated. Each plugin carries `.codex-plugin/plugin.json`. The Codex repo
+marketplace is `.agents/plugins/marketplace.json`.
 
 ```sh
 make mirrors        # regenerate, pruning entries whose source is gone

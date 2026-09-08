@@ -1,0 +1,27 @@
+{
+  "name": "excalidraw",
+  "version": "0.1.0",
+  "description": "Draw architecture, flow, and sequence diagrams with the Excalidraw MCP.",
+  "author": {
+    "name": "yliapis"
+  },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Excalidraw",
+    "shortDescription": "Draw architecture and sequence diagrams.",
+    "longDescription": "Generate hand-drawn Excalidraw diagrams for architecture, flowcharts, and sequence sketches.",
+    "developerName": "yliapis",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Draw an architecture diagram for this change",
+      "Sketch this request flow as a sequence diagram",
+      "Update the existing Excalidraw diagram"
+    ]
+  }
+}
