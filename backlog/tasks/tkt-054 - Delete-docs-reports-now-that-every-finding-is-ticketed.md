@@ -1,10 +1,10 @@
 ---
 id: TKT-054
 title: Delete docs/reports now that every finding is ticketed
-status: To Do
+status: Done
 assignee: []
 created_date: '2026-09-08 19:31'
-updated_date: '2026-09-08 21:40'
+updated_date: '2026-09-08 21:44'
 labels:
   - docs
   - reports
@@ -62,7 +62,27 @@ Tickets keep `docs/reports/...:line` references as provenance; after deletion th
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 docs/reports/ no longer exists in the tree and docs/README.md no longer lists it
-- [ ] #2 rg 'docs/reports' --glob '!backlog/**' returns no live references outside git history
-- [ ] #3 make mirrors-check still passes
+- [x] #1 docs/reports/ no longer exists in the tree and docs/README.md no longer lists it
+- [x] #2 rg 'docs/reports' --glob '!backlog/**' returns no live references outside git history
+- [x] #3 make mirrors-check still passes
 <!-- AC:END -->
+
+## Implementation Notes
+
+<!-- SECTION:NOTES:BEGIN -->
+Verified 2026-09-08 on this Linux cloud VM after eight deletion commits (6872d3a..4d5c5e8), one per report, each carrying the finding-to-ticket map for the file it removes.
+
+- AC1: `test ! -e docs/reports` passes; `rg 'reports/' docs/README.md` finds no layout row (the README keeps a two-sentence policy: reports are ticketed and removed).
+- AC2: `rg 'docs/reports' --glob '!backlog/**' .` exits 1 (no matches); the remaining references live in backlog/tasks as provenance.
+- AC3: `make mirrors-check` -> in_sync=106; `make skills-index-check` and `make commands-index-check` also pass.
+
+The second-pass audit found the HTML file was a standalone visual critique, not a dashboard; its uncovered items became TKT-055..058 plus an acceptance criterion on TKT-040 (commit 9e432ca) before the file was removed.
+
+Log: /opt/cursor/artifacts/tkt054_report_removal_verify.log
+<!-- SECTION:NOTES:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Removed docs/reports (seven Markdown reports and one HTML visual critique) after mapping every finding to a ticket or a recorded disposition, one commit per report. Dropped the reports row from docs/README.md and stated the ticket-then-delete policy.
+<!-- SECTION:FINAL_SUMMARY:END -->
