@@ -7,3 +7,6 @@ Brewfile.lock.json
 # Python bytecode from skill script smoke checks
 __pycache__/
 *.py[cod]
+
+# local data dumps
+data/*
