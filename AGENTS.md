@@ -29,7 +29,7 @@ with `make mirrors` / `make skills-index` / `make commands-index` (a clean
 `git status` afterward means no drift); run the actual product with
 `make sync` (or `make dry-run` / `make status` first), which mirrors
 commands/skills/agents into the Cursor, Claude, and OpenCode home dirs, and
-skills into the `.agents` home dir
+skills plus the Codex plugin marketplace into the `.agents` home dir
 (`SYNC_CODING_TOOLS_CURSOR_HOME`, `SYNC_CODING_TOOLS_CLAUDE_HOME`,
 `SYNC_CODING_TOOLS_OPENCODE_HOME`, `SYNC_CODING_TOOLS_AGENTS_HOME`;
 defaults `~/.cursor`, `~/.claude`, `~/.config/opencode`, `~/.agents`) and
@@ -60,9 +60,11 @@ root) and user skills from `$HOME/.agents/skills`. Cursor skill-discovery also
 enumerates `.agents/skills`. Codex has no repo-root `commands/` or `agents/`
 discovery. `$CODEX_HOME/skills` (`~/.codex/skills`) is a deprecated
 compatibility location and is not generated here. Codex loads those skills
-without a plugin install. Optional plugin packaging is per-plugin
+without a plugin install. Plugin packaging is per-plugin
 `.codex-plugin/plugin.json` plus the repo catalog
-`.agents/plugins/marketplace.json`. There is no root `.codex-plugin/` folder.
+`.agents/plugins/marketplace.json`. `make sync-agents` copies that catalog
+to `~/.agents/plugins/marketplaces/yliapis-dotfiles`. There is no root
+`.codex-plugin/` folder.
 
 ```sh
 make mirrors        # regenerate, pruning entries whose source is gone

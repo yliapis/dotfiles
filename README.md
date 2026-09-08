@@ -34,9 +34,11 @@ the workspace.
 `.agents/skills/` is the official Codex and cross-platform Agent Skills root
 (repo skills here; user skills in `$HOME/.agents/skills`).
 `$CODEX_HOME/skills` is a deprecated compatibility location and is not
-generated. Codex loads those skills without a plugin install. Optional plugin
-packaging is per-plugin `.codex-plugin/plugin.json` plus
-`.agents/plugins/marketplace.json`. There is no root `.codex-plugin/` folder.
+generated. Codex loads those skills without a plugin install. Plugin packaging
+is per-plugin `.codex-plugin/plugin.json` plus
+`.agents/plugins/marketplace.json`. `make sync-agents` copies that catalog
+to `~/.agents/plugins/marketplaces/yliapis-dotfiles`. There is no root
+`.codex-plugin/` folder.
 
 ```sh
 make mirrors        # regenerate, pruning entries whose source is gone
