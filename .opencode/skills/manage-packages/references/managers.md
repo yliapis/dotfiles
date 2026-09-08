@@ -59,7 +59,7 @@ Brewfile uses postfix `if OS.mac?` / `if OS.linux?` (see TKT-013).
 | Cross-platform formula with mac + linux bottles (`pv`, `llama.cpp`) | none |
 | Linux-capable CLI cask | none |
 
-CLI casks that stay unguarded so Linux `GUI_INSTALL=1` still gets them:
+CLI casks that stay unguarded so Linux `BREW_BUNDLE=1` still gets them:
 `claude-code@latest` (was `claude-code`), `codex`, `cursor`, `devin-cli`,
 `gcloud-cli`, `font-jetbrains-mono-nerd-font`. Do not add `if OS.mac?` to
 that set. Derive the live set from the Brewfile (`cask` lines with no

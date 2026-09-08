@@ -33,11 +33,12 @@ endif
 SCRIPT := ./scripts/sync-coding-tools.sh
 MIRROR_SCRIPT := ./scripts/sync-project-mirrors.sh
 INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
+BREW_BUNDLE ?= 1
 
 .PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode sync-agents dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
 
-install:        ## Run initial dotfiles install (./install.sh)
-	@./install.sh
+install:        ## Run initial dotfiles install (./install.sh; Brewfile on)
+	@BREW_BUNDLE="$(BREW_BUNDLE)" ./install.sh
 
 refresh:        ## Run ./install.sh --refresh
 	@./install.sh --refresh
