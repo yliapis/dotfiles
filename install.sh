@@ -5,7 +5,8 @@
 #   source install.sh                 # initial bootstrap (README entry point)
 #   ./install.sh                      # same, as a subprocess (make install)
 #   ./install.sh --refresh            # maintenance refresh (make refresh)
-#   GUI_INSTALL=1 ./install.sh        # Linux: also run the Brewfile
+#   BREW_BUNDLE=1 ./install.sh        # Linux: also run the Brewfile
+#   GUI_INSTALL=1 ./install.sh        # deprecated alias for BREW_BUNDLE=1
 #   INSTALL_OLLAMA=0 ./install.sh     # skip ollama during bootstrap
 #   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
 #   APT_UPGRADE=1 ./install.sh        # Linux: also run apt update/upgrade
@@ -21,14 +22,16 @@
 #
 # Flags:
 #   --refresh             Set MODE=refresh (maintenance path above).
-#   <positional>          Optional; if set, overrides GUI_INSTALL (legacy:
+#   <positional>          Optional; if set, overrides BREW_BUNDLE (legacy:
 #                         pass 1 to force Brewfile on non-macOS). Prefer the
-#                         GUI_INSTALL env var.
+#                         BREW_BUNDLE env var.
 #
 # Environment variables (all optional; defaults shown):
 #   MODE=install          install | refresh. --refresh sets refresh.
-#   GUI_INSTALL=          Empty by default. On macOS the Brewfile always runs;
+#   BREW_BUNDLE=          Empty by default. On macOS the Brewfile always runs;
 #                         on Linux set to 1 (or pass positional 1) to run it.
+#                         make install passes BREW_BUNDLE=1 unless you
+#                         override it. GUI_INSTALL is a deprecated alias.
 #   BREW_BUNDLE_MAS=      Unset by default. When 1, run Brewfile.mas (mas apps).
 #                         On macOS install, empty/unset self-sets to 1; on
 #                         Linux install and on refresh it stays unset unless
@@ -50,7 +53,7 @@
 DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 MODE=${MODE:-install}
-GUI_INSTALL=${GUI_INSTALL:-}
+BREW_BUNDLE=${BREW_BUNDLE:-${GUI_INSTALL:-}}
 INSTALL_OLLAMA=${INSTALL_OLLAMA:-1}
 CLEAR_CACHE=${CLEAR_CACHE:-0}
 RERUN_INSTALL=${RERUN_INSTALL:-0}
@@ -80,7 +83,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-GUI_INSTALL=${1:-$GUI_INSTALL}
+BREW_BUNDLE=${1:-$BREW_BUNDLE}
 
 REFRESH_FAILURES=()
 
@@ -273,11 +276,11 @@ run_brewfile_mas() {
   brew bundle --file="$DOTFILES_ROOT/Brewfile.mas"
 }
 
-run_brewfile_if_gui() {
-  if [[ "$OSTYPE" == darwin* ]] || [ "$GUI_INSTALL" = "1" ]; then
+run_brewfile_if_enabled() {
+  if [[ "$OSTYPE" == darwin* ]] || [ "$BREW_BUNDLE" = "1" ]; then
     run_brewfile
   else
-    echo "non macos detected and GUI_INSTALL not set to 1; skipping Brewfile"
+    echo "non macos detected and BREW_BUNDLE not set to 1; skipping Brewfile"
   fi
 }
 
@@ -326,7 +329,7 @@ do_bootstrap() {
   ensure_profile_file
   ensure_homebrew
   disable_brew_analytics
-  run_step "brew bundle" run_brewfile_if_gui
+  run_step "brew bundle" run_brewfile_if_enabled
   run_step "brew bundle (mas)" run_brewfile_mas
   copy_home_config
   ensure_dotfiles_shell_extras_source

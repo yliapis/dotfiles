@@ -36,8 +36,12 @@ INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
 
 .PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode sync-agents dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
 
-install:        ## Run initial dotfiles install (./install.sh)
-	@./install.sh
+# make install turns brew bundle on (Linux ./install.sh skips the Brewfile).
+# Override with `make install BREW_BUNDLE=0`.
+BREW_BUNDLE ?= 1
+
+install:        ## Run initial dotfiles install (./install.sh; Brewfile on)
+	@BREW_BUNDLE="$(BREW_BUNDLE)" ./install.sh
 
 refresh:        ## Run ./install.sh --refresh
 	@./install.sh --refresh
