@@ -103,6 +103,7 @@ brew "pre-commit"
 brew "yamllint"
 brew "hyperfine"
 brew "llama.cpp" if OS.mac?
+brew "ollama" if OS.mac?
 
 # languages
 brew "go"
