@@ -4,7 +4,7 @@ title: Add Codex support to ai-coding
 status: To Do
 assignee: []
 created_date: '2026-07-27 01:45'
-updated_date: '2026-09-08 01:50'
+updated_date: '2026-09-08 01:58'
 labels:
   - agents
   - ai-coding
@@ -73,5 +73,10 @@ Changes outside the listed scope and acceptance criteria.
 created: 2026-09-08 01:50
 ---
 TKT-019 landed project mirrors and home-dir sync for .agents/ and .codex/ (commands/skills/agents, gitattributes, make sync-agents / make sync-codex). Remaining on this ticket: live Codex observation (AC7), and any Codex-specific command/agent path that differs from the parity trees (deprecated ~/.codex/prompts; no marketplace).
+---
+
+created: 2026-09-08 01:58
+---
+Follow-up: tkt-021 dropped .codex/ and .agents/{commands,agents}. Supported layout is .agents/skills (repo) and $HOME/.agents/skills (user). make sync-codex is gone; use make sync-agents. Remaining: AC7 live Codex listing of .agents/skills.
 ---
 <!-- COMMENTS:END -->
