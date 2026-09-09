@@ -1,9 +1,11 @@
 ---
 id: TKT-027
 title: install.sh argument parser turns any unknown token into the BREW_BUNDLE flag
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@cursor'
 created_date: '2026-09-08 19:30'
+updated_date: '2026-09-09 23:32'
 labels:
   - install
   - 'estimate:S'
@@ -50,9 +52,15 @@ Opus bootstrap critique 2026-08-16 (critical, 5/5 runs; MODE validation 2/5), Ki
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 ./install.sh --help (and -h) prints usage and exits 0 with no side effects
-- [ ] #2 An unrecognized option or a positional value other than the documented ones exits non-zero with a message naming the bad token, before any step runs
-- [ ] #3 --refresh is recognized regardless of its position among the other arguments
-- [ ] #4 MODE outside install|refresh aborts before any step runs
-- [ ] #5 The header documents the resulting flag and positional contract
+- [x] #1 ./install.sh --help (and -h) prints usage and exits 0 with no side effects
+- [x] #2 An unrecognized option or a positional value other than the documented ones exits non-zero with a message naming the bad token, before any step runs
+- [x] #3 --refresh is recognized regardless of its position among the other arguments
+- [x] #4 MODE outside install|refresh aborts before any step runs
+- [x] #5 The header documents the resulting flag and positional contract
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Replaced the break-on-first-unknown CLI loop and positional BREW_BUNDLE override with an allowlist parser (--refresh, -h, --help only), print_usage, and MODE install|refresh validation before do_bootstrap/do_refresh. Proved AC1-2: --help/-h exit 0 with usage and no bootstrap banner; unknown flags/positionals exit 1 naming the token. AC3: --refresh --help exits 0; 1 --refresh exits 1 on 1 (order-independent scan). AC4: MODE=Refresh/foo exit 1 before steps. AC5: header documents CLI-only flags and env-var BREW_BUNDLE.
+<!-- SECTION:FINAL_SUMMARY:END -->
