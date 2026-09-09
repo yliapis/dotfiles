@@ -67,7 +67,7 @@ sync-claude:    ## Copy-sync only Claude targets
 sync-opencode:  ## Copy-sync only OpenCode targets
 	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --targets opencode
 
-sync-agents:    ## Copy-sync only the cross-platform .agents skills
+sync-agents:    ## Copy-sync .agents skills and the Codex plugin marketplace
 	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --targets agents
 
 mirrors:        ## Regenerate the repo-root project mirrors from ai-coding/plugins

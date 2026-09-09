@@ -1,0 +1,9 @@
+{
+  "name": "design-suite",
+  "version": "0.1.0",
+  "description": "Compose design traits against a target (designer, with declarative, deterministic, and concise trait cards) and author new ones (design-skill).",
+  "author": { "name": "yliapis" },
+  "repository": "https://github.com/yliapis/dotfiles",
+  "license": "MIT",
+  "skills": "./skills/"
+}
