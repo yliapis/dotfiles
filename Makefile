@@ -34,14 +34,16 @@ SCRIPT := ./scripts/sync-coding-tools.sh
 MIRROR_SCRIPT := ./scripts/sync-project-mirrors.sh
 INDEX_SCRIPT := ./scripts/gen-artifact-index.sh
 BREW_BUNDLE ?= 1
+SYNC_CODING_TOOLS ?= 1
+SYNC_CODING_TOOLS_DEST ?= $(HOME)
 
 .PHONY: help install refresh sync-help sync sync-cursor sync-claude sync-opencode sync-agents dry-run status unlink clean mirrors mirrors-check skills-index skills-index-check commands-index commands-index-check
 
-install:        ## Run initial dotfiles install (./install.sh; Brewfile on)
-	@BREW_BUNDLE="$(BREW_BUNDLE)" ./install.sh
+install:        ## Run initial dotfiles install (./install.sh; Brewfile on; coding-tools sync on)
+	@BREW_BUNDLE="$(BREW_BUNDLE)" SYNC_CODING_TOOLS="$(SYNC_CODING_TOOLS)" SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" ./install.sh
 
-refresh:        ## Run ./install.sh --refresh
-	@./install.sh --refresh
+refresh:        ## Run ./install.sh --refresh (coding-tools sync on)
+	@SYNC_CODING_TOOLS="$(SYNC_CODING_TOOLS)" SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" ./install.sh --refresh
 
 help:  ## Print Makefile targets (GNU Make owns make -h / make --help; use make sync-help for the sync script)
 	@printf 'Usage: make [TARGET]\n'
@@ -54,19 +56,19 @@ sync-help:      ## Print sync script usage (same as ./scripts/sync-coding-tools.
 	@$(SCRIPT) --help
 
 sync:           ## Copy-sync everything to all configured tools
-	@$(SCRIPT)
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT)
 
 sync-cursor:    ## Copy-sync only Cursor targets
-	@$(SCRIPT) --targets cursor
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --targets cursor
 
 sync-claude:    ## Copy-sync only Claude targets
-	@$(SCRIPT) --targets claude
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --targets claude
 
 sync-opencode:  ## Copy-sync only OpenCode targets
-	@$(SCRIPT) --targets opencode
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --targets opencode
 
 sync-agents:    ## Copy-sync .agents skills and the Codex plugin marketplace
-	@$(SCRIPT) --targets agents
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --targets agents
 
 mirrors:        ## Regenerate the repo-root project mirrors from ai-coding/plugins
 	@$(MIRROR_SCRIPT)
@@ -87,12 +89,12 @@ commands-index-check: ## Fail if the commands index drifted from ai-coding/plugi
 	@$(INDEX_SCRIPT) --kind commands --check
 
 dry-run:        ## Show what `make sync` would do (no filesystem writes)
-	@$(SCRIPT) --dry-run
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --dry-run
 
 status:         ## Show what is out-of-sync between repo and home
-	@$(SCRIPT) --dry-run --verbose
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --dry-run --verbose
 
 unlink:         ## Reverse a previous sync (remove symlinks/copies; restore backups)
-	@$(SCRIPT) --unlink
+	@SYNC_CODING_TOOLS_DEST="$(SYNC_CODING_TOOLS_DEST)" $(SCRIPT) --unlink
 
 clean: unlink   ## Alias for `make unlink`

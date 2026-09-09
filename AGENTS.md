@@ -30,9 +30,11 @@ with `make mirrors` / `make skills-index` / `make commands-index` (a clean
 `make sync` (or `make dry-run` / `make status` first), which mirrors
 commands/skills/agents into the Cursor, Claude, and OpenCode home dirs, and
 skills plus the Codex plugin marketplace into the `.agents` home dir
-(`SYNC_CODING_TOOLS_CURSOR_HOME`, `SYNC_CODING_TOOLS_CLAUDE_HOME`,
+(`SYNC_CODING_TOOLS_DEST`, default `$HOME`; or per-tool
+`SYNC_CODING_TOOLS_CURSOR_HOME`, `SYNC_CODING_TOOLS_CLAUDE_HOME`,
 `SYNC_CODING_TOOLS_OPENCODE_HOME`, `SYNC_CODING_TOOLS_AGENTS_HOME`;
-defaults `~/.cursor`, `~/.claude`, `~/.config/opencode`, `~/.agents`) and
+defaults `$DEST/.cursor`, `$DEST/.claude`, `$DEST/.config/opencode`,
+`$DEST/.agents`) and
 appends an audit line to `~/.cache/dotfiles/sync.log`.
 
 ## Backlog.md ticket set
