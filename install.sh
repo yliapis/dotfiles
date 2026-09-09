@@ -12,7 +12,8 @@
 #   SYNC_CODING_TOOLS=1 ./install.sh  # also run sync-coding-tools.sh
 #   SYNC_CODING_TOOLS_DEST=/path ./install.sh  # sync under /path (default: $HOME)
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
-#   CLEAR_CACHE=1 ./install.sh --refresh
+#   BREW_UNINSTALL_ABSENT=1 ./install.sh --refresh
+#   CLEAR_CACHE=1 ./install.sh --refresh  # deprecated alias for BREW_UNINSTALL_ABSENT=1
 #
 # Modes:
 #   install   (default) platform/shell detect, Homebrew, optional Brewfile,
@@ -53,9 +54,11 @@
 #   APT_UPGRADE=0         Both modes, Linux only: apt-get update plus
 #                         apt-get upgrade when 1. No-op where apt-get is
 #                         absent, macOS included.
-#   CLEAR_CACHE=0         Refresh only: uninstall Homebrew formulae/casks
+#   BREW_UNINSTALL_ABSENT=0
+#                         Refresh only: uninstall Homebrew formulae/casks
 #                         absent from Brewfile (and Brewfile.mas on macOS)
 #                         via brew bundle cleanup --force when 1.
+#                         CLEAR_CACHE is a deprecated alias.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
 #                         of just brew bundle.
 #   REFRESH_BREWFILE=1    Refresh only: run brew bundle unless RERUN_INSTALL=1.
@@ -65,7 +68,7 @@ DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 MODE=${MODE:-install}
 BREW_BUNDLE=${BREW_BUNDLE:-${GUI_INSTALL:-}}
-CLEAR_CACHE=${CLEAR_CACHE:-0}
+BREW_UNINSTALL_ABSENT=${BREW_UNINSTALL_ABSENT:-${CLEAR_CACHE:-0}}
 RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
@@ -317,7 +320,7 @@ upgrade_brew() {
 }
 
 uninstall_brew_absent_packages() {
-  if [[ "$CLEAR_CACHE" != "1" ]]; then
+  if [[ "$BREW_UNINSTALL_ABSENT" != "1" ]]; then
     return 0
   fi
 
