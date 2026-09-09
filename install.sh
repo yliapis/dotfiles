@@ -23,12 +23,12 @@
 #                       install-*.sh.
 #
 # Flags (CLI only; no positional arguments):
-#   --refresh             Set MODE=refresh (maintenance path above).
+#   -r, --refresh         Set MODE=refresh (maintenance path above).
 #   -h, --help            Print this usage and exit.
 #   BREW_BUNDLE and other options are set via environment variables only.
 #
 # Environment variables (all optional; defaults shown):
-#   MODE=install          install | refresh. --refresh sets refresh.
+#   MODE=install          install | refresh. -r / --refresh sets refresh.
 #   BREW_BUNDLE=          Empty by default. On macOS the Brewfile always runs;
 #                         on Linux set to 1 to run it. make install passes
 #                         BREW_BUNDLE=1 unless you override it. GUI_INSTALL is
@@ -86,7 +86,7 @@ print_usage() {
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --refresh)
+    -r|--refresh)
       MODE=refresh
       shift
       ;;
