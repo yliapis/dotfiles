@@ -149,8 +149,8 @@ ensure_dotfiles_shell_extras_source() {
   if grep -qF '# dotfiles: shell extras (managed by dotfiles/install.sh)' "$DEFAULT_PROFILE_FILE" 2>/dev/null; then
     return 0
   fi
-  print '' >> "$DEFAULT_PROFILE_FILE"
-  print '# dotfiles: shell extras (managed by dotfiles/install.sh)' >> "$DEFAULT_PROFILE_FILE"
+  printf '\n' >> "$DEFAULT_PROFILE_FILE"
+  printf '%s\n' '# dotfiles: shell extras (managed by dotfiles/install.sh)' >> "$DEFAULT_PROFILE_FILE"
   printf '[ -f %q ] && . %q\n' "$snippet" "$snippet" >> "$DEFAULT_PROFILE_FILE"
 }
 

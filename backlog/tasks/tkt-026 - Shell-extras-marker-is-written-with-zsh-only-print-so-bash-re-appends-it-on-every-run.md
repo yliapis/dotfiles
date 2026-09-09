@@ -3,9 +3,11 @@ id: TKT-026
 title: >-
   Shell-extras marker is written with zsh-only print, so bash re-appends it on
   every run
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@cursor'
 created_date: '2026-09-08 19:30'
+updated_date: '2026-09-09 23:32'
 labels:
   - install
   - 'estimate:XS'
@@ -51,7 +53,13 @@ Fable critique 2026-07-12 (critical, reproduced live: three runs appended three 
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 The marker and blank line are written with a POSIX-portable command (printf or echo), not print
-- [ ] #2 Running the function twice against a fresh profile file under bash appends exactly one marker block; the same holds under zsh
-- [ ] #3 zsh -n install.sh passes
+- [x] #1 The marker and blank line are written with a POSIX-portable command (printf or echo), not print
+- [x] #2 Running the function twice against a fresh profile file under bash appends exactly one marker block; the same holds under zsh
+- [x] #3 zsh -n install.sh passes
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Replaced zsh-only print with POSIX printf for the blank line and marker in ensure_dotfiles_shell_extras_source. Proved AC1 with sed/grep (printf only, no standalone print). Proved AC2 with isolated bash and zsh harnesses using temp HOME and a dummy .shell_extras.sh: running the function twice left exactly one marker comment and one source line in each shell. Proved AC3 with zsh -n install.sh (exit 0).
+<!-- SECTION:FINAL_SUMMARY:END -->
