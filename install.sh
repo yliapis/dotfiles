@@ -10,6 +10,7 @@
 #   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
 #   APT_UPGRADE=1 ./install.sh        # Linux: also run apt update/upgrade
 #   SYNC_CODING_TOOLS=1 ./install.sh  # also run sync-coding-tools.sh
+#   SYNC_CODING_TOOLS_DEST=/path ./install.sh  # sync under /path (default: $HOME)
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
 #   CLEAR_CACHE=1 ./install.sh --refresh
 #
@@ -44,6 +45,11 @@
 #   SYNC_CODING_TOOLS=0   Both modes: run scripts/sync-coding-tools.sh when 1.
 #                         Off by default. make install and make refresh pass
 #                         SYNC_CODING_TOOLS=1 unless you override it.
+#   SYNC_CODING_TOOLS_DEST=$HOME
+#                         Parent dest for the coding-tools sync. Per-tool
+#                         homes default under this dest. make install,
+#                         make refresh, and make sync pass $HOME unless
+#                         you override it.
 #   APT_UPGRADE=0         Both modes, Linux only: apt-get update plus
 #                         apt-get upgrade when 1. No-op where apt-get is
 #                         absent, macOS included.
@@ -63,6 +69,7 @@ REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
 HERDR_PLUGIN_INSTALL=${HERDR_PLUGIN_INSTALL:-0}
 SYNC_CODING_TOOLS=${SYNC_CODING_TOOLS:-0}
+SYNC_CODING_TOOLS_DEST=${SYNC_CODING_TOOLS_DEST:-$HOME}
 APT_UPGRADE=${APT_UPGRADE:-0}
 
 # Homebrew >= 6.0 upgrades `auto_updates true` casks on a plain `brew upgrade`
@@ -293,7 +300,8 @@ sync_coding_tools() {
     return 0
   fi
   if [[ -x "$DOTFILES_ROOT/scripts/sync-coding-tools.sh" ]]; then
-    "$DOTFILES_ROOT/scripts/sync-coding-tools.sh"
+    SYNC_CODING_TOOLS_DEST="$SYNC_CODING_TOOLS_DEST" \
+      "$DOTFILES_ROOT/scripts/sync-coding-tools.sh"
   fi
 }
 

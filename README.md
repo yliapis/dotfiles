@@ -23,6 +23,12 @@ If you want to skip the sync:
 make refresh SYNC_CODING_TOOLS=0
 ```
 
+The sync writes under `$HOME` unless you set `SYNC_CODING_TOOLS_DEST`.
+
+```sh
+make sync SYNC_CODING_TOOLS_DEST=/tmp/coding-tools
+```
+
 ## Makefile
 
 Common tasks are wrapped in a `Makefile`. List all targets with:

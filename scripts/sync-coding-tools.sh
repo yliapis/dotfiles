@@ -24,19 +24,21 @@
 # repo root is itself the marketplace root. Agents are optional: plugin sets
 # that carry none are synced without them.
 #
-# Targets (roots overridable via env; subpaths are fixed under each root):
-#   cursor    $SYNC_CODING_TOOLS_CURSOR_HOME/commands          (default: ~/.cursor)
+# Targets (roots overridable via env; subpaths are fixed under each root).
+# SYNC_CODING_TOOLS_DEST is the parent (default: $HOME). Per-tool homes
+# default under that dest unless you set a tool-specific override.
+#   cursor    $SYNC_CODING_TOOLS_CURSOR_HOME/commands          (default: $DEST/.cursor)
 #             $SYNC_CODING_TOOLS_CURSOR_HOME/skills/<name>
 #             $SYNC_CODING_TOOLS_CURSOR_HOME/agents
 #             $SYNC_CODING_TOOLS_CURSOR_HOME/plugins/local/ai-coding
-#   claude    $SYNC_CODING_TOOLS_CLAUDE_HOME/commands          (default: ~/.claude)
+#   claude    $SYNC_CODING_TOOLS_CLAUDE_HOME/commands          (default: $DEST/.claude)
 #             $SYNC_CODING_TOOLS_CLAUDE_HOME/skills/<name>
 #             $SYNC_CODING_TOOLS_CLAUDE_HOME/agents
 #             $SYNC_CODING_TOOLS_CLAUDE_HOME/plugins/marketplaces/yliapis-dotfiles
-#   opencode  $SYNC_CODING_TOOLS_OPENCODE_HOME/commands        (default: ~/.config/opencode)
+#   opencode  $SYNC_CODING_TOOLS_OPENCODE_HOME/commands        (default: $DEST/.config/opencode)
 #             $SYNC_CODING_TOOLS_OPENCODE_HOME/skills/<name>
 #             $SYNC_CODING_TOOLS_OPENCODE_HOME/agents
-#   agents    $SYNC_CODING_TOOLS_AGENTS_HOME/skills/<name>     (default: ~/.agents)
+#   agents    $SYNC_CODING_TOOLS_AGENTS_HOME/skills/<name>     (default: $DEST/.agents)
 #             Codex and other .agents clients read skills only; commands
 #             and agents are not synced here.
 #
@@ -58,11 +60,13 @@ SRC_AGENTS=("$SRC_PLUGINS"/*/agents/*.md(N))
 BACKUP_ROOT="$HOME/.dotfiles-backup"
 LOG_FILE="$HOME/.cache/dotfiles/sync.log"
 
-# Per-tool home roots. Override to redirect sync destinations (e.g. tests).
-: "${SYNC_CODING_TOOLS_CURSOR_HOME:=$HOME/.cursor}"
-: "${SYNC_CODING_TOOLS_CLAUDE_HOME:=$HOME/.claude}"
-: "${SYNC_CODING_TOOLS_OPENCODE_HOME:=$HOME/.config/opencode}"
-: "${SYNC_CODING_TOOLS_AGENTS_HOME:=$HOME/.agents}"
+# Parent dest, then per-tool roots. Override DEST to redirect the whole tree
+# (e.g. tests). A tool-specific *_HOME still wins over DEST.
+: "${SYNC_CODING_TOOLS_DEST:=$HOME}"
+: "${SYNC_CODING_TOOLS_CURSOR_HOME:=$SYNC_CODING_TOOLS_DEST/.cursor}"
+: "${SYNC_CODING_TOOLS_CLAUDE_HOME:=$SYNC_CODING_TOOLS_DEST/.claude}"
+: "${SYNC_CODING_TOOLS_OPENCODE_HOME:=$SYNC_CODING_TOOLS_DEST/.config/opencode}"
+: "${SYNC_CODING_TOOLS_AGENTS_HOME:=$SYNC_CODING_TOOLS_DEST/.agents}"
 
 DRY_RUN=0
 VERBOSE=0
@@ -98,11 +102,12 @@ Options:
   -v, --verbose         Print every action; pass -v through to rsync.
   -h, --help            Show this help and exit.
 
-Environment (override tool home roots; defaults match historical paths):
-  SYNC_CODING_TOOLS_CURSOR_HOME    Cursor root    (default: ~/.cursor)
-  SYNC_CODING_TOOLS_CLAUDE_HOME    Claude root    (default: ~/.claude)
-  SYNC_CODING_TOOLS_OPENCODE_HOME  OpenCode root  (default: ~/.config/opencode)
-  SYNC_CODING_TOOLS_AGENTS_HOME    .agents root   (default: ~/.agents)
+Environment (override dest and tool home roots):
+  SYNC_CODING_TOOLS_DEST           Parent dest    (default: \$HOME)
+  SYNC_CODING_TOOLS_CURSOR_HOME    Cursor root    (default: \$DEST/.cursor)
+  SYNC_CODING_TOOLS_CLAUDE_HOME    Claude root    (default: \$DEST/.claude)
+  SYNC_CODING_TOOLS_OPENCODE_HOME  OpenCode root  (default: \$DEST/.config/opencode)
+  SYNC_CODING_TOOLS_AGENTS_HOME    .agents root   (default: \$DEST/.agents)
 
   Under each Cursor, Claude, and OpenCode root the script writes commands/,
   skills/, and agents/. The .agents root receives skills/ only (Codex and
