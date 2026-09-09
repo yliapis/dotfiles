@@ -22,18 +22,17 @@
 #                       upgrades, optional sync-coding-tools.sh, optional
 #                       install-*.sh.
 #
-# Flags:
+# Flags (CLI only; no positional arguments):
 #   --refresh             Set MODE=refresh (maintenance path above).
-#   <positional>          Optional; if set, overrides BREW_BUNDLE (legacy:
-#                         pass 1 to force Brewfile on non-macOS). Prefer the
-#                         BREW_BUNDLE env var.
+#   -h, --help            Print this usage and exit.
+#   BREW_BUNDLE and other options are set via environment variables only.
 #
 # Environment variables (all optional; defaults shown):
 #   MODE=install          install | refresh. --refresh sets refresh.
 #   BREW_BUNDLE=          Empty by default. On macOS the Brewfile always runs;
-#                         on Linux set to 1 (or pass positional 1) to run it.
-#                         make install passes BREW_BUNDLE=1 unless you
-#                         override it. GUI_INSTALL is a deprecated alias.
+#                         on Linux set to 1 to run it. make install passes
+#                         BREW_BUNDLE=1 unless you override it. GUI_INSTALL is
+#                         a deprecated alias.
 #   BREW_BUNDLE_MAS=      Unset by default. When 1, run Brewfile.mas (mas apps).
 #                         On macOS install, empty/unset self-sets to 1; on
 #                         Linux install and on refresh it stays unset unless
@@ -81,19 +80,34 @@ APT_UPGRADE=${APT_UPGRADE:-0}
 # with no Docker Desktop at all. Let the self-updating casks update themselves.
 export HOMEBREW_NO_UPGRADE_AUTO_UPDATES_CASKS=1
 
+print_usage() {
+  sed -n '4,30p' "$DOTFILES_ROOT/install.sh" | sed 's/^# //'
+}
+
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --refresh)
       MODE=refresh
       shift
       ;;
+    -h|--help)
+      print_usage
+      exit 0
+      ;;
     *)
-      break
+      echo "Error: unrecognized argument: $1" >&2
+      exit 1
       ;;
   esac
 done
 
-BREW_BUNDLE=${1:-$BREW_BUNDLE}
+case "$MODE" in
+  install|refresh) ;;
+  *)
+    echo "Error: invalid MODE=$MODE (expected install or refresh)" >&2
+    exit 1
+    ;;
+esac
 
 REFRESH_FAILURES=()
 
