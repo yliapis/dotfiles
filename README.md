@@ -3,7 +3,8 @@
 run installation with the following command:
 
 ```sh
-source install.sh
+./install.sh
+# or: make install
 ```
 
 Refresh mode (brew upgrades, re-run `install-*.sh`):
