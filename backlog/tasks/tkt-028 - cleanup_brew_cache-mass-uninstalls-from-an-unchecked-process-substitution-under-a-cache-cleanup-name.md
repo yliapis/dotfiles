@@ -3,9 +3,11 @@ id: TKT-028
 title: >-
   cleanup_brew_cache mass-uninstalls from an unchecked process substitution
   under a cache-cleanup name
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@cursor'
 created_date: '2026-09-08 19:30'
+updated_date: '2026-09-09 23:32'
 labels:
   - install
   - brewfile
@@ -49,8 +51,14 @@ Opus bootstrap critique 2026-08-16: critical (3/5 runs), naming finding promoted
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 Both manifest files are checked for existence and readability before brew bundle cleanup runs; a missing or unreadable file aborts the step with a message and no uninstall
-- [ ] #2 The manifest passed to brew is a real file whose creation status is checked (no process substitution), or the concatenation exit status is otherwise verified
-- [ ] #3 Brewfile.mas is included only on macOS, matching run_brewfile_mas
-- [ ] #4 The variable name, function name, and header text state that the step uninstalls packages absent from the Brewfiles
+- [x] #1 Both manifest files are checked for existence and readability before brew bundle cleanup runs; a missing or unreadable file aborts the step with a message and no uninstall
+- [x] #2 The manifest passed to brew is a real file whose creation status is checked (no process substitution), or the concatenation exit status is otherwise verified
+- [x] #3 Brewfile.mas is included only on macOS, matching run_brewfile_mas
+- [x] #4 The variable name, function name, and header text state that the step uninstalls packages absent from the Brewfiles
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+Renamed CLEAR_CACHE to BREW_UNINSTALL_ABSENT (deprecated alias kept), cleanup_brew_cache to uninstall_brew_absent_packages, and updated header text to describe uninstalling formulae/casks absent from the Brewfiles. The step now requires readable Brewfile (and Brewfile.mas on macOS), builds a verified real-file manifest via mktemp+cat instead of process substitution, and includes Brewfile.mas only on darwin. Proved with zsh -n install.sh and a stub-brew harness: missing Brewfile aborts without invoking brew; present files pass a regular --file manifest with Brewfile content; linux omits mas lines, darwin includes them.
+<!-- SECTION:FINAL_SUMMARY:END -->
