@@ -103,6 +103,7 @@ brew "backlog-md"
 brew "pre-commit"
 brew "yamllint"
 brew "hyperfine"
+brew "llmfit"
 brew "llama.cpp" if OS.mac?
 brew "ollama" if OS.mac?
 
