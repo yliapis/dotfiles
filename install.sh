@@ -33,10 +33,11 @@
 #                         on Linux set to 1 to run it. make install passes
 #                         BREW_BUNDLE=1 unless you override it. GUI_INSTALL is
 #                         a deprecated alias.
-#   BREW_BUNDLE_MAS=      Unset by default. When 1, run Brewfile.mas (mas apps).
-#                         On macOS install, empty/unset self-sets to 1; on
-#                         Linux install and on refresh it stays unset unless
-#                         you pass BREW_BUNDLE_MAS=1.
+#   BREW_BUNDLE_MAS=      Unset by default. When 1, run Brewfile.mas (mas apps)
+#                         and then scripts/install-amphetamine-power-protect.sh
+#                         on macOS. On macOS install, empty/unset self-sets to
+#                         1; on Linux install and on refresh it stays unset
+#                         unless you pass BREW_BUNDLE_MAS=1.
 #   HERDR_PLUGIN_INSTALL=0
 #                         Opt in to scripts/install-herdr-plugins.sh when 1;
 #                         off by default in both modes. The script stays
@@ -131,6 +132,10 @@ run_install_scripts() {
     [ -f "$script" ] || continue
     if [ "$script" = "$DOTFILES_ROOT/scripts/install-herdr-plugins.sh" ] && [ "$HERDR_PLUGIN_INSTALL" != "1" ]; then
       echo "HERDR_PLUGIN_INSTALL not set to 1; skipping $(basename "$script")"
+      continue
+    fi
+    if [ "$script" = "$DOTFILES_ROOT/scripts/install-amphetamine-power-protect.sh" ]; then
+      echo "skipping $(basename "$script") (runs after Brewfile.mas when BREW_BUNDLE_MAS=1)"
       continue
     fi
     echo "running $(basename "$script")"
@@ -297,7 +302,9 @@ run_brewfile_mas() {
     return 0
   fi
   echo "Running mas brew install from Brewfile.mas"
-  brew bundle --file="$DOTFILES_ROOT/Brewfile.mas"
+  brew bundle --file="$DOTFILES_ROOT/Brewfile.mas" || return $?
+  echo "running install-amphetamine-power-protect.sh"
+  bash "$DOTFILES_ROOT/scripts/install-amphetamine-power-protect.sh"
 }
 
 run_brewfile_if_enabled() {

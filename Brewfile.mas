@@ -7,6 +7,7 @@ brew "mas"
 # mas "Bandcamp", id: 706408639
 
 # Closed-display keep-awake; App Store only (no Homebrew cask).
+# Companion: scripts/install-amphetamine-power-protect.sh after this bundle.
 mas "Amphetamine", id: 937984704
 
 # App Store build keeps the existing purchase; the `boom-3d` cask is the
