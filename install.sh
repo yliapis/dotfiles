@@ -2,9 +2,10 @@
 # install.sh — bootstrap or refresh this dotfiles repo on the local machine.
 #
 # Usage:
-#   source install.sh                 # initial bootstrap (README entry point)
-#   ./install.sh                      # same, as a subprocess (make install)
-#   ./install.sh --refresh            # maintenance refresh (make refresh)
+#   ./install.sh                      # initial bootstrap (or: make install)
+#   make install                      # same; sets BREW_BUNDLE=1 and SYNC_CODING_TOOLS=1
+#   ./install.sh --refresh            # maintenance refresh (or: make refresh)
+#   make refresh                      # same as ./install.sh --refresh
 #   BREW_BUNDLE=1 ./install.sh        # Linux: also run the Brewfile
 #   GUI_INSTALL=1 ./install.sh        # deprecated alias for BREW_BUNDLE=1
 #   HERDR_PLUGIN_INSTALL=1 ./install.sh   # also install herdr plugins
@@ -57,6 +58,15 @@
 #                         of just brew bundle.
 #   REFRESH_BREWFILE=1    Refresh only: run brew bundle unless RERUN_INSTALL=1.
 #   REFRESH_SCRIPTS=1     Refresh only: re-run scripts/install-*.sh when 1.
+
+if [[ -n "${BASH_VERSION:-}" ]] && [[ "${BASH_SOURCE[0]:-}" != "${0}" ]]; then
+  echo 'install.sh must be executed, not sourced. Run: ./install.sh or make install' >&2
+  return 1
+fi
+if [[ -n "${ZSH_VERSION:-}" ]] && [[ "${ZSH_EVAL_CONTEXT:-}" == *:file* ]]; then
+  echo 'install.sh must be executed, not sourced. Run: ./install.sh or make install' >&2
+  return 1
+fi
 
 DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
