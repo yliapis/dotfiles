@@ -1,6 +1,6 @@
 ---
 name: manage-packages
-description: "Add, delete, or update packages in this dotfiles repo's Brewfile, Brewfile.mas, snap installs, uv tool installs, vscode extensions, or other package manifests. Default mode opens a GitHub PR, merges it into main, and stops. Use when the user asks to add a brew formula or cask, remove a package, rename or retarget a Brewfile pin, edit snap installs, or change a package-manager manifest."
+description: "Add, delete, or update packages in this dotfiles repo's Brewfile, mas.Brewfile, snap installs, uv tool installs, vscode extensions, or other package manifests. Default mode opens a GitHub PR, merges it into main, and stops. Use when the user asks to add a brew formula or cask, remove a package, rename or retarget a Brewfile pin, edit snap installs, or change a package-manager manifest."
 license: MIT
 ---
 
