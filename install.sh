@@ -12,7 +12,8 @@
 #   SYNC_CODING_TOOLS=1 ./install.sh  # also run sync-coding-tools.sh
 #   SYNC_CODING_TOOLS_DEST=/path ./install.sh  # sync under /path (default: $HOME)
 #   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
-#   CLEAR_CACHE=1 ./install.sh --refresh
+#   BREW_UNINSTALL_ABSENT=1 ./install.sh --refresh
+#   CLEAR_CACHE=1 ./install.sh --refresh  # deprecated alias for BREW_UNINSTALL_ABSENT=1
 #
 # Modes:
 #   install   (default) platform/shell detect, Homebrew, optional Brewfile,
@@ -52,7 +53,11 @@
 #   APT_UPGRADE=0         Both modes, Linux only: apt-get update plus
 #                         apt-get upgrade when 1. No-op where apt-get is
 #                         absent, macOS included.
-#   CLEAR_CACHE=0         Refresh only: brew bundle cleanup --force when 1.
+#   BREW_UNINSTALL_ABSENT=0
+#                         Refresh only: uninstall Homebrew formulae/casks
+#                         absent from Brewfile (and Brewfile.mas on macOS)
+#                         via brew bundle cleanup --force when 1.
+#                         CLEAR_CACHE is a deprecated alias.
 #   RERUN_INSTALL=0       Refresh only: when 1, re-run full bootstrap instead
 #                         of just brew bundle.
 #   REFRESH_BREWFILE=1    Refresh only: run brew bundle unless RERUN_INSTALL=1.
@@ -62,7 +67,7 @@ DOTFILES_ROOT="$(cd "$(dirname "$0")" && pwd)"
 
 MODE=${MODE:-install}
 BREW_BUNDLE=${BREW_BUNDLE:-${GUI_INSTALL:-}}
-CLEAR_CACHE=${CLEAR_CACHE:-0}
+BREW_UNINSTALL_ABSENT=${BREW_UNINSTALL_ABSENT:-${CLEAR_CACHE:-0}}
 RERUN_INSTALL=${RERUN_INSTALL:-0}
 REFRESH_BREWFILE=${REFRESH_BREWFILE:-1}
 REFRESH_SCRIPTS=${REFRESH_SCRIPTS:-1}
@@ -328,12 +333,44 @@ upgrade_brew() {
   run_step "brew upgrade --cask" brew upgrade --cask --greedy-latest
 }
 
-cleanup_brew_cache() {
-  if [[ "$CLEAR_CACHE" == "1" ]]; then
-    # Union both brewfiles so mas apps are not treated as orphans.
-    brew bundle cleanup --force \
-      --file=<(cat "$DOTFILES_ROOT/Brewfile" "$DOTFILES_ROOT/Brewfile.mas")
+uninstall_brew_absent_packages() {
+  if [[ "$BREW_UNINSTALL_ABSENT" != "1" ]]; then
+    return 0
   fi
+
+  local brewfile="$DOTFILES_ROOT/Brewfile"
+  local mas_brewfile="$DOTFILES_ROOT/Brewfile.mas"
+  local manifest
+  local -a manifest_sources=("$brewfile")
+
+  if [[ ! -r "$brewfile" ]]; then
+    echo "Error: Brewfile missing or unreadable: $brewfile"
+    return 1
+  fi
+
+  if [[ "$OSTYPE" == darwin* ]]; then
+    if [[ ! -r "$mas_brewfile" ]]; then
+      echo "Error: Brewfile.mas missing or unreadable: $mas_brewfile"
+      return 1
+    fi
+    manifest_sources+=("$mas_brewfile")
+  fi
+
+  manifest="$(mktemp "${TMPDIR:-/tmp}/dotfiles-brew-bundle-manifest.XXXXXX")" || {
+    echo "Error: failed to create brew bundle manifest temp file"
+    return 1
+  }
+
+  if ! cat "${manifest_sources[@]}" >"$manifest"; then
+    echo "Error: failed to build brew bundle manifest from Brewfile(s)"
+    rm -f "$manifest"
+    return 1
+  fi
+
+  brew bundle cleanup --force --file="$manifest"
+  local rc=$?
+  rm -f "$manifest"
+  return "$rc"
 }
 
 do_bootstrap() {
@@ -374,7 +411,7 @@ do_refresh() {
     run_step "brew bundle (mas)" run_brewfile_mas
   fi
 
-  run_step "brew bundle cleanup" cleanup_brew_cache
+  run_step "brew uninstall absent" uninstall_brew_absent_packages
   upgrade_brew
   run_step "apt upgrade" upgrade_apt
   run_step "sync-coding-tools.sh" sync_coding_tools
