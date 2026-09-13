@@ -1,10 +1,11 @@
 ---
 id: TKT-025
 title: install.sh is written to be executed but README tells users to source it
-status: To Do
-assignee: []
+status: Done
+assignee:
+  - '@cursor'
 created_date: '2026-09-08 19:30'
-updated_date: '2026-09-08 21:40'
+updated_date: '2026-09-09 23:32'
 labels:
   - install
   - readme
@@ -60,8 +61,14 @@ Composer swarm critique 2026-07-12 (critical), Kimi critique 2026-07-26 (major),
 
 ## Acceptance Criteria
 <!-- AC:BEGIN -->
-- [ ] #1 README.md and the install.sh header name exactly one supported invocation, and any other documented form either behaves identically or fails fast with a message
-- [ ] #2 Sourcing install.sh from bash and from zsh in a foreign cwd (e.g. /tmp) does not terminate the caller's shell, does not resolve DOTFILES_ROOT to the cwd, and leaves no exported variable, cwd change, or loop variable behind
-- [ ] #3 ./install.sh executed from a foreign cwd resolves DOTFILES_ROOT to the repository root
-- [ ] #4 zsh -n install.sh passes
+- [x] #1 README.md and the install.sh header name exactly one supported invocation, and any other documented form either behaves identically or fails fast with a message
+- [x] #2 Sourcing install.sh from bash and from zsh in a foreign cwd (e.g. /tmp) does not terminate the caller's shell, does not resolve DOTFILES_ROOT to the cwd, and leaves no exported variable, cwd change, or loop variable behind
+- [x] #3 ./install.sh executed from a foreign cwd resolves DOTFILES_ROOT to the repository root
+- [x] #4 zsh -n install.sh passes
 <!-- AC:END -->
+
+## Final Summary
+
+<!-- SECTION:FINAL_SUMMARY:BEGIN -->
+README and install.sh header now document execute-only entry (./install.sh / make install, plus refresh variants). install.sh returns with a refusal message when sourced from bash or zsh before DOTFILES_ROOT, exports, or bootstrap. Verified: zsh -n passes; bash/zsh source from /tmp leaves caller alive with no DOTFILES_ROOT, export, or cwd leaks; DOTFILES_ROOT probe from /tmp resolves to the repo root when executed.
+<!-- SECTION:FINAL_SUMMARY:END -->
