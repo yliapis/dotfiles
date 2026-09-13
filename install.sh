@@ -11,7 +11,7 @@
 #   APT_UPGRADE=1 ./install.sh        # Linux: also run apt update/upgrade
 #   SYNC_CODING_TOOLS=1 ./install.sh  # also run sync-coding-tools.sh
 #   SYNC_CODING_TOOLS_DEST=/path ./install.sh  # sync under /path (default: $HOME)
-#   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run Brewfile.mas
+#   BREW_BUNDLE_MAS=1 ./install.sh --refresh  # also run mas.Brewfile
 #   CLEAR_CACHE=1 ./install.sh --refresh
 #
 # Modes:
@@ -33,7 +33,7 @@
 #                         on Linux set to 1 to run it. make install passes
 #                         BREW_BUNDLE=1 unless you override it. GUI_INSTALL is
 #                         a deprecated alias.
-#   BREW_BUNDLE_MAS=      Unset by default. When 1, run Brewfile.mas (mas apps).
+#   BREW_BUNDLE_MAS=      Unset by default. When 1, run mas.Brewfile (mas apps).
 #                         On macOS install, empty/unset self-sets to 1; on
 #                         Linux install and on refresh it stays unset unless
 #                         you pass BREW_BUNDLE_MAS=1.
@@ -293,11 +293,11 @@ run_brewfile_mas() {
     return 0
   fi
   if [[ "$OSTYPE" != darwin* ]]; then
-    echo "BREW_BUNDLE_MAS=1 but not macOS; skipping Brewfile.mas"
+    echo "BREW_BUNDLE_MAS=1 but not macOS; skipping mas.Brewfile"
     return 0
   fi
-  echo "Running mas brew install from Brewfile.mas"
-  brew bundle --file="$DOTFILES_ROOT/Brewfile.mas"
+  echo "Running mas brew install from mas.Brewfile"
+  brew bundle --file="$DOTFILES_ROOT/mas.Brewfile"
 }
 
 run_brewfile_if_enabled() {
@@ -332,7 +332,7 @@ cleanup_brew_cache() {
   if [[ "$CLEAR_CACHE" == "1" ]]; then
     # Union both brewfiles so mas apps are not treated as orphans.
     brew bundle cleanup --force \
-      --file=<(cat "$DOTFILES_ROOT/Brewfile" "$DOTFILES_ROOT/Brewfile.mas")
+      --file=<(cat "$DOTFILES_ROOT/Brewfile" "$DOTFILES_ROOT/mas.Brewfile")
   fi
 }
 

@@ -7,7 +7,7 @@ Read this from `SKILL.md` before the first edit. Paths are repo-relative.
 | Manager | Manifest | When to use |
 |---|---|---|
 | `brew` | `Brewfile` | Homebrew formulae, casks, taps, and `vscode` extensions that live in the Brewfile |
-| `mas` | `Brewfile.mas` | Homebrew + Mac App Store (`brew bundle` runs `mas` lines); installed when `BREW_BUNDLE_MAS=1` |
+| `mas` | `mas.Brewfile` | Homebrew + Mac App Store (`brew bundle` runs `mas` lines); installed when `BREW_BUNDLE_MAS=1` |
 | `snap` | `scripts/snap-installs.sh` | Ubuntu snap lines (`sudo snap install …`) |
 | `uv` | `scripts/install-doc-tools.sh` | `uv tool install` specs |
 | `vscode` | `Brewfile` (`vscode "…"` lines) | VS Code / Cursor extension ids |
@@ -15,7 +15,7 @@ Read this from `SKILL.md` before the first edit. Paths are repo-relative.
 There is no apt package list. `install.sh` only runs `apt update` /
 `apt upgrade`. If the user asks to add an apt package, abort.
 
-Do not create a new manifest. If a later `Brewfile.*` or
+Do not create a new manifest. If a later `Brewfile.*`, `*.Brewfile`, or
 `scripts/*-installs.sh` appears, read it and treat it as that manager;
 do not invent a third file for the same manager.
 
@@ -68,7 +68,7 @@ OS postfix) rather than treating this list as the only truth.
 
 `cask_args appdir: "/Applications"` stays `if OS.mac?`.
 
-`Brewfile.mas` runs only on macOS; do not add OS postfix there.
+`mas.Brewfile` runs only on macOS; do not add OS postfix there.
 
 ## APIs
 
@@ -166,7 +166,7 @@ the user asks to enable them.
 | Add CLI cask (`devin-cli`, `codex`) | Unguarded `cask "name"` next to other agent CLIs |
 | Add third-party formula (`openusage`) | Trusted tap + fully-qualified `brew "tap/name", trusted: true` |
 | Add third-party cask (`whatcable`) | Trusted tap gated `if OS.mac?` + trusted cask line |
-| Add MAS app (`LightBlue`) | `Brewfile.mas` only; prove no Homebrew cask |
+| Add MAS app (`LightBlue`) | `mas.Brewfile` only; prove no Homebrew cask |
 | Rename (`linear-linear` → `linear`) | In-place token swap |
 | Retarget (`claude-code` → `@latest`) | Swap token; note `conflicts_with` when the API declares it |
 | Disable unmaintained (`tldr`) | Comment out with reason |

@@ -25,7 +25,7 @@ characters at a word boundary.
 | 6 | `excalidraw-diagrams` | `ai-coding/plugins/excalidraw/skills/excalidraw-diagrams/SKILL.md` | no | Generate hand-drawn Excalidraw diagrams (architecture, flowcharts, sequence diagrams, sketches)... |
 | 7 | `file-dump` | `ai-coding/plugins/session-state/skills/file-dump/SKILL.md` | yes | Dump ad-hoc content from the current session — an analysis, review, report, comparison, plan,... |
 | 8 | `flint-chart-author` | `ai-coding/plugins/flint-chart/skills/flint-chart-author/SKILL.md` | no | Use when: the user asks to make or render charts with flint-chart, visualize tabular data,... |
-| 9 | `manage-packages` | `ai-coding/plugins/dotfiles-dev/skills/manage-packages/SKILL.md` | yes | Add, delete, or update packages in this dotfiles repo's Brewfile, Brewfile.mas, snap installs,... |
+| 9 | `manage-packages` | `ai-coding/plugins/dotfiles-dev/skills/manage-packages/SKILL.md` | yes | Add, delete, or update packages in this dotfiles repo's Brewfile, mas.Brewfile, snap installs,... |
 | 10 | `minimal-diffs` | `ai-coding/plugins/git-operations/skills/minimal-diffs/SKILL.md` | no | Apply minimal, surgical changes when creating, editing, modifying, refactoring, or fixing any... |
 | 11 | `prompt-template-library` | `ai-coding/plugins/writing/skills/prompt-template-library/SKILL.md` | yes | Pick a starting skeleton from the prompt template library when an agent is drafting a new... |
 | 12 | `simple-english` | `ai-coding/plugins/writing/skills/simple-english/SKILL.md` | no | Write or rewrite technical text with the rules of ASD-STE100 Simplified Technical English so it... |
