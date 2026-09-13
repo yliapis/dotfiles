@@ -2,6 +2,7 @@
 tap "anomalyco/tap", trusted: { formula: "opencode" }
 tap "can1357/tap", trusted: { formula: "omp" }
 tap "darrylmorley/whatcable", trusted: { cask: "whatcable" } if OS.mac?
+tap "gentleman-programming/tap", trusted: { formula: "engram" }
 tap "getagentseal/codeburn", trusted: { formula: "codeburn" }
 tap "hashicorp/tap", trusted: { formula: "terraform" }
 tap "janekbaraniewski/tap", trusted: { formula: "openusage" }
@@ -161,6 +162,7 @@ cask "vlc" if OS.mac?
 # development tools
 brew "anomalyco/tap/opencode", trusted: true
 brew "can1357/tap/omp", trusted: true
+brew "gentleman-programming/tap/engram", trusted: true
 brew "getagentseal/codeburn/codeburn", trusted: true
 brew "ccusage"
 brew "herdr"
